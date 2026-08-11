@@ -35,6 +35,7 @@ import WeatherTestPage from "./pages/WeatherTestPage.tsx";
 import WeatherDebugPage from "./pages/WeatherDebugPage.tsx";
 import SoilAnalysisPage from "./pages/SoilAnalysisPage.tsx";
 import TTSTestPage from "./pages/TTSTestPage.tsx";
+import MarketPricePage from "./pages/MarketPricePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/monitoring" element={<ProtectedRoute element={<MonitoringPage />} />} />
             <Route path="/files" element={<ProtectedRoute element={<FileUploadPage />} />} />
             <Route path="/tts-test" element={<TTSTestPage />} />
+            <Route path="/market" element={<MarketPricePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
