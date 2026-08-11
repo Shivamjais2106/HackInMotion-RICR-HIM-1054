@@ -90,6 +90,7 @@ def add_security_headers(app):
 
 # ---------------------------------------------------------------------------
 # Rate-limit helper
+# Used by Flask-Limiter to identify real client IP behind proxy
 # ---------------------------------------------------------------------------
 
 def get_real_ip() -> str:
@@ -101,3 +102,4 @@ def get_real_ip() -> str:
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.remote_addr or "unknown"
+
