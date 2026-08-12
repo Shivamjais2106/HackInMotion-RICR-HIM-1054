@@ -1,0 +1,118 @@
+{
+  "model_type": "XGBoost",
+  "test_accuracy": 0.9838709677419355,
+  "cv_mean_accuracy": 0.992741935483871,
+  "cv_std_accuracy": 0.004526198451742681,
+  "n_estimators": 200,
+  "max_depth": 8,
+  "learning_rate": 0.1,
+  "training_samples": 2480,
+  "test_samples": 620,
+  "total_samples": 3100,
+  "crops_supported": [
+    "Adzuki Beans",
+    "Black gram",
+    "Chickpea",
+    "Coconut",
+    "Coffee",
+    "Cotton",
+    "Ground Nut",
+    "Jute",
+    "Kidney Beans",
+    "Lentil",
+    "Moth Beans",
+    "Mung Bean",
+    "Peas",
+    "Pigeon Peas",
+    "Rubber",
+    "Sugarcane",
+    "Tea",
+    "Tobacco",
+    "apple",
+    "banana",
+    "grapes",
+    "maize",
+    "mango",
+    "millet",
+    "muskmelon",
+    "orange",
+    "papaya",
+    "pomegranate",
+    "rice",
+    "watermelon",
+    "wheat"
+  ],
+  "fertilizers_supported": [
+    "Balanced NPK Fertilizer",
+    "Compost",
+    "DAP",
+    "General Purpose Fertilizer",
+    "Gypsum",
+    "Lime",
+    "Muriate of Potash",
+    "Organic Fertilizer",
+    "Urea",
+    "Water Retaining Fertilizer"
+  ],
+  "soils_supported": [
+    "Acidic Soil",
+    "Alkaline Soil",
+    "Loamy Soil",
+    "Neutral Soil",
+    "Peaty Soil"
+  ],
+  "features": [
+    "Temperature",
+    "Moisture",
+    "Rainfall",
+    "PH",
+    "Nitrogen",
+    "Phosphorous",
+    "Potassium",
+    "Carbon",
+    "Soil",
+    "Crop"
+  ],
+  "feature_importance": [
+    {
+      "Feature": "Phosphorous",
+      "Importance": 0.28283143043518066
+    },
+    {
+      "Feature": "Carbon",
+      "Importance": 0.14847131073474884
+    },
+    {
+      "Feature": "Potassium",
+      "Importance": 0.1350461095571518
+    },
+    {
+      "Feature": "Nitrogen",
+      "Importance": 0.10234124213457108
+    },
+    {
+      "Feature": "Soil",
+      "Importance": 0.09795597195625305
+    },
+    {
+      "Feature": "Moisture",
+      "Importance": 0.0946669951081276
+    },
+    {
+      "Feature": "PH",
+      "Importance": 0.08994070440530777
+    },
+    {
+      "Feature": "Crop",
+      "Importance": 0.022482899948954582
+    },
+    {
+      "Feature": "Rainfall",
+      "Importance": 0.014738279394805431
+    },
+    {
+      "Feature": "Temperature",
+      "Importance": 0.011525093577802181
+    }
+  ]
+}

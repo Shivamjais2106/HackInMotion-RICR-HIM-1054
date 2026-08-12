@@ -1,0 +1,9 @@
+{
+  "classes": [
+    "Bacterial leaf blight",
+    "Brown spot",
+    "Leaf smut"
+  ],
+  "num_classes": 3,
+  "best_val_acc": 79.16666666666666
+}

@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<!-- Services Section -->
+<section class="blog py-5">
+	<div class="container py-md-5">
+		<h3 class="heading mb-sm-5 mb-4 text-center">Our Services</h3>
+		<div class="row blog-grids">
+			<!-- Crop Recommendation -->
+			<div class="col-lg-4 col-md-6 blog-left mb-lg-0 mb-sm-5 pb-lg-0 pb-5">
+				<img src="{{ url_for('static', filename='images/s3.jpg') }}" class="img-fluid" alt="Crop Recommendation" />
+				<a href="{{ url_for('crop_recommend') }}">
+					<div class="blog-info">
+						<h4>Crop Recommendation</h4>
+						<p class="mt-2">Get recommendations for the best crops to cultivate based on your soil conditions and climate</p>
+					</div>
+				</a>
+			</div>
+
+			<!-- Fertilizer Recommendation -->
+			<div class="col-lg-4 col-md-6 blog-middle mb-lg-0 mb-sm-5 pb-lg-0 pb-md-5">
+				<img src="{{ url_for('static', filename='images/s2.jpg') }}" class="img-fluid" alt="Fertilizer Recommendation" />
+				<a href="{{ url_for('fertilizer_recommendation') }}">
+					<div class="blog-info">
+						<h4>Fertilizer Recommendation</h4>
+						<p class="mt-2">Get personalized fertilizer recommendations based on your soil nutrients and crop type</p>
+					</div>
+				</a>
+			</div>
+
+			<!-- Disease Detection -->
+			<div class="col-lg-4 col-md-6 blog-right mt-lg-0 mt-5 pt-lg-0 pt-md-5">
+				<img src="{{ url_for('static', filename='images/s4.jpg') }}" class="img-fluid" alt="Disease Detection" />
+				<a href="{{ url_for('disease_prediction') }}">
+					<div class="blog-info">
+						<h4>Disease Detection</h4>
+						<p class="mt-2">Upload a plant leaf image to detect diseases and get prevention tips</p>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+{% endblock %}
