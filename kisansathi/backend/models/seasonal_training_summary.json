@@ -1,0 +1,88 @@
+{
+  "model_type": "Random Forest Classifier",
+  "training_date": "2026-04-19T12:20:53.736563",
+  "dataset_size": 3000,
+  "train_size": 2400,
+  "test_size": 600,
+  "training_accuracy": 0.8554166666666667,
+  "test_accuracy": 0.8183333333333334,
+  "cv_mean_accuracy": 0.8119999999999999,
+  "cv_std_accuracy": 0.017172329163188345,
+  "hyperparameters": {
+    "n_estimators": 600,
+    "max_depth": 30,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1,
+    "max_features": "sqrt"
+  },
+  "feature_importance": {
+    "Season": 0.18208283416745824,
+    "Month": 0.08159000454971148,
+    "Location": 0.7363271612828303
+  },
+  "classes": {
+    "seasons": [
+      "Kharif",
+      "Rabi",
+      "Zaid"
+    ],
+    "months": [
+      "April",
+      "August",
+      "December",
+      "February",
+      "January",
+      "July",
+      "June",
+      "March",
+      "May",
+      "November",
+      "October",
+      "September"
+    ],
+    "locations": [
+      "Andhra Pradesh",
+      "Bihar",
+      "Chhattisgarh",
+      "Gujarat",
+      "Haryana",
+      "Karnataka",
+      "Madhya Pradesh",
+      "Maharashtra",
+      "Odisha",
+      "Punjab",
+      "Rajasthan",
+      "Tamil Nadu",
+      "Telangana",
+      "Uttar Pradesh",
+      "West Bengal"
+    ],
+    "crops": [
+      "Bajra",
+      "Barley",
+      "Chilli",
+      "Cotton",
+      "Cucumber",
+      "Gram",
+      "Groundnut",
+      "Jute",
+      "Maize",
+      "Muskmelon",
+      "Mustard",
+      "Peas",
+      "Potato",
+      "Pulses",
+      "Ragi",
+      "Rice",
+      "Soybean",
+      "Sunflower",
+      "Watermelon",
+      "Wheat"
+    ]
+  },
+  "n_seasons": 3,
+  "n_months": 12,
+  "n_locations": 15,
+  "n_crops": 20,
+  "top_n_crops": 2
+}

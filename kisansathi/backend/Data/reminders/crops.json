@@ -1,0 +1,30 @@
+{
+  "default_farmer": [
+    {
+      "id": "default_farmer_rice_1776469610.789769",
+      "farmer_id": "default_farmer",
+      "crop_name": "rice",
+      "planting_date": "2026-04-17",
+      "field_name": "Field 1",
+      "area_acres": 1,
+      "status": "active",
+      "created_at": "2026-04-18T05:16:50.789794",
+      "days_elapsed": 0,
+      "completed_tasks": [],
+      "photos": []
+    },
+    {
+      "id": "default_farmer_moong_1776505999.246943",
+      "farmer_id": "default_farmer",
+      "crop_name": "moong",
+      "planting_date": "2026-04-18",
+      "field_name": "Field 1",
+      "area_acres": 1,
+      "status": "active",
+      "created_at": "2026-04-18T15:23:19.246993",
+      "days_elapsed": 0,
+      "completed_tasks": [],
+      "photos": []
+    }
+  ]
+}

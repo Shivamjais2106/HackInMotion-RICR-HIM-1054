@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-05-02T01:36:43.380243",
+  "dataset_shape": [
+    8000,
+    9
+  ],
+  "training_samples": 6400,
+  "test_samples": 1600,
+  "model_type": "XGBoost",
+  "crop_model": {
+    "train_accuracy": 0.9409375,
+    "test_accuracy": 0.1,
+    "cv_mean": 0.0925,
+    "cv_std": 0.008749999999999999,
+    "classes": [
+      "Barley",
+      "Cotton",
+      "Ground Nuts",
+      "Maize",
+      "Millets",
+      "Oil seeds",
+      "Paddy",
+      "Pulses",
+      "Sugarcane",
+      "Tobacco",
+      "Wheat"
+    ]
+  },
+  "fertilizer_model": {
+    "train_accuracy": 0.92359375,
+    "test_accuracy": 0.1575,
+    "cv_mean": 0.1484375,
+    "cv_std": 0.0030055287596361512,
+    "classes": [
+      "10-26-26",
+      "14-35-14",
+      "17-17-17",
+      "20-20",
+      "28-28",
+      "DAP",
+      "Urea"
+    ]
+  },
+  "soil_types": [
+    "Black",
+    "Clayey",
+    "Loamy",
+    "Red",
+    "Sandy"
+  ],
+  "features": [
+    "Temparature",
+    "Humidity",
+    "Moisture",
+    "Soil Type",
+    "Nitrogen",
+    "Potassium",
+    "Phosphorous"
+  ],
+  "feature_importance": {
+    "Temparature": 0.15161295235157013,
+    "Humidity": 0.1499910205602646,
+    "Moisture": 0.1513960361480713,
+    "Soil Type": 0.13229252398014069,
+    "Nitrogen": 0.1389286071062088,
+    "Potassium": 0.1345686912536621,
+    "Phosphorous": 0.1412101686000824
+  }
+}

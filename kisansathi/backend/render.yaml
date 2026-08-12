@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: kisansathi-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class sync -w 1 --bind 0.0.0.0:$PORT --timeout 60 app_production:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: PORT
+        value: 10000
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "False"
