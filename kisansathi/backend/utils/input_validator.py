@@ -74,3 +74,5 @@ def validate_location(location: str) -> bool:
     """Return True if location string is non-empty and not too long."""
     loc = sanitize_string(location, 128)
     return bool(loc) and len(loc) >= 2
+
+# v1.1 — added validate_location helper
