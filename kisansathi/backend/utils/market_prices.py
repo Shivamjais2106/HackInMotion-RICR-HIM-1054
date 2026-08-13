@@ -136,3 +136,5 @@ def get_trade_advice(commodity: str, modal_price: int) -> str:
     if modal_price >= max_price * 0.75:
         return "Good selling opportunity — prices above average."
     return "Hold if possible — prices are below average for this season."
+
+# v1.1 � added get_trade_advice for sell/hold/MSP advisory
