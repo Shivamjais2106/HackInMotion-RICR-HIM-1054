@@ -1,0 +1,50 @@
+# Dependencies & Node Modules
+node_modules/
+**/node_modules/
+
+# Python Bytecode & Cache
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.cache/
+
+# Environment Variables & Secrets
+.env
+.env.*
+*.env
+backend/.env
+backend/.env.production
+
+# Virtual Environments
+venv/
+**/venv/
+ENV/
+env/
+
+# Build & Dist
+dist/
+**/dist/
+build/
+**/build/
+*.egg-info/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Large Models & Temp Files
+backend/models/*.pkl
+backend/models/*.pth
+backend/models/*.h5
+*.tmp
+
