@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* KisanSathi design system — warm orange + cream + dark footer */
+
+@layer base {
+  :root {
+    --background: 40 38% 96%;            /* cream page bg */
+    --foreground: 25 25% 15%;            /* deep warm brown text */
+
+    --card: 0 0% 100%;
+    --card-foreground: 25 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 25 25% 15%;
+
+    --primary: 22 92% 52%;               /* vivid orange CTA */
+    --primary-foreground: 40 38% 98%;
+    --primary-glow: 30 95% 60%;
+
+    --secondary: 38 35% 92%;             /* soft cream card */
+    --secondary-foreground: 25 25% 15%;
+
+    --muted: 38 25% 90%;
+    --muted-foreground: 25 12% 40%;
+
+    --accent: 22 92% 52%;
+    --accent-foreground: 40 38% 98%;
+
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 20% 86%;
+    --input: 30 20% 86%;
+    --ring: 22 92% 52%;
+
+    --footer: 80 8% 22%;                 /* dark olive footer */
+    --footer-foreground: 40 30% 88%;
+
+    --radius: 0.75rem;
+
+    --gradient-warm: linear-gradient(135deg, hsl(22 92% 52%), hsl(30 95% 60%));
+    --gradient-hero-overlay: linear-gradient(90deg, hsl(25 25% 10% / 0.55) 0%, hsl(25 25% 10% / 0.15) 60%, transparent 100%);
+    --shadow-card: 0 4px 24px -8px hsl(25 30% 25% / 0.12);
+    --shadow-cta: 0 10px 30px -10px hsl(22 92% 52% / 0.55);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 25 20% 10%;
+    --foreground: 40 30% 92%;
+    --card: 25 20% 14%;
+    --card-foreground: 40 30% 92%;
+    --popover: 25 20% 14%;
+    --popover-foreground: 40 30% 92%;
+    --primary: 22 92% 55%;
+    --primary-foreground: 25 20% 10%;
+    --secondary: 25 15% 18%;
+    --secondary-foreground: 40 30% 92%;
+    --muted: 25 15% 18%;
+    --muted-foreground: 40 15% 65%;
+    --accent: 22 92% 55%;
+    --accent-foreground: 25 20% 10%;
+    --destructive: 0 62.8% 40%;
+    --destructive-foreground: 40 30% 92%;
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
+    --ring: 22 92% 55%;
+    --footer: 25 15% 8%;
+    --footer-foreground: 40 30% 88%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
