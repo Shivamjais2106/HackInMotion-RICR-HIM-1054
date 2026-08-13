@@ -82,3 +82,49 @@ def get_weather_alerts(l="Delhi"):
  except Exception as e:
   logger.error(f"Error getting weather alerts: {e}")
   return []
+def get_farm_specific_irrigation_advice(location="Delhi", soil_type="loamy", crops=None):
+ """
+ Combines live weather data with the farm's soil type and crops
+ to give irrigation advice specific to that farm profile,
+ instead of generic city-level advice.
+ """
+ if crops is None:
+  crops = []
+
+ weather = get_weather_for_farming(location)
+
+ soil_water_retention = {
+  'sandy': 'low',
+  'loamy': 'medium',
+  'clay': 'high',
+  'black': 'high',
+  'red': 'medium',
+  'alluvial': 'medium',
+ }
+ retention = soil_water_retention.get(soil_type, 'medium')
+
+ advice = []
+ risk_level = 'low'
+
+ if weather['rainfall'] >= 10:
+  advice.append(f"Recent rainfall covers irrigation needs for {soil_type} soil today.")
+ elif weather['temperature'] >= 35 and retention == 'low':
+  advice.append(f"{soil_type.capitalize()} soil drains fast and temperature is high — irrigate now.")
+  risk_level = 'high'
+ elif weather['temperature'] >= 30 and retention == 'medium':
+  advice.append(f"Warm conditions with {soil_type} soil — irrigate within 24 hours.")
+  risk_level = 'medium'
+ elif retention == 'high':
+  advice.append(f"{soil_type.capitalize()} soil retains water well — irrigation can wait.")
+ else:
+  advice.append("Conditions are within a safe range for your soil type.")
+
+ if crops:
+  advice.append(f"Applies to your registered crops: {', '.join(crops)}.")
+
+ return {
+  'location': weather['location'],
+  'soil_type': soil_type,
+  'risk_level': risk_level,
+  'advice': advice,
+ }
