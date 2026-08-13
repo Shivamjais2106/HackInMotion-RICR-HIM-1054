@@ -129,9 +129,10 @@ See [`kisansathi/docs/SYSTEM_ARCHITECTURE.md`](kisansathi/docs/SYSTEM_ARCHITECTU
 
 | Member | Role |
 |---|---|
-| Sumit Dangi | Frontend + Integration |
-| Shivam | Backend + ML |
+| Shivam Jaiswal | Backend + ML Models |
 | Bhoomi Kesharwani | Backend + Weather Integration |
+| Sumit Dangi | Frontend + Integration |
+| Rustam Ali | Security + Auth + DevOps |
 
 ## License
 
