@@ -75,6 +75,33 @@ const books = [
     desc: "बीज चयन, बीज उपचार और रोपण तकनीकें। सही बीज से बेहतर फसल कैसे उगाएं।",
     pdfFile: "Phal-Phool-Sept-Oct 2020.pdf",
   },
+  {
+    title: "Modern Farming Techniques",
+    author: "Dr. Rajesh Kumar",
+    category: "जैविक खेती",
+    pages: 230,
+    cover: bookOrganic,
+    desc: "आधुनिक खेती की तकनीकों की जानकारी। किसानों के लिए उपयोगी सुझाव और तरीके।",
+    pdfFile: "Jaivik kheti.pdf",
+  },
+  {
+    title: "Soil Health & Fertility",
+    author: "Prof. Sunita Sharma",
+    category: "फसल प्रबंधन",
+    pages: 260,
+    cover: bookCrop,
+    desc: "मिट्टी की सेहत और उर्वरता बनाए रखने के तरीके। बेहतर फसल के लिए मिट्टी प्रबंधन।",
+    pdfFile: "Phal-Phool-Sept-Oct 2020.pdf",
+  },
+  {
+    title: "Irrigation Techniques",
+    author: "Dr. Anil Verma",
+    category: "जल प्रबंधन",
+    pages: 210,
+    cover: bookWater,
+    desc: "सिंचाई की विभिन्न तकनीकें और जल संरक्षण के तरीके किसानों के लिए।",
+    pdfFile: "SABJIX16Xpage.pdf",
+  },
 ];
 
 const ResourcesPage = () => {
