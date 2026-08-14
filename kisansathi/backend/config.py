@@ -19,14 +19,20 @@ MONGODB_DATABASE = os.getenv("MONGODB_DATABASE", "kisansathi")
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 98211ac (fix: resolve all critical security vulnerabilities)
     raise RuntimeError(
         "SECRET_KEY environment variable is not set. "
         "Generate a secure value with: python -c \"import secrets; print(secrets.token_hex(32))\" "
         "and add it to your .env file."
     )
+<<<<<<< HEAD
 =======
     raise RuntimeError("SECRET_KEY .env file mein set nahi hai! App start nahi hoga.")
 >>>>>>> 00220fb4298c341bde7b0be4802f29ce6a2c8b8e
+=======
+>>>>>>> 98211ac (fix: resolve all critical security vulnerabilities)
 FLASK_DEBUG = os.getenv("FLASK_DEBUG", "False").lower() == "true"
 
 # Google Gemini
