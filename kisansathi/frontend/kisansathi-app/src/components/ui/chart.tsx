@@ -75,7 +75,12 @@ ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    // Sanitize: only allow valid CSS color values (hex, rgb, hsl, named, css variables)
+    if (!color) return null;
+    const safe = /^(#[0-9a-fA-F]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|var\(--[\w-]+\)|[a-zA-Z]+)/.test(color.trim())
+      ? color.trim()
+      : '';
+    return safe ? `  --color-${key}: ${safe};` : null;
   })
   .join("\n")}
 }

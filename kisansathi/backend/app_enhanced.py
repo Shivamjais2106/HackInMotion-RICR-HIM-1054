@@ -140,15 +140,31 @@ except ImportError as e:
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 
+# Allowed origins for CORS and Socket.IO — set ALLOWED_ORIGINS in .env as a
+# comma-separated list, e.g. "https://kisansathi.com,https://www.kisansathi.com"
+# Falls back to localhost-only origins in development.
+_raw_origins = os.getenv(
+    'ALLOWED_ORIGINS',
+    'http://localhost:3000,http://localhost:5173,http://localhost:8080'
+)
+ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(',') if o.strip()]
+
 # Initialize SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='threading')
 
 # ============================================================================
 # SECURITY & PERFORMANCE CONFIGURATION
 # ============================================================================
 
-# JWT Configuration
-app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'kisansathi_secret_key_2024')
+# JWT Configuration — SECRET_KEY MUST be set in .env; no insecure fallback
+_jwt_secret = os.getenv('SECRET_KEY')
+if not _jwt_secret:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\" "
+        "and add it to your .env file."
+    )
+app.config['JWT_SECRET_KEY'] = _jwt_secret
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 jwt = JWTManager(app)
 
@@ -163,8 +179,15 @@ limiter = Limiter(
 # Caching Configuration
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
-# Enable CORS
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# Enable CORS — restrict to allowed origins only
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ALLOWED_ORIGINS,
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": False
+    }
+})
 
 # MongoDB Connection
 MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017')

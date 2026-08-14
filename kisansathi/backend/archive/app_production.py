@@ -13,6 +13,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 from dotenv import load_dotenv
+import bcrypt as _bcrypt
 import logging
 from pymongo import MongoClient
 
@@ -30,8 +31,22 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 
-# JWT Configuration
-app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'kisansathi_secret_key_2024')
+# Allowed origins — set ALLOWED_ORIGINS in .env as comma-separated list
+_raw_origins = os.getenv(
+    'ALLOWED_ORIGINS',
+    'http://localhost:3000,http://localhost:5173,http://localhost:8080'
+)
+ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(',') if o.strip()]
+
+# JWT Configuration — SECRET_KEY MUST be set in .env; no insecure fallback
+_jwt_secret = os.getenv('SECRET_KEY')
+if not _jwt_secret:
+    raise RuntimeError(
+        "SECRET_KEY environment variable is not set. "
+        "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\" "
+        "and add it to your .env file."
+    )
+app.config['JWT_SECRET_KEY'] = _jwt_secret
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 jwt = JWTManager(app)
 
@@ -46,12 +61,13 @@ limiter = Limiter(
 # Caching
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
-# CORS
+# CORS — restrict to allowed origins only
 CORS(app, resources={
     r"/api/*": {
-        "origins": "*",
+        "origins": ALLOWED_ORIGINS,
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"]
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": False
     }
 })
 
@@ -124,9 +140,13 @@ def register():
         if db['users'].find_one({'email': data['email']}):
             return jsonify({'error': 'User already exists'}), 409
         
+        # Hash password before storing
+        hashed_pw = _bcrypt.hashpw(
+            data['password'].encode('utf-8'), _bcrypt.gensalt()
+        ).decode('utf-8')
         result = db['users'].insert_one({
             'email': data['email'],
-            'password': data['password'],
+            'password': hashed_pw,
             'created_at': datetime.now()
         })
         
@@ -149,8 +169,21 @@ def login():
             return jsonify({'error': 'Database not available'}), 503
         
         user = db['users'].find_one({'email': data['email']})
-        if not user or user['password'] != data['password']:
+        if not user:
             return jsonify({'error': 'Invalid credentials'}), 401
+        
+        # Verify password using bcrypt
+        stored_pw = user['password']
+        password_bytes = data['password'].encode('utf-8')
+        if stored_pw.startswith('$2b$') or stored_pw.startswith('$2a$'):
+            if not _bcrypt.checkpw(password_bytes, stored_pw.encode('utf-8')):
+                return jsonify({'error': 'Invalid credentials'}), 401
+        else:
+            # Legacy plaintext — verify then upgrade to bcrypt hash
+            if stored_pw != data['password']:
+                return jsonify({'error': 'Invalid credentials'}), 401
+            new_hash = _bcrypt.hashpw(password_bytes, _bcrypt.gensalt()).decode('utf-8')
+            db['users'].update_one({'email': data['email']}, {'$set': {'password': new_hash}})
         
         access_token = create_access_token(identity=str(user['_id']))
         return jsonify({

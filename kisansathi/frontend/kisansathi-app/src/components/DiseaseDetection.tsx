@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DOMPurify from 'dompurify';
 import { getAPIBaseURL } from '../utils/api';
 
 function parseDiseaseName(raw: string) {
@@ -268,7 +269,7 @@ function DiseaseDetection() {
                         );
                       })()}
                       <div className="text-gray-700 text-sm leading-relaxed prose max-w-none"
-                        dangerouslySetInnerHTML={{ __html: result.disease_info }} />
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(result.disease_info ?? '') }} />
                     </div>
 
                     <div className="mb-6">
