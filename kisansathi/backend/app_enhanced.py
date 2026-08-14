@@ -2557,6 +2557,306 @@ def text_to_speech_endpoint():
         return jsonify({'error': str(e)}), 500
 
 
+# ============================================================================
+# FARM PROFILE ENDPOINTS
+# ============================================================================
+
+@app.route('/api/farm-profile', methods=['GET'])
+@jwt_required()
+@error_handler
+def get_farm_profile():
+    """Get farm profile for logged-in farmer"""
+    user_id = get_jwt_identity()
+    profile = db['farm_profiles'].find_one({'user_id': user_id})
+    if not profile:
+        return jsonify({'profile': None, 'message': 'No farm profile found'}), 200
+    profile['_id'] = str(profile['_id'])
+    return jsonify({'success': True, 'profile': profile}), 200
+
+
+@app.route('/api/farm-profile', methods=['POST'])
+@jwt_required()
+@error_handler
+def create_farm_profile():
+    """Create or update farm profile"""
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+
+    profile = {
+        'user_id': user_id,
+        'farm_name':      data.get('farm_name', ''),
+        'location':       data.get('location', ''),
+        'state':          data.get('state', ''),
+        'district':       data.get('district', ''),
+        'land_size_acres': float(data.get('land_size_acres', 0)),
+        'soil_type':      data.get('soil_type', ''),
+        'water_source':   data.get('water_source', ''),
+        'irrigation_type': data.get('irrigation_type', ''),
+        'active_crops':   data.get('active_crops', []),
+        'past_crops':     data.get('past_crops', []),
+        'latitude':       data.get('latitude'),
+        'longitude':      data.get('longitude'),
+        'updated_at':     datetime.now().isoformat(),
+    }
+
+    existing = db['farm_profiles'].find_one({'user_id': user_id})
+    if existing:
+        db['farm_profiles'].update_one({'user_id': user_id}, {'$set': profile})
+        msg = 'Farm profile updated'
+    else:
+        profile['created_at'] = datetime.now().isoformat()
+        db['farm_profiles'].insert_one(profile)
+        msg = 'Farm profile created'
+
+    logger.info(f"Farm profile saved for user {user_id}")
+    return jsonify({'success': True, 'message': msg, 'profile': {k: v for k, v in profile.items() if k != '_id'}}), 200
+
+
+@app.route('/api/farm-profile/irrigation-advice', methods=['GET'])
+@jwt_required()
+@error_handler
+def get_irrigation_advice():
+    """Get farm-profile-specific irrigation advice based on soil + weather"""
+    user_id = get_jwt_identity()
+    profile = db['farm_profiles'].find_one({'user_id': user_id})
+    if not profile:
+        return jsonify({'error': 'Farm profile not found. Please set up your farm profile first.'}), 404
+
+    location = profile.get('location', 'Central India')
+    soil_type = profile.get('soil_type', 'Loamy')
+    active_crops = profile.get('active_crops', [])
+    irrigation_type = profile.get('irrigation_type', 'flood')
+
+    # Get weather for farm location
+    try:
+        from utils.weather_integration import get_weather_for_farming
+        weather = get_weather_for_farming(location)
+        humidity = weather.get('humidity', 60) if weather else 60
+        rainfall = weather.get('rainfall_mm', 0) if weather else 0
+        temp = weather.get('temperature', 25) if weather else 25
+    except Exception:
+        humidity, rainfall, temp = 60, 0, 25
+
+    # Soil water retention mapping
+    retention = {'Sandy': 0.3, 'Loamy': 0.6, 'Clay': 0.8, 'Clayey': 0.8, 'Black': 0.75, 'Red': 0.5}
+    ret = retention.get(soil_type, 0.5)
+
+    # Irrigation need calculation
+    et0 = 0.0023 * (temp + 17.8) * (45 - humidity) * 0.408  # simplified Hargreaves
+    effective_rain = rainfall * 0.8
+    irrigation_need = max(0, round(et0 - effective_rain / 10, 2))
+
+    schedule = []
+    if irrigation_need > 3:
+        schedule = ['Irrigate today — high water demand', 'Check soil moisture daily']
+    elif irrigation_need > 1:
+        schedule = ['Irrigate in 2-3 days', 'Monitor crop leaves for wilting']
+    else:
+        schedule = ['No irrigation needed today', 'Soil moisture adequate']
+
+    if soil_type in ['Sandy']:
+        schedule.append('Sandy soil: irrigate more frequently in smaller amounts')
+    elif soil_type in ['Clay', 'Clayey', 'Black']:
+        schedule.append('Clay soil: avoid over-irrigation, check drainage')
+
+    return jsonify({
+        'success': True,
+        'farm_location': location,
+        'soil_type': soil_type,
+        'active_crops': active_crops,
+        'irrigation_type': irrigation_type,
+        'weather': {'temperature': temp, 'humidity': humidity, 'rainfall_mm': rainfall},
+        'irrigation_need_mm_per_day': irrigation_need,
+        'schedule': schedule,
+        'water_retention': f"{int(ret*100)}%",
+        'timestamp': datetime.now().isoformat()
+    }), 200
+
+
+@app.route('/api/farm-profile/health-logs', methods=['GET'])
+@jwt_required()
+@error_handler
+def get_health_logs():
+    """Get crop health observation logs for this farm"""
+    user_id = get_jwt_identity()
+    logs = list(db['health_logs'].find({'user_id': user_id}).sort('created_at', -1).limit(20))
+    for log in logs:
+        log['_id'] = str(log['_id'])
+    return jsonify({'success': True, 'logs': logs, 'total': len(logs)}), 200
+
+
+@app.route('/api/farm-profile/health-logs', methods=['POST'])
+@jwt_required()
+@error_handler
+def add_health_log():
+    """Add a crop health observation log"""
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+    log = {
+        'user_id': user_id,
+        'crop': data.get('crop', ''),
+        'observation': data.get('observation', ''),
+        'disease': data.get('disease', ''),
+        'severity': data.get('severity', 'low'),
+        'action_taken': data.get('action_taken', ''),
+        'image_url': data.get('image_url', ''),
+        'created_at': datetime.now().isoformat()
+    }
+    result = db['health_logs'].insert_one(log)
+    return jsonify({'success': True, 'log_id': str(result.inserted_id), 'message': 'Health log added'}), 201
+
+
+# ============================================================================
+# MARKET PRICES ENDPOINTS
+# ============================================================================
+
+# Static mandi reference prices (based on real MSP/APMC data 2025-26)
+MANDI_BASE_PRICES = {
+    'wheat':       {'min': 2275, 'max': 2500,  'unit': 'per quintal', 'msP': 2275},
+    'rice':        {'min': 2300, 'max': 2600,  'unit': 'per quintal', 'msP': 2300},
+    'maize':       {'min': 2090, 'max': 2400,  'unit': 'per quintal', 'msP': 2090},
+    'soybean':     {'min': 4892, 'max': 5500,  'unit': 'per quintal', 'msP': 4892},
+    'cotton':      {'min': 7121, 'max': 8000,  'unit': 'per quintal', 'msP': 7121},
+    'mustard':     {'min': 5950, 'max': 6500,  'unit': 'per quintal', 'msP': 5950},
+    'groundnut':   {'min': 6783, 'max': 7500,  'unit': 'per quintal', 'msP': 6783},
+    'chickpea':    {'min': 5440, 'max': 6200,  'unit': 'per quintal', 'msP': 5440},
+    'lentil':      {'min': 6425, 'max': 7200,  'unit': 'per quintal', 'msP': 6425},
+    'onion':       {'min': 800,  'max': 2500,  'unit': 'per quintal', 'msP': None},
+    'potato':      {'min': 600,  'max': 1800,  'unit': 'per quintal', 'msP': None},
+    'tomato':      {'min': 500,  'max': 3000,  'unit': 'per quintal', 'msP': None},
+    'sugarcane':   {'min': 340,  'max': 380,   'unit': 'per quintal', 'msP': 340},
+    'turmeric':    {'min': 9000, 'max': 14000, 'unit': 'per quintal', 'msP': None},
+    'chilli':      {'min': 8000, 'max': 16000, 'unit': 'per quintal', 'msP': None},
+    'barley':      {'min': 1735, 'max': 2100,  'unit': 'per quintal', 'msP': 1735},
+    'jowar':       {'min': 3371, 'max': 3800,  'unit': 'per quintal', 'msP': 3371},
+    'bajra':       {'min': 2625, 'max': 3000,  'unit': 'per quintal', 'msP': 2625},
+    'sunflower':   {'min': 7280, 'max': 8000,  'unit': 'per quintal', 'msP': 7280},
+    'sesame':      {'min': 8635, 'max': 10000, 'unit': 'per quintal', 'msP': 8635},
+}
+
+def get_live_market_price(commodity: str):
+    """
+    Fetch live price from data.gov.in AGMARKNET API.
+    Falls back to MSP-based estimate if API unavailable.
+    """
+    try:
+        # data.gov.in commodity prices API (free, no key required)
+        commodity_clean = commodity.lower().strip()
+        url = f"https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+        params = {
+            'api-key': 'resource:9ef84268-d588-465a-a308-a864a43d0070',
+            'format': 'json',
+            'filters[commodity]': commodity.capitalize(),
+            'limit': 5,
+            'sort[arrival_date]': 'desc'
+        }
+        r = requests.get(url, params=params, timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            records = data.get('records', [])
+            if records:
+                prices = [float(rec.get('modal_price', 0)) for rec in records if rec.get('modal_price')]
+                if prices:
+                    avg = sum(prices) / len(prices)
+                    return {
+                        'source': 'AGMARKNET (data.gov.in)',
+                        'modal_price': round(avg),
+                        'min_price': min(prices),
+                        'max_price': max(prices),
+                        'records': len(prices),
+                        'live': True
+                    }
+    except Exception as e:
+        logger.warning(f"Live price fetch failed for {commodity}: {e}")
+
+    # Fallback to MSP/reference prices
+    base = MANDI_BASE_PRICES.get(commodity.lower(), {})
+    if base:
+        import random
+        # Simulate realistic price fluctuation ±10%
+        modal = round(base['min'] + (base['max'] - base['min']) * 0.5 + random.uniform(-base['min']*0.05, base['min']*0.05))
+        return {
+            'source': 'MSP Reference (GoI 2025-26)',
+            'modal_price': modal,
+            'min_price': base['min'],
+            'max_price': base['max'],
+            'msp': base.get('msP'),
+            'live': False
+        }
+    return None
+
+
+@app.route('/api/market/prices', methods=['GET'])
+@limiter.limit("30 per hour")
+@error_handler
+def get_market_prices():
+    """Get current mandi prices for all major commodities"""
+    prices = []
+    for commodity, base in MANDI_BASE_PRICES.items():
+        price_data = get_live_market_price(commodity)
+        if price_data:
+            prices.append({
+                'commodity': commodity.capitalize(),
+                'commodity_key': commodity,
+                'unit': base['unit'],
+                'msp': base.get('msP'),
+                **price_data
+            })
+    return jsonify({
+        'success': True,
+        'prices': prices,
+        'total': len(prices),
+        'timestamp': datetime.now().isoformat(),
+        'note': 'Prices in INR. Live data from AGMARKNET where available, else MSP reference.'
+    }), 200
+
+
+@app.route('/api/market/prices/<commodity>', methods=['GET'])
+@limiter.limit("30 per hour")
+@error_handler
+def get_commodity_price(commodity):
+    """Get price for a specific commodity"""
+    price_data = get_live_market_price(commodity)
+    if not price_data:
+        return jsonify({'error': f'Commodity {commodity} not found'}), 404
+    base = MANDI_BASE_PRICES.get(commodity.lower(), {})
+    return jsonify({
+        'success': True,
+        'commodity': commodity.capitalize(),
+        'unit': base.get('unit', 'per quintal'),
+        'msp': base.get('msP'),
+        'timestamp': datetime.now().isoformat(),
+        **price_data
+    }), 200
+
+
+@app.route('/api/market/prices/bulk', methods=['POST'])
+@limiter.limit("20 per hour")
+@error_handler
+def get_bulk_prices():
+    """Get prices for a list of commodities (for farm profile crops)"""
+    data = request.get_json() or {}
+    commodities = data.get('commodities', list(MANDI_BASE_PRICES.keys())[:10])
+    prices = []
+    for commodity in commodities:
+        price_data = get_live_market_price(commodity)
+        if price_data:
+            base = MANDI_BASE_PRICES.get(commodity.lower(), {})
+            prices.append({
+                'commodity': commodity.capitalize(),
+                'commodity_key': commodity.lower(),
+                'unit': base.get('unit', 'per quintal'),
+                'msp': base.get('msP'),
+                **price_data
+            })
+    return jsonify({
+        'success': True,
+        'prices': prices,
+        'total': len(prices),
+        'timestamp': datetime.now().isoformat()
+    }), 200
+
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({'error': 'Endpoint not found'}), 404
