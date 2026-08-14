@@ -156,6 +156,7 @@ socketio = SocketIO(app, cors_allowed_origins=ALLOWED_ORIGINS, async_mode='threa
 # SECURITY & PERFORMANCE CONFIGURATION
 # ============================================================================
 
+<<<<<<< HEAD
 # JWT Configuration — SECRET_KEY MUST be set in .env; no insecure fallback
 _jwt_secret = os.getenv('SECRET_KEY')
 if not _jwt_secret:
@@ -165,6 +166,12 @@ if not _jwt_secret:
         "and add it to your .env file."
     )
 app.config['JWT_SECRET_KEY'] = _jwt_secret
+=======
+# JWT Configuration
+app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY')
+if not app.config['JWT_SECRET_KEY']:
+    raise RuntimeError("SECRET_KEY .env file mein set nahi hai! App start nahi hoga.")
+>>>>>>> 00220fb4298c341bde7b0be4802f29ce6a2c8b8e
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 jwt = JWTManager(app)
 
