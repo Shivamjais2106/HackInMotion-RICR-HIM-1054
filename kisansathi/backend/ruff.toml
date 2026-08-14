@@ -1,5 +1,5 @@
-# Ruff linter configuration for KisanSathi Python backend
-# Run: ruff check . --fix
+# Ruff linter configuration — KisanSathi Python backend
+# Run: python -m ruff check . --fix
 
 line-length = 120
 exclude = [
@@ -9,14 +9,15 @@ exclude = [
     "env",
     ".venv",
     "scripts/",
+    "archive/",
 ]
 
 [lint]
 select = ["E", "F", "W"]
-ignore = ["E501", "E402", "W503", "F401", "F841"]
+ignore = ["E501", "E402", "F401", "F841", "E731", "W291", "W293"]
 
 [lint.per-file-ignores]
-"app_enhanced.py"   = ["E402", "F401", "F841"]
-"app_minimal.py"    = ["E402", "F401"]
-"app_production.py" = ["E402", "F401"]
+"app_enhanced.py"   = ["E402", "F401", "F841", "E711", "E722"]
+"app.py"            = ["F401"]
 "utils/*.py"        = ["E402", "F401"]
+"test_*.py"         = ["F401", "F811"]

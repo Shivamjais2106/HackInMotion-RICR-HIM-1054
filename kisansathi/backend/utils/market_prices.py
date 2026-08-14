@@ -1,4 +1,4 @@
-"""
+﻿"""
 Market Price Intelligence Module — KisanSathi
 Fetches live commodity prices from AGMARKNET (data.gov.in).
 Falls back to MSP reference prices when the live API is unavailable.
@@ -137,4 +137,5 @@ def get_trade_advice(commodity: str, modal_price: int) -> str:
         return "Good selling opportunity — prices above average."
     return "Hold if possible — prices are below average for this season."
 
-# v1.1 � added get_trade_advice for sell/hold/MSP advisory
+# v1.1 � added get_trade_advice for sell/hold/MSP advisory
+

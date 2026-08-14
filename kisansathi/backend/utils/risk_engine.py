@@ -94,7 +94,7 @@ def get_irrigation_decision(location: str, soil_type: str = "Loamy") -> dict:
     elif net_need > 1.5:
         decision = "irrigate_within_24h"
         message = f"Plan irrigation within 24 hours — moderate water deficit ({net_need} mm/day)."
-        reason = f"Soil moisture will drop below safe threshold by tomorrow."
+        reason = "Soil moisture will drop below safe threshold by tomorrow."
     else:
         decision = "monitor"
         message = "Soil moisture adequate — monitor and irrigate if leaves show wilting."
