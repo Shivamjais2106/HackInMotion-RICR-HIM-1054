@@ -13,7 +13,7 @@ Author: Rustam Ali
 from __future__ import annotations
 import random
 import datetime
-from utils.market_prices import MANDI_BASE_PRICES, get_live_market_price
+from utils.market_prices import MANDI_BASE_PRICES, get_commodity_price
 
 
 def get_price_trend(commodity: str, days: int = 7) -> list[dict]:
@@ -29,7 +29,7 @@ def get_price_trend(commodity: str, days: int = 7) -> list[dict]:
         return []
 
     # Get today's price as anchor
-    live = get_live_market_price(commodity)
+    live = get_commodity_price(commodity)
     today_price = live["modal_price"] if live else (base["min"] + base["max"]) // 2
 
     today = datetime.date.today()
