@@ -71,7 +71,7 @@ def get_fertilizer_recommendation(
                 "precautions": get_fertilizer_precautions(pred_fertilizer),
             }
         else:
-            print(f"Model files not found. Using fallback recommendation.")
+            print("Model files not found. Using fallback recommendation.")
             return get_default_fertilizer_recommendation(nitrogen, phosphorus, potassium, crop_type)
 
     except Exception as e:

@@ -25,10 +25,10 @@ if os.path.exists(test_image_path):
     if result["success"]:
         print(f"Disease: {result['disease']}")
         print(f"Confidence: {result['confidence']}%")
-        print(f"\nManagement Recommendations:")
+        print("\nManagement Recommendations:")
         for rec in result["management"]["management"]:
             print(f"  - {rec}")
-        print(f"\nTop 5 Probabilities:")
+        print("\nTop 5 Probabilities:")
         sorted_probs = sorted(result["all_probabilities"].items(), key=lambda x: x[1], reverse=True)[:5]
         for disease, prob in sorted_probs:
             print(f"  {disease}: {prob}%")

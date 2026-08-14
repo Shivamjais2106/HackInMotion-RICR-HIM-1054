@@ -333,7 +333,7 @@ def get_seasonal_crop_recommendation(N, P, K, temperature, humidity, ph, rainfal
             print(f"[DEBUG] Returning {len(results)} month-based crops")
             return results
 
-        print(f"[DEBUG] Month not found in MONTH_SPECIFIC_CROPS, using ML model")
+        print("[DEBUG] Month not found in MONTH_SPECIFIC_CROPS, using ML model")
 
         # Fallback to ML model if no month provided
         recommender = SeasonalCropRecommender()

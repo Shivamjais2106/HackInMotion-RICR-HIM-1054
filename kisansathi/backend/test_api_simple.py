@@ -31,7 +31,7 @@ if test_image:
 
             if response.status_code == 200:
                 result = response.json()
-                print(f"\n✅ SUCCESS!")
+                print("\n✅ SUCCESS!")
                 print(f"Disease: {result.get('most_common_disease')}")
                 print(f"Predictions: {len(result.get('predictions', []))}")
             else:
