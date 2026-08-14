@@ -126,7 +126,7 @@ def register():
         if not data or not data.get('email') or not data.get('password'):
             return jsonify({'error': 'Email and password required'}), 400
         
-        if not db:
+        if db is None:
             return jsonify({'error': 'Database not available'}), 503
         
         # Check if user exists
@@ -159,7 +159,7 @@ def login():
         if not data or not data.get('email') or not data.get('password'):
             return jsonify({'error': 'Email and password required'}), 400
         
-        if not db:
+        if db is None:
             return jsonify({'error': 'Database not available'}), 503
         
         # Find user
@@ -187,27 +187,114 @@ def login():
 
 @app.route('/api/recommendations/crop', methods=['POST'])
 def crop_recommendation():
-    """Placeholder for crop recommendation"""
-    return jsonify({
-        'message': 'Crop recommendation endpoint',
-        'status': 'coming soon'
-    }), 200
+    """ML-based crop recommendation"""
+    try:
+        from utils.crop_recommendation_ml import get_crop_recommendation_ml
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        required = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
+        missing = [f for f in required if f not in data]
+        if missing:
+            return jsonify({'error': f'Missing fields: {missing}'}), 400
+
+        result = get_crop_recommendation_ml(
+            N=float(data['N']),
+            P=float(data['P']),
+            K=float(data['K']),
+            temperature=float(data['temperature']),
+            humidity=float(data['humidity']),
+            ph=float(data['ph']),
+            rainfall=float(data['rainfall'])
+        )
+        return jsonify(result), 200 if result.get('success') else 500
+    except Exception as e:
+        logger.error(f"Crop recommendation error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/recommendations/seasonal-crop', methods=['POST'])
+def seasonal_crop_recommendation():
+    """Seasonal crop recommendation"""
+    try:
+        from utils.seasonal_crop_recommender import get_seasonal_crop_recommendation
+        data = request.get_json() or {}
+        result = get_seasonal_crop_recommendation(
+            N=float(data.get('N', 60)),
+            P=float(data.get('P', 40)),
+            K=float(data.get('K', 40)),
+            temperature=float(data.get('temperature', 25)),
+            humidity=float(data.get('humidity', 65)),
+            ph=float(data.get('ph', 6.5)),
+            rainfall=float(data.get('rainfall', 100)),
+            month=data.get('month'),
+            top_n=int(data.get('top_n', 5))
+        )
+        return jsonify({'success': True, 'recommendations': result, 'total': len(result)}), 200
+    except Exception as e:
+        logger.error(f"Seasonal crop recommendation error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/disease-predict', methods=['POST'])
 def disease_predict():
-    """Placeholder for disease prediction"""
-    return jsonify({
-        'message': 'Disease prediction endpoint',
-        'status': 'coming soon'
-    }), 200
+    """ML-based disease prediction from image"""
+    try:
+        from utils.disease_detection_ml import detect_disease_ml
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image file provided'}), 400
+        image_file = request.files['image']
+        result = detect_disease_ml(image_file)
+        return jsonify(result), 200 if result.get('success') else 500
+    except Exception as e:
+        logger.error(f"Disease prediction error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/soil/analyze', methods=['POST'])
+def soil_analyze():
+    """ML-based soil analysis"""
+    try:
+        from utils.soil_analysis import analyze_soil
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        result = analyze_soil(
+            temperature=float(data.get('temperature', 25)),
+            humidity=float(data.get('humidity', 60)),
+            moisture=float(data.get('moisture', 40)),
+            soil_type=data.get('soil_type', 'Loamy'),
+            nitrogen=float(data.get('nitrogen', 50)),
+            potassium=float(data.get('potassium', 50)),
+            phosphorous=float(data.get('phosphorous', 30))
+        )
+        return jsonify(result), 200 if result.get('success') else 500
+    except Exception as e:
+        logger.error(f"Soil analysis error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/fertilizer/recommend', methods=['POST'])
 def fertilizer_recommend():
-    """Placeholder for fertilizer recommendation"""
-    return jsonify({
-        'message': 'Fertilizer recommendation endpoint',
-        'status': 'coming soon'
-    }), 200
+    """ML-based fertilizer recommendation"""
+    try:
+        from utils.fertilizer_recommendation import get_fertilizer_recommendation
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        result = get_fertilizer_recommendation(
+            nitrogen=float(data.get('nitrogen', 50)),
+            phosphorus=float(data.get('phosphorus', 30)),
+            potassium=float(data.get('potassium', 50)),
+            temperature=float(data.get('temperature', 25)),
+            humidity=float(data.get('humidity', 60)),
+            moisture=float(data.get('moisture', 40)),
+            soil_type=data.get('soil_type', 'Loamy'),
+            crop_type=data.get('crop_type', 'Wheat')
+        )
+        return jsonify({'success': True, 'recommendation': result}), 200
+    except Exception as e:
+        logger.error(f"Fertilizer recommendation error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/chatbot/message', methods=['POST'])
 def chatbot_message():
