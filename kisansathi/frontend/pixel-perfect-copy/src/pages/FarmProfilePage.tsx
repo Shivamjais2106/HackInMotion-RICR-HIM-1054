@@ -42,9 +42,14 @@ export default function FarmProfilePage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [irrigationAdvice, setIrrigationAdvice] = useState<any>(null);
+  const [irrigationError, setIrrigationError] = useState('');
   const [loadingAdvice, setLoadingAdvice] = useState(false);
   const [language, setLanguage] = useState<'en' | 'hi'>('en');
+
+  const t = (en: string, hi: string) => language === 'en' ? en : hi;
 
   useEffect(() => {
     fetchProfile();
@@ -52,16 +57,19 @@ export default function FarmProfilePage() {
 
   const fetchProfile = async () => {
     setLoading(true);
+    setLoadError('');
     try {
-      const res = await fetch(`${getAPIBaseURL()}/farm-profile`, {
-        headers: getAuthHeaders()
-      });
+      const res = await fetch(`${getAPIBaseURL()}/farm-profile`, { headers: getAuthHeaders() });
+      if (!res.ok) {
+        if (res.status === 401) { setLoadError(t('Session expired. Please log in again.', 'सत्र समाप्त हो गया। कृपया फिर से लॉगिन करें।')); return; }
+        throw new Error(`Server error ${res.status}`);
+      }
       const data = await res.json();
       if (data.profile) {
         setProfile({ ...defaultProfile, ...data.profile, land_size_acres: String(data.profile.land_size_acres || '') });
       }
     } catch (e) {
-      console.error('Error fetching profile:', e);
+      setLoadError(t('Could not load farm profile. Check your connection and try again.', 'खेत प्रोफाइल लोड नहीं हो सकी। अपना कनेक्शन जांचें और पुनः प्रयास करें।'));
     } finally {
       setLoading(false);
     }
@@ -70,19 +78,27 @@ export default function FarmProfilePage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    setSaveError('');
     try {
       const res = await fetch(`${getAPIBaseURL()}/farm-profile`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ ...profile, land_size_acres: parseFloat(profile.land_size_acres) || 0 })
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        setSaveError(errData.error || t('Failed to save. Please try again.', 'सहेजने में विफल। कृपया पुनः प्रयास करें।'));
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
+      } else {
+        setSaveError(data.error || t('Save failed. Please try again.', 'सहेजना विफल हुआ।'));
       }
     } catch (e) {
-      console.error('Error saving:', e);
+      setSaveError(t('Network error. Could not save profile.', 'नेटवर्क त्रुटि। प्रोफाइल सहेजी नहीं जा सकी।'));
     } finally {
       setSaving(false);
     }
@@ -90,14 +106,22 @@ export default function FarmProfilePage() {
 
   const fetchIrrigationAdvice = async () => {
     setLoadingAdvice(true);
+    setIrrigationError('');
     try {
-      const res = await fetch(`${getAPIBaseURL()}/farm-profile/irrigation-advice`, {
-        headers: getAuthHeaders()
-      });
+      const res = await fetch(`${getAPIBaseURL()}/farm-profile/irrigation-advice`, { headers: getAuthHeaders() });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        setIrrigationError(errData.error || t('Could not fetch irrigation advice.', 'सिंचाई सलाह नहीं मिल सकी।'));
+        return;
+      }
       const data = await res.json();
-      setIrrigationAdvice(data);
+      if (data.success) {
+        setIrrigationAdvice(data);
+      } else {
+        setIrrigationError(data.error || t('Save your farm profile first.', 'पहले खेत प्रोफाइल सहेजें।'));
+      }
     } catch (e) {
-      console.error('Error fetching advice:', e);
+      setIrrigationError(t('Network error. Could not get irrigation advice.', 'नेटवर्क त्रुटि।'));
     } finally {
       setLoadingAdvice(false);
     }
@@ -139,9 +163,22 @@ export default function FarmProfilePage() {
           </button>
         </div>
 
+        {loadError && (
+          <div className="bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 mb-6 flex items-center gap-2">
+            <span>❌</span> {loadError}
+            <button onClick={fetchProfile} className="ml-auto text-sm underline">{t('Retry', 'पुनः प्रयास')}</button>
+          </div>
+        )}
+
         {saved && (
           <div className="bg-green-100 border border-green-400 text-green-800 rounded-lg p-3 mb-6 text-center font-medium">
-            ✅ {language === 'en' ? 'Farm profile saved successfully!' : 'खेत की प्रोफाइल सफलतापूर्वक सहेजी गई!'}
+            ✅ {t('Farm profile saved successfully!', 'खेत की प्रोफाइल सफलतापूर्वक सहेजी गई!')}
+          </div>
+        )}
+
+        {saveError && (
+          <div className="bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 mb-6 flex items-center gap-2">
+            <span>❌</span> {saveError}
           </div>
         )}
 
@@ -300,6 +337,9 @@ export default function FarmProfilePage() {
             </button>
           </div>
 
+          {irrigationError && (
+            <p className="text-red-600 text-sm bg-red-50 rounded-lg p-3">❌ {irrigationError}</p>
+          )}
           {irrigationAdvice && irrigationAdvice.success && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -331,7 +371,7 @@ export default function FarmProfilePage() {
             </div>
           )}
           {irrigationAdvice && !irrigationAdvice.success && (
-            <p className="text-orange-600 text-sm">⚠️ {irrigationAdvice.error || 'Save your farm profile first to get irrigation advice.'}</p>
+            <p className="text-orange-600 text-sm">⚠️ {irrigationAdvice.error || t('Save your farm profile first to get irrigation advice.', 'पहले खेत प्रोफाइल सहेजें।')}</p>
           )}
         </div>
 
