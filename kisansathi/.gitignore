@@ -11,12 +11,15 @@ __pycache__/
 .pytest_cache/
 .cache/
 
-# Environment Variables & Secrets
+# Environment Variables & Secrets — NEVER commit real keys
 .env
 .env.*
 *.env
 backend/.env
 backend/.env.production
+# Allow example templates (no real secrets)
+!.env.example
+!**/.env.example
 
 # Virtual Environments
 venv/
