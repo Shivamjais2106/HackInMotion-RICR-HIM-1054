@@ -5,6 +5,9 @@
 [![Theme](https://img.shields.io/badge/Theme-Agriculture_%26_Farming-green)](https://hackinmotion.in)
 [![Stack](https://img.shields.io/badge/Stack-React_18_%7C_Flask_%7C_MongoDB_%7C_XGBoost-blue)](#)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](kisansathi/LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://kisansathi-frontend.vercel.app/)
+
+**🌐 Live Demo:** [kisansathi-frontend.vercel.app](https://kisansathi-frontend.vercel.app/)
 
 A full-stack Smart Farm Decision Support System that gives every farmer a data-driven advisor — combining live weather, ML crop/disease intelligence, and real mandi prices in one unified dashboard.
 
@@ -48,6 +51,7 @@ npm run dev
 
 | Deliverable | Location |
 |---|---|
+| Live Demo | [kisansathi-frontend.vercel.app](https://kisansathi-frontend.vercel.app/) |
 | Architecture Diagram | [kisansathi/docs/architecture-diagram.png](kisansathi/docs/architecture-diagram.png) |
 | API Documentation | [kisansathi/docs/API_DOCUMENTATION.md](kisansathi/docs/API_DOCUMENTATION.md) |
 | Full README | [kisansathi/README.md](kisansathi/README.md) |
