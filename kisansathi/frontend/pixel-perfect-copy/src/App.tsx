@@ -9,6 +9,7 @@ import LanguageToggle from "@/components/LanguageToggle";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
+import ChatbotPage from "./pages/ChatbotPage.tsx";
 import ShopPage from "./pages/ShopPage.tsx";
 import GalleryPage from "./pages/GalleryPage.tsx";
 import TestimonialPage from "./pages/TestimonialPage.tsx";
@@ -51,6 +52,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/testimonial" element={<TestimonialPage />} />

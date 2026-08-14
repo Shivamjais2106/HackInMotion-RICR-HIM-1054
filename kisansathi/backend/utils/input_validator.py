@@ -75,4 +75,4 @@ def validate_location(location: str) -> bool:
     loc = sanitize_string(location, 128)
     return bool(loc) and len(loc) >= 2
 
-# v1.1 — added validate_location helper
+# v1.1 â€” added validate_location helper

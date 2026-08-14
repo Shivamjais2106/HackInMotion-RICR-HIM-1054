@@ -27,6 +27,9 @@ interface SoilAnalysisResult {
   recommendations: string[];
 }
 
+/** Shown when /soil/types is unreachable or returns nothing usable. */
+const DEFAULT_SOIL_TYPES = ['Sandy', 'Loamy', 'Black', 'Red', 'Clayey'];
+
 const SoilAnalysisPage: React.FC = () => {
   const { t } = useLanguage();
   const [soilTypes, setSoilTypes] = useState<string[]>([]);
@@ -51,12 +54,14 @@ const SoilAnalysisPage: React.FC = () => {
         const baseURL = getAPIBaseURL();
         const response = await fetch(`${baseURL}/soil/types`);
         const data = await response.json();
-        if (data.success) {
+        if (data.success && data.soil_types?.length) {
           setSoilTypes(data.soil_types);
+        } else {
+          setSoilTypes(DEFAULT_SOIL_TYPES);
         }
       } catch (err) {
         console.error('Error loading soil types:', err);
-        setSoilTypes(['Sandy', 'Loamy', 'Black', 'Red', 'Clayey']);
+        setSoilTypes(DEFAULT_SOIL_TYPES);
       }
     };
     loadSoilTypes();

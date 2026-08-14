@@ -45,7 +45,7 @@ const MonitoringPage: React.FC = () => {
         
         const alertsResponse = await fetch(`${baseURL}/dashboard/alerts`);
         const alertsData = await alertsResponse.json();
-        setAlerts(alertsData.alerts);
+        setAlerts(alertsData.alerts ?? []);
         
         setLoading(false);
       } catch (error) {

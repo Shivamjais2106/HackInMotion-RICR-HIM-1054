@@ -79,11 +79,12 @@ const SmartReminders: React.FC = () => {
       const response = await fetch(`${baseURL}/reminders/crops/${farmerId}`);
       const data = await response.json();
       if (data.success) {
-        setCrops(data.crops);
-        if (data.crops.length > 0) {
-          setSelectedCrop(data.crops[0]);
-          fetchReminders(data.crops[0].id);
-          fetchPhotos(data.crops[0].id);
+        const fetchedCrops: Crop[] = data.crops ?? [];
+        setCrops(fetchedCrops);
+        if (fetchedCrops.length > 0) {
+          setSelectedCrop(fetchedCrops[0]);
+          fetchReminders(fetchedCrops[0].id);
+          fetchPhotos(fetchedCrops[0].id);
         }
       }
     } catch (err) {
@@ -100,7 +101,7 @@ const SmartReminders: React.FC = () => {
       const response = await fetch(`${baseURL}/reminders/available-crops`);
       const data = await response.json();
       if (data.success) {
-        setAvailableCrops(data.crops);
+        setAvailableCrops(data.crops ?? []);
       }
     } catch (err) {
       console.error(err);

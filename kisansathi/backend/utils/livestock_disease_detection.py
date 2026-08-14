@@ -10,9 +10,12 @@ from torchvision import models, transforms
 from PIL import Image
 import io
 import json
+import logging
 import os
 from typing import Dict, List, Tuple, Optional
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # LIVESTOCK DISEASE DATABASE
@@ -383,10 +386,12 @@ class LivestockDiseaseDetector:
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
             
-            print("✅ Livestock disease models loaded successfully!")
-            
+            logger.info("Livestock disease models loaded successfully")
+
         except Exception as e:
-            print(f"⚠️ Error loading models: {e}")
+            # Must not raise: a model-load failure has to leave a usable detector
+            # so the symptom-only endpoints keep working.
+            logger.error(f"Error loading models: {e}")
     
     def predict(self, image_data: bytes, animal_type: str, symptoms: List[str] = None) -> Dict:
         """

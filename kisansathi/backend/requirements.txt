@@ -29,9 +29,15 @@ google-generativeai==0.3.0
 # PDF extraction
 PyPDF2==3.0.1
 
+# Media storage (required by file_routes.py upload/delete endpoints)
+cloudinary==1.40.0
+
 # Cache / messaging
 redis==4.6.0
 celery==5.3.1
+
+# Monitoring metrics (required by monitoring.py / dashboard routes)
+psutil==5.9.8
 
 # Text-to-speech
 gtts==2.3.2
