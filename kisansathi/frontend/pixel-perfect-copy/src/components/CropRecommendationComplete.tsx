@@ -37,6 +37,7 @@ const CropRecommendationComplete = () => {
   const [voiceMode, setVoiceMode] = useState(false);
   const [cameraMode, setCameraMode] = useState(false);
   const [months, setMonths] = useState<string[]>([]);
+  const [monthsError, setMonthsError] = useState(false);
   const [soilPhotoFile, setSoilPhotoFile] = useState<File | null>(null);
   const [detectingLocation, setDetectingLocation] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
@@ -87,13 +88,23 @@ const CropRecommendationComplete = () => {
   useEffect(() => {
     // Fetch months
     fetch(`${getAPIBaseURL()}/months`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`Server ${res.status}`);
+        return res.json();
+      })
       .then(data => {
-        if (data.success) {
+        if (data.success && data.months?.length > 0) {
           setMonths(data.months);
+        } else {
+          // Fallback static months so dropdowns are never empty
+          setMonths(['January','February','March','April','May','June','July','August','September','October','November','December']);
         }
       })
-      .catch(err => console.error('Error fetching months:', err));
+      .catch(() => {
+        // Fallback static months on any error — dropdowns must never be empty
+        setMonths(['January','February','March','April','May','June','July','August','September','October','November','December']);
+        setMonthsError(true);
+      });
 
     // Detect geolocation
     if (navigator.geolocation) {
@@ -247,8 +258,14 @@ const CropRecommendationComplete = () => {
 
           if (response.ok) {
             const data = await response.json();
+            const recs = data.recommendations ?? [];
+            if (recs.length === 0) {
+              setResult({ error: data.error || 'No recommendations found. Try a different month or location.' });
+              setLoading(false);
+              return;
+            }
             const transformed = {
-              top_crops: data.recommendations.map((rec: any, idx: number) => ({
+              top_crops: recs.map((rec: any, idx: number) => ({
                 crop: rec.crop,
                 suitability: parseFloat(rec.confidence_value || rec.confidence || 0),
                 reason: rec.reason,
@@ -257,17 +274,14 @@ const CropRecommendationComplete = () => {
                 rank: idx + 1,
                 detailed_explanation: rec.detailed_explanation || ''
               })),
-              primary_crop: data.recommendations[0]?.crop || 'Unknown',
-              explanation: data.recommendations[0]?.reason || '',
+              primary_crop: recs[0]?.crop || 'Unknown',
+              explanation: recs[0]?.reason || '',
             };
             setResult(transformed);
-            
-            // Auto-speak result
-            if (transformed.primary_crop) {
-              speakResult(transformed);
-            }
+            if (transformed.primary_crop) speakResult(transformed);
           } else {
-            setResult({ error: 'Failed to get recommendations' });
+            const errData = await response.json().catch(() => ({}));
+            setResult({ error: errData.error || `Server error ${response.status}. Please try again.` });
           }
           setLoading(false);
           return;
@@ -295,33 +309,34 @@ const CropRecommendationComplete = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const transformed = {
-          top_crops: data.recommendations.map((rec: any, idx: number) => ({
-            crop: rec.crop,
-            suitability: parseFloat(rec.confidence_value || rec.confidence || 0),
-            reason: rec.reason,
-            confidence: parseFloat(rec.confidence_value || rec.confidence || 0),
-            confidence_str: `${(parseFloat(rec.confidence_value || rec.confidence || 0) * 100).toFixed(1)}%`,
-            rank: idx + 1,
-            detailed_explanation: rec.detailed_explanation || ''
-          })),
-          primary_crop: data.recommendations[0]?.crop || 'Unknown',
-          explanation: data.recommendations[0]?.reason || '',
-          temperature: parseFloat(formData.temperature) || 25,
-          humidity: parseFloat(formData.humidity) || 65,
-        };
-        setResult(transformed);
-        
-        // Auto-speak result
-        if (transformed.primary_crop) {
-          speakResult(transformed);
+        const recs = data.recommendations ?? [];
+        if (recs.length === 0) {
+          setResult({ error: data.error || 'No recommendations found. Please check your input values.' });
+        } else {
+          const transformed = {
+            top_crops: recs.map((rec: any, idx: number) => ({
+              crop: rec.crop,
+              suitability: parseFloat(rec.confidence_value || rec.confidence || 0),
+              reason: rec.reason,
+              confidence: parseFloat(rec.confidence_value || rec.confidence || 0),
+              confidence_str: `${(parseFloat(rec.confidence_value || rec.confidence || 0) * 100).toFixed(1)}%`,
+              rank: idx + 1,
+              detailed_explanation: rec.detailed_explanation || ''
+            })),
+            primary_crop: recs[0]?.crop || 'Unknown',
+            explanation: recs[0]?.reason || '',
+            temperature: parseFloat(formData.temperature) || 25,
+            humidity: parseFloat(formData.humidity) || 65,
+          };
+          setResult(transformed);
+          if (transformed.primary_crop) speakResult(transformed);
         }
       } else {
-        setResult({ error: 'Failed to get recommendations' });
+        const errData = await response.json().catch(() => ({}));
+        setResult({ error: errData.error || `Request failed (${response.status}). Please check your inputs.` });
       }
     } catch (error) {
-      console.error('Error:', error);
-      setResult({ error: 'Error fetching recommendations' });
+      setResult({ error: 'Network error. Could not reach the server. Please check your connection.' });
     } finally {
       setLoading(false);
     }
@@ -419,6 +434,9 @@ const CropRecommendationComplete = () => {
             <option key={month} value={month}>{month}</option>
           ))}
         </select>
+        {monthsError && (
+          <p className="text-xs text-orange-500 mt-1">⚠️ {language === 'en' ? 'Using offline month list (server unavailable)' : 'ऑफलाइन माह सूची उपयोग हो रही है'}</p>
+        )}
         <p className="text-sm text-blue-700 mt-3">
           💡 {language === 'en' ? 'Select the month to get crops suitable for that season' : 'उस मौसम के लिए उपयुक्त फसलें प्राप्त करने के लिए महीना चुनें'}
         </p>

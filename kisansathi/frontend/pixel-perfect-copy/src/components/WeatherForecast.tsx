@@ -123,142 +123,92 @@ const WeatherForecast: React.FC = () => {
     }
   };
 
-  const handleLocationClick = () => {
+  // Helper: fetch with timeout using AbortController
+  const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 6000): Promise<Response> => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), ms);
+    return fetch(url, { ...options, signal: controller.signal })
+      .finally(() => clearTimeout(id));
+  };
+
+  const handleLocationClick = async () => {
     setLoading(true);
     setError('');
-    
     const baseURL = getAPIBaseURL();
-    console.log('Current location button clicked');
-    
-    // Try browser geolocation first (more accurate)
-    if (navigator.geolocation) {
-      console.log('Browser geolocation available, requesting permission...');
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          console.log('Got geolocation:', latitude, longitude);
-          try {
-            // Send GPS coordinates to backend for reverse geocoding
-            console.log('Sending GPS coordinates to backend...');
-            const response = await fetch(`${baseURL}/location/from-gps`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                latitude: latitude,
-                longitude: longitude
-              })
-            });
-            
-            const data = await response.json();
-            console.log('Backend reverse geocoding response:', data);
-            
-            if (data.success && data.city) {
-              console.log('Detected city from GPS:', data.city);
-              setCity(data.city);
-              fetchForecast(data.city);
-            } else {
-              throw new Error('Reverse geocoding failed');
-            }
-          } catch (err) {
-            console.log('Backend reverse geocoding failed:', err);
-            // Fallback to backend IP detection
-            try {
-              const backendResponse = await fetch(`${baseURL}/location/detect`, { timeout: 5000 });
-              const backendData = await backendResponse.json();
-              if (backendData.success && backendData.city) {
-                console.log('Using backend detected city:', backendData.city);
-                setCity(backendData.city);
-                fetchForecast(backendData.city);
-              } else {
-                throw new Error('Backend detection failed');
-              }
-            } catch (backendErr) {
-              console.log('Backend detection also failed:', backendErr);
-              setCity('Delhi');
-              fetchForecast('Delhi');
-            }
-          }
-        },
-        (err) => {
-          console.log('Geolocation permission denied or error:', err);
-          // Fallback to backend detection
-          fetch(`${baseURL}/location/detect`, { timeout: 5000 })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success && data.city) {
-                console.log('Using backend detected city:', data.city);
-                setCity(data.city);
-                fetchForecast(data.city);
-              } else {
-                throw new Error('Backend detection failed');
-              }
-            })
-            .catch(backendErr => {
-              console.log('Backend detection failed:', backendErr);
-              setCity('Delhi');
-              fetchForecast('Delhi');
-            });
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
+
+    const fallback = async () => {
+      try {
+        const res = await fetchWithTimeout(`${baseURL}/location/detect`, {}, 6000);
+        const data = await res.json();
+        if (data.success && data.city) {
+          setCity(data.city);
+          fetchForecast(data.city);
+          return;
         }
-      );
-    } else {
-      console.log('Geolocation not supported, using backend detection');
-      // Fallback to backend detection
-      fetch(`${baseURL}/location/detect`, { timeout: 5000 })
-        .then(res => res.json())
-        .then(data => {
+      } catch {}
+      // Final fallback — always show something, never hang
+      setCity('Delhi');
+      fetchForecast('Delhi');
+    };
+
+    if (!navigator.geolocation) {
+      await fallback();
+      setLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const res = await fetchWithTimeout(`${baseURL}/location/from-gps`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude, longitude })
+          }, 6000);
+          if (!res.ok) throw new Error(`${res.status}`);
+          const data = await res.json();
           if (data.success && data.city) {
-            console.log('Using backend detected city:', data.city);
             setCity(data.city);
             fetchForecast(data.city);
-          } else {
-            throw new Error('Backend detection failed');
+            return;
           }
-        })
-        .catch(err => {
-          console.log('Backend detection failed:', err);
-          setCity('Delhi');
-          fetchForecast('Delhi');
-        });
-    }
+          throw new Error('no city');
+        } catch {
+          await fallback();
+        } finally {
+          setLoading(false);
+        }
+      },
+      async () => {
+        // Permission denied or GPS unavailable — fallback silently
+        await fallback();
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   // Auto-detect location on component mount
   useEffect(() => {
     const autoDetectLocation = async () => {
       const baseURL = getAPIBaseURL();
-      console.log('Starting auto-detection...');
-      
-      // Try backend location detection first (no permission needed)
       try {
-        console.log('Trying backend location detection...');
-        const backendResponse = await fetch(`${baseURL}/location/detect`);
-        const backendData = await backendResponse.json();
-        console.log('Backend response:', backendData);
-        
-        if (backendData.success && backendData.city) {
-          console.log('Backend detected city:', backendData.city);
-          setCity(backendData.city);
-          fetchForecast(backendData.city);
-          return; // Success, exit
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(`${baseURL}/location/detect`, { signal: controller.signal })
+          .finally(() => clearTimeout(id));
+        const data = await res.json();
+        if (data.success && data.city) {
+          setCity(data.city);
+          fetchForecast(data.city);
+          return;
         }
-      } catch (err) {
-        console.log('Backend detection failed:', err);
-      }
-      
-      // If backend fails, use Delhi
-      console.log('Using Delhi as fallback');
+      } catch {}
+      // Always fall back — never leave user with a blank screen
       setCity('Delhi');
       fetchForecast('Delhi');
     };
-
-    // Call auto-detect immediately
     autoDetectLocation();
   }, []);
 
