@@ -7,17 +7,13 @@ exclude = [
     "env",
     ".venv",
     "scripts/",
-<<<<<<< HEAD
     "archive/",
-=======
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     "*.pyc",
 ]
 
 [tool.ruff.lint]
 # E — pycodestyle errors, F — pyflakes, W — pycodestyle warnings
 select = ["E", "F", "W"]
-<<<<<<< HEAD
 ignore = ["E501", "E402", "W503", "F401", "F841", "E731", "W291", "W293"]
 
 [tool.ruff.lint.per-file-ignores]
@@ -31,11 +27,3 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "lf"
-=======
-# W503 is a flake8-only code and makes ruff abort with "Unknown rule selector".
-ignore = ["E501", "E402", "F401", "F841"]
-
-[tool.ruff.lint.per-file-ignores]
-"app_enhanced.py"    = ["E402", "F401", "F841"]
-"utils/*.py"         = ["E402", "F401"]
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
