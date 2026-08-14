@@ -837,11 +837,14 @@ def advanced_crop_recommendation():
         location_lower = location.lower()
         weather = location_weather_map.get(location_lower, location_weather_map['central india'])
         
-        # Get soil parameters (use provided or defaults)
-        N = float(data.get('N', 60))
-        P = float(data.get('P', 40))
-        K = float(data.get('K', 40))
-        ph = float(data.get('ph', 6.5))
+        # Get soil parameters with validation
+        try:
+            N = float(data.get('N', 60))
+            P = float(data.get('P', 40))
+            K = float(data.get('K', 40))
+            ph = float(data.get('ph', 6.5))
+        except (TypeError, ValueError) as e:
+            return jsonify({'error': f'Invalid soil parameter value: {str(e)}. N, P, K and ph must be numbers.'}), 400
         
         # Use seasonal ML model for recommendations with month parameter
         recommendations = get_seasonal_crop_recommendation(
@@ -1317,19 +1320,28 @@ def get_weather(location):
     try:
         weather = get_weather_for_farming(location)
         forecast = get_weather_forecast(location)
-        
+
+        if not weather:
+            logger.warning(f"Weather API returned empty data for {location}")
+            return jsonify({
+                'error': 'Weather data unavailable for this location. Check the location name or try again later.',
+                'location': location,
+                'weather': None,
+                'forecast': [],
+                'service_status': 'unavailable'
+            }), 503
+
         logger.info(f"Weather retrieved for {location}")
-        
         return jsonify({
             'location': location,
             'weather': weather,
-            'forecast': forecast,
+            'forecast': forecast or [],
             'timestamp': datetime.now().isoformat(),
             'cached': False
         }), 200
     except Exception as e:
         logger.error(f"Error getting weather: {e}")
-        return jsonify({'error': f'Weather retrieval failed: {str(e)}'}), 500
+        return jsonify({'error': f'Weather service error: {str(e)}. Please try again later.'}), 503
 
 @app.route('/api/weather/<location>/forecast', methods=['GET'])
 @limiter.limit("30 per hour")
@@ -1804,13 +1816,17 @@ def disease_predict():
         files = request.files.getlist('files')
         if not files or len(files) == 0:
             return jsonify({'error': 'No files selected'}), 400
+
+        # Validate file types upfront
+        allowed = {'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'}
+        valid_files = [f for f in files if f.filename and f.content_type in allowed]
+        if not valid_files:
+            return jsonify({'error': 'No valid image files found. Please upload JPG, PNG, GIF, BMP, or WebP images.'}), 400
         
         predictions = []
         disease_counts = {}
         
-        for file in files:
-            if file.filename == '':
-                continue
+        for file in valid_files:
             
             try:
                 # Detect disease using ML model
@@ -1842,16 +1858,27 @@ def disease_predict():
                 })
         
         # Find most common disease
-        most_common_disease = max(disease_counts, key=disease_counts.get) if disease_counts else 'Unknown'
-        
-        logger.info(f"ML Disease prediction for {len(files)} images. Most common: {most_common_disease}")
-        
+        most_common_disease = max(disease_counts, key=disease_counts.get) if disease_counts else None
+
+        # If every single file failed, return a clear error instead of partial success
+        successful = [p for p in predictions if p.get('success')]
+        if not successful:
+            return jsonify({
+                'success': False,
+                'error': 'Could not analyze any of the uploaded images. Please ensure they are clear, well-lit photos of plant leaves.',
+                'total_images': len(valid_files),
+                'predictions': predictions,
+                'timestamp': datetime.now().isoformat()
+            }), 400
+
+        logger.info(f"ML Disease prediction for {len(valid_files)} images. Most common: {most_common_disease}")
+
         return jsonify({
             'success': True,
-            'total_images': len(files),
+            'total_images': len(valid_files),
             'predictions': predictions,
-            'most_common_disease': most_common_disease,
-            'disease_info': f'Most common disease detected: {most_common_disease}',
+            'most_common_disease': most_common_disease or 'Unknown',
+            'disease_info': f'Most common disease detected: {most_common_disease}' if most_common_disease else 'No disease identified',
             'timestamp': datetime.now().isoformat()
         }), 200
     except Exception as e:
@@ -2628,14 +2655,19 @@ def get_irrigation_advice():
     irrigation_type = profile.get('irrigation_type', 'flood')
 
     # Get weather for farm location
+    weather_live = True
     try:
         from utils.weather_integration import get_weather_for_farming
         weather = get_weather_for_farming(location)
-        humidity = weather.get('humidity', 60) if weather else 60
-        rainfall = weather.get('rainfall_mm', 0) if weather else 0
-        temp = weather.get('temperature', 25) if weather else 25
+        if weather:
+            humidity = weather.get('humidity', 60)
+            rainfall = weather.get('rainfall_mm', 0)
+            temp = weather.get('temperature', 25)
+        else:
+            raise ValueError('Empty weather response')
     except Exception:
         humidity, rainfall, temp = 60, 0, 25
+        weather_live = False
 
     # Soil water retention mapping
     retention = {'Sandy': 0.3, 'Loamy': 0.6, 'Clay': 0.8, 'Clayey': 0.8, 'Black': 0.75, 'Red': 0.5}
@@ -2666,6 +2698,8 @@ def get_irrigation_advice():
         'active_crops': active_crops,
         'irrigation_type': irrigation_type,
         'weather': {'temperature': temp, 'humidity': humidity, 'rainfall_mm': rainfall},
+        'weather_live': weather_live,
+        'weather_warning': None if weather_live else 'Live weather unavailable — using average estimates. Advice may be less accurate.',
         'irrigation_need_mm_per_day': irrigation_need,
         'schedule': schedule,
         'water_retention': f"{int(ret*100)}%",
