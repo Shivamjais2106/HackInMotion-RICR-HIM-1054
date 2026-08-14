@@ -30,16 +30,42 @@ import requests
 from utils.crop_recommendation_ranked import get_crop_recommendation
 from utils.crop_recommendation_ml import get_crop_recommendation_ml
 from utils.seasonal_crop_recommender import get_seasonal_crop_recommendation
-from utils.unified_chatbot import get_chatbot_response
 from utils.livestock_disease_detection import get_livestock_detector
-from utils.voice_pipeline import extract_info_from_transcript, generate_fertilizer_explanation
-from redis_config import init_redis, get_redis
-from websocket_events import (
-    register_connection_events,
-    register_chat_events,
-    register_notification_events,
-    register_monitoring_events
-)
+
+try:
+    from utils.unified_chatbot import get_chatbot_response
+except Exception as e:
+    logging.warning(f"unified_chatbot import failed (Python 3.14 protobuf issue): {e}")
+    def get_chatbot_response(*args, **kwargs):
+        return {'response': 'Chatbot temporarily unavailable', 'success': False}
+
+try:
+    from utils.voice_pipeline import extract_info_from_transcript, generate_fertilizer_explanation
+except Exception as e:
+    logging.warning(f"voice_pipeline import failed: {e}")
+    def extract_info_from_transcript(*a, **k): return {}
+    def generate_fertilizer_explanation(*a, **k): return ''
+
+try:
+    from redis_config import init_redis, get_redis
+except Exception as e:
+    logging.warning(f"redis_config import failed: {e}")
+    def init_redis(): return None
+    def get_redis(): return None
+
+try:
+    from websocket_events import (
+        register_connection_events,
+        register_chat_events,
+        register_notification_events,
+        register_monitoring_events
+    )
+except Exception as e:
+    logging.warning(f"websocket_events import failed: {e}")
+    def register_connection_events(*a, **k): pass
+    def register_chat_events(*a, **k): pass
+    def register_notification_events(*a, **k): pass
+    def register_monitoring_events(*a, **k): pass
 
 # Load environment variables
 load_dotenv()
@@ -168,15 +194,23 @@ else:
 # CUSTOM DECORATORS & UTILITIES
 # ============================================================================
 
-import google.generativeai as genai
 import base64
 from io import BytesIO
 from PIL import Image
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except Exception:
+    genai = None
+    GENAI_AVAILABLE = False
+    logger.warning("google-generativeai not available on Python 3.14 (protobuf issue)")
 
 def extract_soil_values_from_image(image_data):
     """Extract soil parameters from soil report image using Gemini Vision"""
     try:
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyCNjjPRTghArckrMinO_xjrGeJxb7GcQvM'))
+        if not GENAI_AVAILABLE:
+            return {'success': False, 'message': 'Gemini AI not available on this Python version'}
+        genai.configure(api_key=os.getenv('GEMINI_API_KEY', ''))
         model = genai.GenerativeModel('gemini-2.5-flash')
         
         # If image_data is base64 string, decode it
@@ -233,7 +267,9 @@ def extract_soil_values_from_image(image_data):
 def get_gemini_crop_explanation_hindi(crop, N, P, K, temperature, humidity, ph, rainfall):
     """Get detailed Hindi explanation from Gemini for crop recommendation"""
     try:
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyCNjjPRTghArckrMinO_xjrGeJxb7GcQvM'))
+        if not GENAI_AVAILABLE:
+            return f"{crop} की खेती के लिए यह मौसम और मिट्टी उपयुक्त है।"
+        genai.configure(api_key=os.getenv('GEMINI_API_KEY', ''))
         # Use the latest available Gemini model
         model = genai.GenerativeModel('gemini-2.5-flash')
         
@@ -774,9 +810,14 @@ def advanced_crop_recommendation():
     """Get advanced crop recommendation based on month, location, and soil parameters using ML model"""
     try:
         from utils.seasonal_crop_recommender import get_seasonal_crop_recommendation
-        
-        data = request.get_json() or {}
-        
+
+        # Handle both JSON and multipart/form-data (when soil photo is uploaded)
+        if request.content_type and 'application/json' in request.content_type:
+            data = request.get_json() or {}
+        else:
+            # multipart/form-data or form data
+            data = request.form.to_dict() if request.form else {}
+
         month = data.get('month')
         location = data.get('location')
         
@@ -975,21 +1016,21 @@ def extract_soil_from_pdf():
 @app.route('/api/recommendations/seasonal-crop', methods=['POST'])
 @limiter.limit("20 per hour")
 @error_handler
-@validate_json('N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall')
 def seasonal_crop_recommendation():
     """Get crop recommendation based on season and soil conditions"""
-    data = request.get_json()
+    data = request.get_json() or {}
     
     try:
         recommendations = get_seasonal_crop_recommendation(
-            N=float(data['N']),
-            P=float(data['P']),
-            K=float(data['K']),
-            temperature=float(data['temperature']),
-            humidity=float(data['humidity']),
-            ph=float(data['ph']),
-            rainfall=float(data['rainfall']),
+            N=float(data.get('N', 60)),
+            P=float(data.get('P', 40)),
+            K=float(data.get('K', 40)),
+            temperature=float(data.get('temperature', 25)),
+            humidity=float(data.get('humidity', 65)),
+            ph=float(data.get('ph', 6.5)),
+            rainfall=float(data.get('rainfall', 100)),
             season=data.get('season'),
+            month=data.get('month'),
             top_n=int(data.get('top_n', 5))
         )
         
@@ -1012,10 +1053,12 @@ def get_seasons():
         from utils.seasonal_crop_recommender import SeasonalCropRecommender
         recommender = SeasonalCropRecommender()
         seasons = recommender.get_seasons()
+        # handle both ndarray and plain list
+        seasons_list = seasons.tolist() if hasattr(seasons, 'tolist') else list(seasons)
         
         return jsonify({
-            'seasons': seasons.tolist(),
-            'total': len(seasons)
+            'seasons': seasons_list,
+            'total': len(seasons_list)
         }), 200
     except Exception as e:
         logger.error(f"Error getting seasons: {e}")
@@ -1580,7 +1623,7 @@ def extract_fertilizer_info():
     """Extract fertilizer-related information from transcript"""
     try:
         data = request.get_json()
-        transcript = data.get('transcript', '')
+        transcript = data.get('transcript', '') or data.get('text', '')
         
         if not transcript:
             return jsonify({'error': 'No transcript provided'}), 400
@@ -1698,13 +1741,20 @@ def crops_for_month(month):
 @app.route('/api/crop-calendar/crop/<crop_name>', methods=['GET'])
 @limiter.limit("30 per hour")
 @error_handler
-@cache.cached(timeout=3600)
 def crop_info(crop_name):
     """Get detailed information about a specific crop"""
     try:
         details = get_crop_details(crop_name)
         
+        # try case-insensitive if not found
         if not details:
+            details = get_crop_details(crop_name.capitalize())
+        if not details:
+            details = get_crop_details(crop_name.lower())
+        if not details:
+            details = get_crop_details(crop_name.upper())
+        
+        if details is None or (isinstance(details, dict) and not details):
             return jsonify({'error': 'Crop not found'}), 404
         
         logger.info(f"Crop details retrieved for {crop_name}")
@@ -1852,13 +1902,23 @@ def rice_disease_predict():
 @app.route('/api/pest/identify/<pest_name>', methods=['GET'])
 @limiter.limit("30 per hour")
 @error_handler
-@cache.cached(timeout=3600)
 def pest_identify(pest_name):
     """Identify pest and get management strategies"""
     try:
         pest_info = identify_pest(pest_name)
         
+        # try case-insensitive variants if not found or empty
         if not pest_info:
+            pest_info = identify_pest(pest_name.capitalize())
+        if not pest_info:
+            pest_info = identify_pest(pest_name.title())
+        if not pest_info:
+            pest_info = identify_pest(pest_name.lower())
+        # strip trailing 's' for plural (aphids -> aphid)
+        if not pest_info and pest_name.lower().endswith('s'):
+            pest_info = identify_pest(pest_name[:-1].capitalize())
+        
+        if pest_info is None or (isinstance(pest_info, dict) and not pest_info):
             return jsonify({'error': 'Pest not found'}), 404
         
         logger.info(f"Pest information retrieved for {pest_name}")
@@ -2059,7 +2119,7 @@ def get_farmer_crops(farmer_id):
 @app.route('/api/reminders/add-crop', methods=['POST'])
 @limiter.limit("10 per hour")
 @error_handler
-@validate_json('farmer_id', 'crop_name', 'planting_date', 'field_name', 'area_acres')
+@validate_json('farmer_id', 'crop_name', 'planting_date')
 def add_crop():
     """Add a new crop and create reminders"""
     try:
@@ -2069,8 +2129,9 @@ def add_crop():
             'farmer_id': data['farmer_id'],
             'crop_name': data['crop_name'],
             'planting_date': data['planting_date'],
-            'field_name': data['field_name'],
-            'area_acres': float(data['area_acres']),
+            'field_name': data.get('field_name', 'Main Field'),
+            'area_acres': float(data.get('area_acres', 1.0)),
+            'location': data.get('location', ''),
             'status': 'active',
             'created_at': datetime.now().isoformat(),
             'updated_at': datetime.now().isoformat()
