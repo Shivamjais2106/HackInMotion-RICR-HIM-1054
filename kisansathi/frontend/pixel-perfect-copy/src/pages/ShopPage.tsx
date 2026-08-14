@@ -160,6 +160,49 @@ const products = [
     flipkart: "https://www.flipkart.com/search?q=water+retaining+fertilizer",
     category: "Recommended"
   },
+<<<<<<< HEAD
+=======
+   { 
+    name: "Single Super Phosphate (SSP)", 
+    price: "₹350-500/50kg", 
+    image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=400&h=400&fit=crop",
+    amazon: "https://www.amazon.in/s?k=single+super+phosphate+SSP",
+    flipkart: "https://www.flipkart.com/search?q=single+super+phosphate",
+    category: "Recommended"
+  },
+  { 
+    name: "Ammonium Sulfate (21% N)", 
+    price: "₹450-650/50kg", 
+    image: "https://images.unsplash.com/photo-1599599810694-b5ac4dd64b73?w=400&h=400&fit=crop",
+    amazon: "https://www.amazon.in/s?k=ammonium+sulfate+fertilizer",
+    flipkart: "https://www.flipkart.com/search?q=ammonium+sulfate",
+    category: "Recommended"
+  },
+  { 
+    name: "Bone Meal Fertilizer", 
+    price: "₹300-450/kg", 
+    image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad576?w=400&h=400&fit=crop",
+    amazon: "https://www.amazon.in/s?k=bone+meal+fertilizer",
+    flipkart: "https://www.flipkart.com/search?q=bone+meal+fertilizer",
+    category: "Recommended"
+  },
+  { 
+    name: "Potassium Sulfate (SOP)", 
+    price: "₹650-850/50kg", 
+    image: "https://images.unsplash.com/photo-1585314062340-f4346add912b?w=400&h=400&fit=crop",
+    amazon: "https://www.amazon.in/s?k=potassium+sulfate+SOP+fertilizer",
+    flipkart: "https://www.flipkart.com/search?q=potassium+sulfate+fertilizer",
+    category: "Recommended"
+  },
+  { 
+    name: "Rock Phosphate (Natural Fertilizer)", 
+    price: "₹280-420/50kg", 
+    image: "https://images.unsplash.com/photo-1584622181563-430f63602d4b?w=400&h=400&fit=crop",
+    amazon: "https://www.amazon.in/s?k=rock+phosphate+fertilizer",
+    flipkart: "https://www.flipkart.com/search?q=rock+phosphate+fertilizer",
+    category: "Recommended"
+  },
+>>>>>>> 8aeffac (Update ShopPage)
 
   // ===== OTHER PRODUCTS =====
   { 
