@@ -70,13 +70,13 @@ class CropHealthAnalyzer:
         r, g, b = r / 255.0, g / 255.0, b / 255.0
         max_c = max(r, g, b)
         min_c = min(r, g, b)
-        l = (max_c + min_c) / 2.0
+        lightness = (max_c + min_c) / 2.0
 
         if max_c == min_c:
             h = s = 0.0
         else:
             d = max_c - min_c
-            s = d / (2.0 - max_c - min_c) if l > 0.5 else d / (max_c + min_c)
+            s = d / (2.0 - max_c - min_c) if lightness > 0.5 else d / (max_c + min_c)
 
             if max_c == r:
                 h = (g - b) / d + (6 if g < b else 0)
@@ -86,7 +86,7 @@ class CropHealthAnalyzer:
                 h = (r - g) / d + 4
             h /= 6
 
-        return h * 360, s * 100, l * 100
+        return h * 360, s * 100, lightness * 100
 
     def _analyze_color_health(self, rgb_image):
         """Analyze color distribution to determine health status"""

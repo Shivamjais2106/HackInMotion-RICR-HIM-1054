@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_weather_for_farming(l="Delhi"):
+def get_weather_for_farming(location="Delhi"):
     try:
         k = os.getenv("WEATHERAPI_KEY", "")
         if not k:
@@ -20,7 +20,7 @@ def get_weather_for_farming(l="Delhi"):
                 "condition": "Clear",
                 "rainfall": 0,
             }
-        r = requests.get(f"https://api.weatherapi.com/v1/current.json?key={k}&q={l}", timeout=5)
+        r = requests.get(f"https://api.weatherapi.com/v1/current.json?key={k}&q={location}", timeout=5)
         if r.status_code == 200:
             d = r.json()
             c = d["current"]
@@ -61,14 +61,14 @@ def get_weather_for_farming(l="Delhi"):
         }
 
 
-def get_weather_forecast(l="Delhi"):
+def get_weather_forecast(location="Delhi"):
     """Get 5-day weather forecast"""
     try:
         k = os.getenv("WEATHERAPI_KEY", "")
         if not k:
             logger.warning("WEATHERAPI_KEY not set")
             return []
-        r = requests.get(f"https://api.weatherapi.com/v1/forecast.json?key={k}&q={l}&days=5&aqi=no", timeout=5)
+        r = requests.get(f"https://api.weatherapi.com/v1/forecast.json?key={k}&q={location}&days=5&aqi=no", timeout=5)
         if r.status_code == 200:
             d = r.json()
             forecast = []
@@ -85,7 +85,7 @@ def get_weather_forecast(l="Delhi"):
                         "wind_speed_avg": day["day"]["avgvis_km"],
                     }
                 )
-            logger.info(f"Forecast retrieved for {l}: {len(forecast)} days")
+            logger.info(f"Forecast retrieved for {location}: {len(forecast)} days")
             return forecast
         logger.error(f"Forecast API returned status {r.status_code}")
         return []
@@ -94,12 +94,12 @@ def get_weather_forecast(l="Delhi"):
         return []
 
 
-def get_farming_recommendations_based_on_weather(l="Delhi"):
+def get_farming_recommendations_based_on_weather(location="Delhi"):
     try:
         k = os.getenv("WEATHERAPI_KEY", "")
         if not k:
             return ["Check soil", "Monitor crops"]
-        r = requests.get(f"https://api.weatherapi.com/v1/current.json?key={k}&q={l}", timeout=5)
+        r = requests.get(f"https://api.weatherapi.com/v1/current.json?key={k}&q={location}", timeout=5)
         if r.status_code == 200:
             d = r.json()
             c = d["current"]
@@ -119,12 +119,12 @@ def get_farming_recommendations_based_on_weather(l="Delhi"):
         return ["Check soil"]
 
 
-def get_weather_alerts(l="Delhi"):
+def get_weather_alerts(location="Delhi"):
     try:
         k = os.getenv("WEATHERAPI_KEY", "")
         if not k:
             return []
-        r = requests.get(f"https://api.weatherapi.com/v1/current.json?key={k}&q={l}", timeout=5)
+        r = requests.get(f"https://api.weatherapi.com/v1/current.json?key={k}&q={location}", timeout=5)
         if r.status_code == 200:
             d = r.json()
             c = d["current"]

@@ -48,7 +48,7 @@ def get_fertilizer_recommendation(
                 if col in features_df.columns:
                     try:
                         features_df[col] = label_encoders[col].transform(features_df[col].astype(str))
-                    except:
+                    except (ValueError, KeyError):
                         # If encoding fails, use first class as default
                         features_df[col] = 0
 

@@ -59,7 +59,7 @@ class RedisManager:
             if value:
                 try:
                     return json.loads(value)
-                except:
+                except (json.JSONDecodeError, ValueError):
                     return value
             return None
         except Exception as e:

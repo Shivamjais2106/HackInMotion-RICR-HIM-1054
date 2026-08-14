@@ -486,6 +486,8 @@ def register():
 def login():
     """Login user and return JWT token"""
     data = request.get_json()
+    mobile = data.get("mobile")
+    password = data.get("password")
 
     # Find user by mobile
     user = db["users"].find_one({"mobile": mobile})
