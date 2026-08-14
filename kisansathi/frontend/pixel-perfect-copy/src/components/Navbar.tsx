@@ -57,6 +57,7 @@ const Navbar = () => {
     { label: t('nav.resources'), href: "/resources", protected: false },
     { label: "👥 Community", href: "/community", protected: true },
     { label: "🏥 Livestock Disease", href: "/livestock", protected: true },
+    { label: "🌾 Farm Profile", href: "/farm-profile", protected: true },
   ];
 
   return (

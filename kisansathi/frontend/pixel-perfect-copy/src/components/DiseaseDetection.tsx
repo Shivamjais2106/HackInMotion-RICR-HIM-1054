@@ -59,13 +59,19 @@ function DiseaseDetection() {
       const formData = new FormData();
       uploadedFiles.forEach(file => formData.append('files', file));
       const response = await fetch(`${baseURL}/disease-predict`, { method: 'POST', body: formData });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        setResult({ success: false, error: errData.error || `Server error (${response.status}). Please try again.` });
+        return;
+      }
       const data = await response.json();
       setResult(data);
-      if (data.success) speakResult(data);
-    } catch {
-      setResult({ success: false, error: 'Failed to analyze images' });
+      if (data.success && data.most_common_disease) speakResult(data);
+    } catch (err) {
+      setResult({ success: false, error: 'Network error. Could not reach the server. Please check your connection.' });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleRiceSubmit = async (e: React.FormEvent) => {
@@ -77,17 +83,24 @@ function DiseaseDetection() {
       const fd = new FormData();
       fd.append('file', riceFile);
       const res = await fetch(`${baseURL}/rice-disease-predict`, { method: 'POST', body: fd });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        setRiceResult({ success: false, error: errData.error || `Server error (${res.status}). Please try again.` });
+        return;
+      }
       const data = await res.json();
       setRiceResult(data);
-    } catch {
-      setRiceResult({ success: false, error: 'Failed to analyze image' });
+    } catch (err) {
+      setRiceResult({ success: false, error: 'Network error. Could not reach the server. Please check your connection.' });
+    } finally {
+      setRiceLoading(false);
     }
-    setRiceLoading(false);
   };
 
   const speakResult = (data: any) => {
+    if (!data?.most_common_disease) return;
     const { crop, disease } = parseDiseaseName(data.most_common_disease);
-    const cleanInfo = data.disease_info.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const cleanInfo = (data.disease_info || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     const text = `Analyzed ${data.total_images} images. Crop: ${crop}. Disease: ${disease}. ${cleanInfo.substring(0, 200)}`;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.9;

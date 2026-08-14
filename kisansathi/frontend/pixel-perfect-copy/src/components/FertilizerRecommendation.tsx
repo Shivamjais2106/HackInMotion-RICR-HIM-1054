@@ -14,6 +14,7 @@ function FertilizerRecommendation() {
   });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeTab, setActiveTab] = useState('manual');
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -34,6 +35,7 @@ function FertilizerRecommendation() {
     }
 
     setLoading(true);
+    setSubmitError('');
     try {
       const response = await fetch(`${getAPIBaseURL()}/fertilizer/recommend`, {
         method: 'POST',
@@ -49,30 +51,33 @@ function FertilizerRecommendation() {
           soil_type: formData.soil_type || 'loamy'
         })
       });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        setSubmitError(errData.error || `Server error (${response.status}). Please try again.`);
+        setResult(null);
+        return;
+      }
       const data = await response.json();
       setResult(data);
-      
-      if (data.recommendation) {
-        speakResult(data);
-      }
+      if (data.recommendation) speakResult(data);
     } catch (error) {
-      console.error('Error:', error);
-      setResult({ success: false, error: 'Failed to get recommendation' });
+      setSubmitError('Network error. Could not reach the server. Please check your connection.');
+      setResult(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const speakResult = (data) => {
-    const rec = data.recommendation;
-    const text = `For ${formData.crop}, recommended fertilizer is ${rec.recommended_fertilizer}. Apply ${rec.application_rate.nitrogen} kg nitrogen, ${rec.application_rate.phosphorus} kg phosphorus, and ${rec.application_rate.potassium} kg potassium per hectare. ${rec.timing[0]}`;
+    const rec = data?.recommendation;
+    if (!rec) return;
+    const text = `For ${formData.crop}, recommended fertilizer is ${rec.recommended_fertilizer}. Apply ${rec.application_rate?.nitrogen ?? 0} kg nitrogen, ${rec.application_rate?.phosphorus ?? 0} kg phosphorus, and ${rec.application_rate?.potassium ?? 0} kg potassium per hectare. ${rec.timing?.[0] ?? ''}`;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 1;
-    
     setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    
     window.speechSynthesis.speak(utterance);
   };
 
@@ -105,45 +110,39 @@ function FertilizerRecommendation() {
     }
 
     setLoading(true);
+    setSubmitError('');
     try {
-      // Process each image
       const results = [];
       for (const file of uploadedFiles) {
         const formDataFile = new FormData();
         formDataFile.append('file', file);
-
         const response = await fetch(`${getAPIBaseURL()}/fertilizer-from-image`, {
           method: 'POST',
           body: formDataFile
         });
-        const data = await response.json();
-        results.push({
-          filename: file.name,
-          data: data
-        });
-      }
-
-      // Show results for all images
-      setResult({ success: true, results: results });
-      
-      if (results.length > 0 && results[0].data.success) {
-        // Speak the summary
-        const summary = results[0].data.summary;
-        if (summary) {
-          const utterance = new SpeechSynthesisUtterance(summary);
-          utterance.rate = 0.9;
-          utterance.pitch = 1;
-          utterance.volume = 1;
-          setIsSpeaking(true);
-          utterance.onend = () => setIsSpeaking(false);
-          window.speechSynthesis.speak(utterance);
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          results.push({ filename: file.name, data: { success: false, error: errData.error || `Server error ${response.status}` } });
+        } else {
+          const data = await response.json();
+          results.push({ filename: file.name, data });
         }
       }
+      setResult({ success: true, results });
+      const firstSuccess = results.find(r => r.data.success);
+      if (firstSuccess?.data?.summary) {
+        const utterance = new SpeechSynthesisUtterance(firstSuccess.data.summary);
+        utterance.rate = 0.9; utterance.pitch = 1; utterance.volume = 1;
+        setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+      }
     } catch (error) {
-      console.error('Error:', error);
-      setResult({ success: false, error: 'Failed to process images' });
+      setSubmitError('Network error. Could not process images. Please check your connection.');
+      setResult(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const crops = [
@@ -307,6 +306,11 @@ function FertilizerRecommendation() {
             >
               {loading ? '⏳ Analyzing...' : '🧪 Get Fertilizer Recommendation'}
             </button>
+            {submitError && (
+              <div className="bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 text-sm">
+                ❌ {submitError}
+              </div>
+            )}
             </form>
           )}
 
