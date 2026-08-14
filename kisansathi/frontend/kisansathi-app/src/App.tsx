@@ -11,7 +11,6 @@ import Index from "./pages/Index.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import ShopPage from "./pages/ShopPage.tsx";
 import GalleryPage from "./pages/GalleryPage.tsx";
-import TestimonialPage from "./pages/TestimonialPage.tsx";
 import GovernmentSchemesPage from "./pages/GovernmentSchemesPage.tsx";
 import FAQPage from "./pages/FAQPage.tsx";
 import FarmProfilePage from "./pages/FarmProfilePage.tsx";
@@ -31,10 +30,7 @@ import CommunityPage from "./pages/CommunityPage.tsx";
 import MonitoringPage from "./pages/MonitoringPage.tsx";
 import FileUploadPage from "./pages/FileUploadPage.tsx";
 import SeasonalCropRecommendation from "./components/SeasonalCropRecommendation.tsx";
-import WeatherTestPage from "./pages/WeatherTestPage.tsx";
-import WeatherDebugPage from "./pages/WeatherDebugPage.tsx";
 import SoilAnalysisPage from "./pages/SoilAnalysisPage.tsx";
-import TTSTestPage from "./pages/TTSTestPage.tsx";
 import MarketPricePage from "./pages/MarketPricePage.tsx";
 
 const queryClient = new QueryClient();
@@ -53,7 +49,6 @@ const App = () => (
               <Route path="/about" element={<AboutPage />} />
               <Route path="/shop" element={<ShopPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
-              <Route path="/testimonial" element={<TestimonialPage />} />
               <Route path="/schemes" element={<GovernmentSchemesPage />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/services" element={<ServicesPage />} />
@@ -65,8 +60,6 @@ const App = () => (
               <Route path="/fertilizer" element={<ProtectedRoute element={<FertilizerPage />} />} />
               <Route path="/disease" element={<ProtectedRoute element={<DiseasePage />} />} />
               <Route path="/weather" element={<ProtectedRoute element={<WeatherPage />} />} />
-              <Route path="/weather-test" element={<WeatherTestPage />} />
-              <Route path="/weather-debug" element={<WeatherDebugPage />} />
               <Route
                 path="/soil-analysis"
                 element={<ProtectedRoute element={<SoilAnalysisPage />} />}
@@ -94,7 +87,6 @@ const App = () => (
               <Route path="/community" element={<ProtectedRoute element={<CommunityPage />} />} />
               <Route path="/monitoring" element={<ProtectedRoute element={<MonitoringPage />} />} />
               <Route path="/files" element={<ProtectedRoute element={<FileUploadPage />} />} />
-              <Route path="/tts-test" element={<TTSTestPage />} />
               <Route path="/market" element={<MarketPricePage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
