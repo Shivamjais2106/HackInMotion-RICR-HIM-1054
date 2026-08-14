@@ -279,7 +279,7 @@ def broadcast_monitoring_update(socketio, metrics):
     """Broadcast monitoring update to all connected clients"""
     socketio.emit("monitoring_update", {"metrics": metrics, "timestamp": datetime.now().isoformat()}, room="monitoring")
 
-    logger.debug(f"📊 Monitoring update broadcasted")
+    logger.debug("📊 Monitoring update broadcasted")
 
 
 def get_online_users():

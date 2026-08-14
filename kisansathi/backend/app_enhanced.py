@@ -981,7 +981,7 @@ def crop_recommendation():
             )
             recommendations[0]["detailed_explanation"] = gemini_explanation
 
-        logger.info(f"ML-based crop recommendation generated with Gemini explanation")
+        logger.info("ML-based crop recommendation generated with Gemini explanation")
 
         return jsonify({"recommendations": recommendations, "total": len(recommendations)}), 200
     except Exception as e:
@@ -1080,7 +1080,7 @@ def seasonal_crop_recommendation():
             top_n=int(data.get("top_n", 5)),
         )
 
-        logger.info(f"Seasonal crop recommendation generated")
+        logger.info("Seasonal crop recommendation generated")
 
         return jsonify({"recommendations": recommendations, "total": len(recommendations)}), 200
     except Exception as e:
@@ -1127,7 +1127,7 @@ def chatbot_message():
 
         response = get_chatbot_response(message=data["message"], context=conversation_history)
 
-        logger.info(f"Chatbot message processed")
+        logger.info("Chatbot message processed")
 
         return jsonify({"response": response, "success": True}), 200
     except Exception as e:
@@ -1521,7 +1521,7 @@ def soil_analysis():
             texture=data["texture"],
         )
 
-        logger.info(f"Soil analysis completed")
+        logger.info("Soil analysis completed")
 
         return jsonify({"analysis": analysis, "timestamp": datetime.now().isoformat()}), 200
     except Exception as e:
@@ -1654,7 +1654,7 @@ def extract_fertilizer_info():
         # Extract information using NLP
         extracted = extract_info_from_transcript(transcript)
 
-        logger.info(f"Extracted fertilizer info from transcript")
+        logger.info("Extracted fertilizer info from transcript")
 
         return jsonify({"extracted": extracted, "timestamp": datetime.now().isoformat()}), 200
     except Exception as e:
@@ -1701,7 +1701,7 @@ def crop_calendar():
     try:
         calendar = get_crop_calendar()
 
-        logger.info(f"Crop calendar retrieved")
+        logger.info("Crop calendar retrieved")
 
         return jsonify({"calendar": calendar, "timestamp": datetime.now().isoformat()}), 200
     except Exception as e:
@@ -1731,7 +1731,7 @@ def get_months():
             "December",
         ]
 
-        logger.info(f"Months list retrieved")
+        logger.info("Months list retrieved")
 
         return jsonify(
             {"success": True, "months": months, "total": len(months), "timestamp": datetime.now().isoformat()}
@@ -1978,7 +1978,7 @@ def all_pests():
     try:
         pests = get_all_pests()
 
-        logger.info(f"All pests list retrieved")
+        logger.info("All pests list retrieved")
 
         return jsonify({"pests": pests, "total": len(pests), "timestamp": datetime.now().isoformat()}), 200
     except Exception as e:
@@ -2789,7 +2789,7 @@ def get_live_market_price(commodity: str):
     try:
         # data.gov.in commodity prices API (free, no key required)
         commodity_clean = commodity.lower().strip()
-        url = f"https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+        url = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
         params = {
             "api-key": "resource:9ef84268-d588-465a-a308-a864a43d0070",
             "format": "json",
@@ -2928,7 +2928,7 @@ def internal_error(error):
 # ============================================================================
 
 # Log startup info
-logger.info(f"Starting KisanSathi Backend (Enhanced)")
+logger.info("Starting KisanSathi Backend (Enhanced)")
 logger.info(f"Database: {MONGODB_DB}")
 if db is not None:
     logger.info("✅ MongoDB connected and ready!")

@@ -22,7 +22,7 @@ if os.path.exists(test_image_path):
             response = requests.post("http://localhost:5000/api/disease-predict", files=files, timeout=30)
 
             print(f"\nStatus Code: {response.status_code}")
-            print(f"\nResponse:")
+            print("\nResponse:")
             import json
 
             result = response.json()
@@ -32,7 +32,7 @@ if os.path.exists(test_image_path):
                 print("\n✅ API working correctly!")
                 if result.get("predictions"):
                     pred = result["predictions"][0]
-                    print(f"\nPrediction Details:")
+                    print("\nPrediction Details:")
                     print(f"  Disease: {pred.get('disease')}")
                     print(f"  Confidence: {pred.get('confidence')}%")
                     if pred.get("management"):

@@ -460,7 +460,7 @@ def main():
         if manager.export_collection(collection, filename):
             print(f"✅ Exported {collection} to {filename}")
         else:
-            print(f"❌ Failed to export")
+            print("❌ Failed to export")
 
     elif command == "import" and len(sys.argv) > 3:
         collection = sys.argv[2]
@@ -468,7 +468,7 @@ def main():
         if manager.import_collection(collection, filename):
             print(f"✅ Imported {collection} from {filename}")
         else:
-            print(f"❌ Failed to import")
+            print("❌ Failed to import")
 
     else:
         print(f"Unknown command: {command}")

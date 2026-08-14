@@ -188,7 +188,7 @@ def generate_reports(self):
 
         db["reports"].insert_one(report)
 
-        logger.info(f"✅ Weekly report generated")
+        logger.info("✅ Weekly report generated")
         logger.info(f"   Users: {total_users}")
         logger.info(f"   Groups: {total_groups}")
         logger.info(f"   Messages: {total_messages}")

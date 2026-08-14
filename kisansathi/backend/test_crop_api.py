@@ -12,7 +12,7 @@ print("=" * 80)
 # Test data
 test_data = {"N": 90, "P": 42, "K": 43, "temperature": 20.87, "humidity": 82.0, "ph": 6.0, "rainfall": 202.9}
 
-print(f"\nTest Data:")
+print("\nTest Data:")
 print(json.dumps(test_data, indent=2))
 
 try:
@@ -24,8 +24,8 @@ try:
 
     if response.status_code == 200:
         result = response.json()
-        print(f"\n✅ SUCCESS!")
-        print(f"Response:")
+        print("\n✅ SUCCESS!")
+        print("Response:")
         print(json.dumps(result, indent=2))
     else:
         print(f"\n❌ ERROR: {response.status_code}")

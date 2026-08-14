@@ -296,7 +296,7 @@ def main():
         print(f"\n{'=' * 80}")
         print(f"📋 {test_case['name']}")
         print(f"{'=' * 80}")
-        print(f"Soil Conditions:")
+        print("Soil Conditions:")
         print(f"  N: {test_case['N']} | P: {test_case['P']} | K: {test_case['K']}")
         print(f"  Temperature: {test_case['temperature']}°C | Humidity: {test_case['humidity']}%")
         print(f"  pH: {test_case['ph']} | Rainfall: {test_case['rainfall']}mm")
@@ -313,7 +313,7 @@ def main():
             top_n=5,
         )
 
-        print(f"\n🌾 Top 5 Crop Recommendations (Ranked by Confidence):")
+        print("\n🌾 Top 5 Crop Recommendations (Ranked by Confidence):")
         print(f"{'-' * 80}")
 
         for rec in recommendations:
