@@ -24,7 +24,9 @@ const DashboardEnhanced = () => {
     if (stored) {
       try {
         setUser(JSON.parse(stored));
-      } catch {}
+      } catch (_e) {
+        // stored value is not valid JSON — ignore
+      }
     }
     loadAll();
   }, []);
@@ -48,7 +50,9 @@ const DashboardEnhanced = () => {
         loadCropRec(d.profile);
         loadHealthLogs();
       }
-    } catch {}
+    } catch (_e) {
+      // network/parse error — silently skip
+    }
   };
 
   const loadWeather = async (location: string) => {
@@ -56,7 +60,9 @@ const DashboardEnhanced = () => {
       const r = await fetch(`${getAPIBaseURL()}/weather/${encodeURIComponent(location)}`);
       const d = await r.json();
       setWeather(d);
-    } catch {}
+    } catch (_e) {
+      // network/parse error — silently skip
+    }
   };
 
   const loadIrrigation = async () => {
@@ -66,7 +72,9 @@ const DashboardEnhanced = () => {
       });
       const d = await r.json();
       if (d.success) setIrrigation(d);
-    } catch {}
+    } catch (_e) {
+      // network/parse error — silently skip
+    }
   };
 
   const loadMarketPrices = async () => {
@@ -74,7 +82,9 @@ const DashboardEnhanced = () => {
       const r = await fetch(`${getAPIBaseURL()}/market/prices`);
       const d = await r.json();
       if (d.success) setMarketPrices(d.prices.slice(0, 10));
-    } catch {}
+    } catch (_e) {
+      // network/parse error — silently skip
+    }
   };
 
   const loadHealthLogs = async () => {
@@ -84,7 +94,9 @@ const DashboardEnhanced = () => {
       });
       const d = await r.json();
       if (d.success) setHealthLogs(d.logs.slice(0, 3));
-    } catch {}
+    } catch (_e) {
+      // network/parse error — silently skip
+    }
   };
 
   const loadCropRec = async (profile: any) => {
@@ -99,7 +111,9 @@ const DashboardEnhanced = () => {
       });
       const d = await r.json();
       if (d.success) setCropRec(d);
-    } catch {}
+    } catch (_e) {
+      // network/parse error — silently skip
+    }
   };
 
   const handleLogout = () => {

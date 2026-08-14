@@ -20,12 +20,7 @@ from datetime import datetime
 from flask import jsonify
 
 
-<<<<<<< HEAD
 def api_error(message: str, status: int = 400, hint: str = "", field: str = "") -> tuple:
-=======
-def api_error(message: str, status: int = 400,
-              hint: str = "", field: str = "") -> tuple:
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     """
     Return a standardised JSON error response.
 
@@ -65,7 +60,6 @@ def api_success(data, message: str = "Success", status: int = 200) -> tuple:
     """
     Return a standardised JSON success response.
     """
-<<<<<<< HEAD
     return jsonify(
         {
             "success": True,
@@ -74,22 +68,11 @@ def api_success(data, message: str = "Success", status: int = 200) -> tuple:
             "timestamp": datetime.utcnow().isoformat() + "Z",
         }
     ), status
-=======
-    return jsonify({
-        "success": True,
-        "message": message,
-        "data": data,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-    }), status
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 
 
 # ── Common pre-built error responses ────────────────────────────────────────
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 def err_missing_fields(missing: list[str]) -> tuple:
     return api_error(
         f"Missing required fields: {', '.join(missing)}",

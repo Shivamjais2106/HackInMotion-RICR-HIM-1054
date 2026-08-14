@@ -53,17 +53,12 @@ def get_irrigation_decision(location: str, soil_type: str = "Loamy") -> dict:
 
     # Soil retention factor
     retention = {
-<<<<<<< HEAD
         "Sandy": 0.30,
         "Red": 0.45,
         "Loamy": 0.60,
         "Black": 0.75,
         "Clay": 0.80,
         "Clayey": 0.80,
-=======
-        "Sandy": 0.30, "Red": 0.45, "Loamy": 0.60,
-        "Black": 0.75, "Clay": 0.80, "Clayey": 0.80,
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     }.get(soil_type, 0.60)
 
     if not data:
@@ -103,11 +98,7 @@ def get_irrigation_decision(location: str, soil_type: str = "Loamy") -> dict:
     elif net_need > 1.5:
         decision = "irrigate_within_24h"
         message = f"Plan irrigation within 24 hours — moderate water deficit ({net_need} mm/day)."
-<<<<<<< HEAD
         reason = "Soil moisture will drop below safe threshold by tomorrow."
-=======
-        reason = f"Soil moisture will drop below safe threshold by tomorrow."
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     else:
         decision = "monitor"
         message = "Soil moisture adequate — monitor and irrigate if leaves show wilting."
@@ -144,7 +135,6 @@ def get_risk_alerts(location: str) -> list[dict]:
     alerts: list[dict] = []
 
     if temp <= 0:
-<<<<<<< HEAD
         alerts.append(
             {
                 "type": "FROST",
@@ -220,66 +210,5 @@ def get_risk_alerts(location: str) -> list[dict]:
                 "action": "Check field drainage. Delay fertilizer application by 2 days.",
             }
         )
-=======
-        alerts.append({
-            "type": "FROST",
-            "severity": "critical",
-            "message": "Frost warning — protect crops immediately.",
-            "action": "Cover sensitive crops. Use mulching or plastic covers overnight.",
-        })
-    elif temp <= 4:
-        alerts.append({
-            "type": "COLD_STRESS",
-            "severity": "high",
-            "message": "Cold stress likely below 4°C.",
-            "action": "Protect nurseries and seedlings with covers.",
-        })
-
-    if temp >= 42:
-        alerts.append({
-            "type": "EXTREME_HEAT",
-            "severity": "critical",
-            "message": f"Extreme heat alert — {temp}°C.",
-            "action": "Irrigate early morning. Provide shade for vegetables.",
-        })
-    elif temp >= 38:
-        alerts.append({
-            "type": "HEAT_STRESS",
-            "severity": "high",
-            "message": f"Heat stress at {temp}°C.",
-            "action": "Increase irrigation frequency. Avoid spraying pesticides.",
-        })
-
-    if humidity >= 90:
-        alerts.append({
-            "type": "FUNGAL_RISK",
-            "severity": "high",
-            "message": "Very high humidity — fungal disease risk (late blight, rust).",
-            "action": "Apply preventive fungicide. Improve field drainage.",
-        })
-    elif humidity >= 80:
-        alerts.append({
-            "type": "FUNGAL_RISK",
-            "severity": "medium",
-            "message": "Elevated humidity — monitor for fungal symptoms.",
-            "action": "Inspect leaves for spots. Ensure good airflow between rows.",
-        })
-
-    if wind_kph >= 50:
-        alerts.append({
-            "type": "HIGH_WIND",
-            "severity": "high",
-            "message": f"Strong winds {wind_kph:.0f} km/h.",
-            "action": "Support tall crops. Delay spraying operations.",
-        })
-
-    if precip_mm >= 25:
-        alerts.append({
-            "type": "HEAVY_RAIN",
-            "severity": "medium",
-            "message": f"Heavy rainfall {precip_mm:.0f} mm.",
-            "action": "Check field drainage. Delay fertilizer application by 2 days.",
-        })
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 
     return alerts

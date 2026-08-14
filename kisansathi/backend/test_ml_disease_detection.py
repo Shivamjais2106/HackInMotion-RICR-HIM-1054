@@ -7,18 +7,13 @@ import sys
 from utils.disease_detection_ml import detect_disease_ml
 
 # Test with a sample image
-<<<<<<< HEAD
 test_image_path = "kisansathi/data/processed/diseases/data/Apple___alternaria_leaf_spot/112921.jpg"
-=======
-test_image_path = 'kisansathi/data/processed/diseases/data/Apple___alternaria_leaf_spot/112921.jpg'
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 
 if os.path.exists(test_image_path):
     print("=" * 80)
     print("TESTING ML DISEASE DETECTION")
     print("=" * 80)
     print(f"\nTest image: {test_image_path}")
-<<<<<<< HEAD
 
     # Open image file
     with open(test_image_path, "rb") as f:
@@ -35,34 +30,11 @@ if os.path.exists(test_image_path):
             print(f"  - {rec}")
         print("\nTop 5 Probabilities:")
         sorted_probs = sorted(result["all_probabilities"].items(), key=lambda x: x[1], reverse=True)[:5]
-=======
-    
-    # Open image file
-    with open(test_image_path, 'rb') as f:
-        result = detect_disease_ml(f)
-    
-    print("\nPrediction Result:")
-    print(f"Success: {result['success']}")
-    
-    if result['success']:
-        print(f"Disease: {result['disease']}")
-        print(f"Confidence: {result['confidence']}%")
-        print(f"\nManagement Recommendations:")
-        for rec in result['management']['management']:
-            print(f"  - {rec}")
-        print(f"\nTop 5 Probabilities:")
-        sorted_probs = sorted(result['all_probabilities'].items(), 
-                            key=lambda x: x[1], reverse=True)[:5]
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
         for disease, prob in sorted_probs:
             print(f"  {disease}: {prob}%")
     else:
         print(f"Error: {result['error']}")
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     print("\n" + "=" * 80)
 else:
     print(f"Test image not found: {test_image_path}")

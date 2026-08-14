@@ -29,7 +29,7 @@ except Exception as e:
     logger.warning(f"unified_chatbot import failed (Python 3.14 protobuf issue): {e}")
 
     def get_chatbot_response(*args, **kwargs):
-        return {'response': 'Chatbot temporarily unavailable', 'success': False}
+        return {"response": "Chatbot temporarily unavailable", "success": False}
 
 # --- Voice pipeline --------------------------------------------------------
 
@@ -42,7 +42,7 @@ except Exception as e:
         return {}
 
     def generate_fertilizer_explanation(*a, **k):
-        return ''
+        return ""
 
 # --- Weather ---------------------------------------------------------------
 
@@ -111,19 +111,20 @@ try:
     from utils.plant_disease_detection import detect_rice_disease, detect_plant_disease
 except ImportError as e:
     logger.warning(f"Plant disease detection import failed: {e}")
-    detect_rice_disease = lambda x: {'success': False, 'error': 'Model not available'}
-    detect_plant_disease = lambda x: {'success': False, 'error': 'Model not available'}
+    detect_rice_disease = lambda x: {"success": False, "error": "Model not available"}
+    detect_plant_disease = lambda x: {"success": False, "error": "Model not available"}
 
 try:
     from utils.disease_detection_ml import detect_disease_ml
 except ImportError as e:
     logger.warning(f"ML disease detection import failed: {e}")
-    detect_disease_ml = lambda x: {'success': False, 'error': 'Model not available'}
+    detect_disease_ml = lambda x: {"success": False, "error": "Model not available"}
 
 # --- Gemini (generative AI) -----------------------------------------------
 
 try:
     import google.generativeai as genai
+
     GENAI_AVAILABLE = True
 except Exception:
     genai = None

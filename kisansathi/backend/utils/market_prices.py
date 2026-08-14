@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 # MSP / APMC reference prices (GoI 2025-26 season)
 MANDI_BASE_PRICES: dict[str, dict] = {
-<<<<<<< HEAD
     "wheat": {"min": 2275, "max": 2500, "unit": "per quintal", "msp": 2275},
     "rice": {"min": 2300, "max": 2600, "unit": "per quintal", "msp": 2300},
     "maize": {"min": 2090, "max": 2400, "unit": "per quintal", "msp": 2090},
@@ -39,34 +38,6 @@ MANDI_BASE_PRICES: dict[str, dict] = {
 
 # AGMARKNET API resource ID on data.gov.in (free, no key needed)
 AGMARKNET_API_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
-=======
-    "wheat":     {"min": 2275,  "max": 2500,  "unit": "per quintal", "msp": 2275},
-    "rice":      {"min": 2300,  "max": 2600,  "unit": "per quintal", "msp": 2300},
-    "maize":     {"min": 2090,  "max": 2400,  "unit": "per quintal", "msp": 2090},
-    "soybean":   {"min": 4892,  "max": 5500,  "unit": "per quintal", "msp": 4892},
-    "cotton":    {"min": 7121,  "max": 8000,  "unit": "per quintal", "msp": 7121},
-    "mustard":   {"min": 5950,  "max": 6500,  "unit": "per quintal", "msp": 5950},
-    "groundnut": {"min": 6783,  "max": 7500,  "unit": "per quintal", "msp": 6783},
-    "chickpea":  {"min": 5440,  "max": 6200,  "unit": "per quintal", "msp": 5440},
-    "lentil":    {"min": 6425,  "max": 7200,  "unit": "per quintal", "msp": 6425},
-    "onion":     {"min": 800,   "max": 2500,  "unit": "per quintal", "msp": None},
-    "potato":    {"min": 600,   "max": 1800,  "unit": "per quintal", "msp": None},
-    "tomato":    {"min": 500,   "max": 3000,  "unit": "per quintal", "msp": None},
-    "sugarcane": {"min": 340,   "max": 380,   "unit": "per quintal", "msp": 340},
-    "turmeric":  {"min": 9000,  "max": 14000, "unit": "per quintal", "msp": None},
-    "chilli":    {"min": 8000,  "max": 16000, "unit": "per quintal", "msp": None},
-    "barley":    {"min": 1735,  "max": 2100,  "unit": "per quintal", "msp": 1735},
-    "jowar":     {"min": 3371,  "max": 3800,  "unit": "per quintal", "msp": 3371},
-    "bajra":     {"min": 2625,  "max": 3000,  "unit": "per quintal", "msp": 2625},
-    "sunflower": {"min": 7280,  "max": 8000,  "unit": "per quintal", "msp": 7280},
-    "sesame":    {"min": 8635,  "max": 10000, "unit": "per quintal", "msp": 8635},
-}
-
-# AGMARKNET API resource ID on data.gov.in (free, no key needed)
-AGMARKNET_API_URL = (
-    "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
-)
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 
 
 def get_live_price(commodity: str) -> dict | None:
@@ -85,15 +56,7 @@ def get_live_price(commodity: str) -> dict | None:
         resp = requests.get(AGMARKNET_API_URL, params=params, timeout=5)
         if resp.status_code == 200:
             records = resp.json().get("records", [])
-<<<<<<< HEAD
             prices = [float(r["modal_price"]) for r in records if r.get("modal_price")]
-=======
-            prices = [
-                float(r["modal_price"])
-                for r in records
-                if r.get("modal_price")
-            ]
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
             if prices:
                 avg_modal = round(sum(prices) / len(prices))
                 return {
@@ -141,7 +104,6 @@ def get_all_prices() -> list[dict]:
     for name, base in MANDI_BASE_PRICES.items():
         price = get_commodity_price(name)
         if price:
-<<<<<<< HEAD
             results.append(
                 {
                     "commodity": name.capitalize(),
@@ -151,15 +113,6 @@ def get_all_prices() -> list[dict]:
                     **price,
                 }
             )
-=======
-            results.append({
-                "commodity": name.capitalize(),
-                "commodity_key": name,
-                "unit": base["unit"],
-                "msp": base["msp"],
-                **price,
-            })
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     return results
 
 
@@ -180,9 +133,5 @@ def get_trade_advice(commodity: str, modal_price: int) -> str:
         return "Good selling opportunity — prices above average."
     return "Hold if possible — prices are below average for this season."
 
-<<<<<<< HEAD
 
 # v1.1 � added get_trade_advice for sell/hold/MSP advisory
-=======
-# v1.1 — added get_trade_advice for sell/hold/MSP advisory
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6

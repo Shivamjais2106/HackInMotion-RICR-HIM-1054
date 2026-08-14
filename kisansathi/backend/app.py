@@ -18,9 +18,4 @@ import os
 if __name__ == "__main__":
     debug = os.getenv("FLASK_DEBUG", "False").lower() == "true"
     port = int(os.getenv("PORT", 5000))
-<<<<<<< HEAD
     socketio.run(app, host="0.0.0.0", port=port, debug=debug, allow_unsafe_werkzeug=True)
-=======
-    socketio.run(app, host="0.0.0.0", port=port, debug=debug,
-                 allow_unsafe_werkzeug=True)
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6

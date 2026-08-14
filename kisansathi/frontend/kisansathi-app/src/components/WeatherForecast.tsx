@@ -160,8 +160,9 @@ const WeatherForecast: React.FC = () => {
           fetchForecast(data.city);
           return;
         }
-      } catch {}
-      // Final fallback — always show something, never hang
+      } catch (_e) {
+        // location detect failed — fall through to final fallback
+      }
       setCity("Delhi");
       fetchForecast("Delhi");
     };
@@ -193,7 +194,7 @@ const WeatherForecast: React.FC = () => {
             return;
           }
           throw new Error("no city");
-        } catch {
+        } catch (_e) {
           await fallback();
         } finally {
           setLoading(false);
@@ -224,7 +225,9 @@ const WeatherForecast: React.FC = () => {
           fetchForecast(data.city);
           return;
         }
-      } catch {}
+      } catch (_e) {
+        // auto-detect request failed — fall back to Delhi
+      }
       // Always fall back — never leave user with a blank screen
       setCity("Delhi");
       fetchForecast("Delhi");
