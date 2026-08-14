@@ -14,6 +14,7 @@ import GalleryPage from "./pages/GalleryPage.tsx";
 import TestimonialPage from "./pages/TestimonialPage.tsx";
 import GovernmentSchemesPage from "./pages/GovernmentSchemesPage.tsx";
 import FAQPage from "./pages/FAQPage.tsx";
+import FarmProfilePage from "./pages/FarmProfilePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import CropCompletePage from "./pages/CropCompletePage.tsx";
 import FertilizerPage from "./pages/FertilizerPage.tsx";
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dashboard" element={<ProtectedRoute element={<DashboardEnhanced />} />} />
             <Route path="/profile" element={<ProtectedRoute element={<DashboardEnhanced />} />} />
+            <Route path="/farm-profile" element={<ProtectedRoute element={<FarmProfilePage />} />} />
             <Route path="/livestock" element={<ProtectedRoute element={<LivestockPage />} />} />
             <Route path="/community" element={<ProtectedRoute element={<CommunityPage />} />} />
             <Route path="/monitoring" element={<ProtectedRoute element={<MonitoringPage />} />} />

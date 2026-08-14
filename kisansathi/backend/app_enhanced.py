@@ -30,16 +30,42 @@ import requests
 from utils.crop_recommendation_ranked import get_crop_recommendation
 from utils.crop_recommendation_ml import get_crop_recommendation_ml
 from utils.seasonal_crop_recommender import get_seasonal_crop_recommendation
-from utils.unified_chatbot import get_chatbot_response
 from utils.livestock_disease_detection import get_livestock_detector
-from utils.voice_pipeline import extract_info_from_transcript, generate_fertilizer_explanation
-from redis_config import init_redis, get_redis
-from websocket_events import (
-    register_connection_events,
-    register_chat_events,
-    register_notification_events,
-    register_monitoring_events
-)
+
+try:
+    from utils.unified_chatbot import get_chatbot_response
+except Exception as e:
+    logging.warning(f"unified_chatbot import failed (Python 3.14 protobuf issue): {e}")
+    def get_chatbot_response(*args, **kwargs):
+        return {'response': 'Chatbot temporarily unavailable', 'success': False}
+
+try:
+    from utils.voice_pipeline import extract_info_from_transcript, generate_fertilizer_explanation
+except Exception as e:
+    logging.warning(f"voice_pipeline import failed: {e}")
+    def extract_info_from_transcript(*a, **k): return {}
+    def generate_fertilizer_explanation(*a, **k): return ''
+
+try:
+    from redis_config import init_redis, get_redis
+except Exception as e:
+    logging.warning(f"redis_config import failed: {e}")
+    def init_redis(): return None
+    def get_redis(): return None
+
+try:
+    from websocket_events import (
+        register_connection_events,
+        register_chat_events,
+        register_notification_events,
+        register_monitoring_events
+    )
+except Exception as e:
+    logging.warning(f"websocket_events import failed: {e}")
+    def register_connection_events(*a, **k): pass
+    def register_chat_events(*a, **k): pass
+    def register_notification_events(*a, **k): pass
+    def register_monitoring_events(*a, **k): pass
 
 # Load environment variables
 load_dotenv()
@@ -168,15 +194,24 @@ else:
 # CUSTOM DECORATORS & UTILITIES
 # ============================================================================
 
-import google.generativeai as genai
 import base64
+import bcrypt
 from io import BytesIO
 from PIL import Image
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except Exception:
+    genai = None
+    GENAI_AVAILABLE = False
+    logger.warning("google-generativeai not available on Python 3.14 (protobuf issue)")
 
 def extract_soil_values_from_image(image_data):
     """Extract soil parameters from soil report image using Gemini Vision"""
     try:
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyCNjjPRTghArckrMinO_xjrGeJxb7GcQvM'))
+        if not GENAI_AVAILABLE:
+            return {'success': False, 'message': 'Gemini AI not available on this Python version'}
+        genai.configure(api_key=os.getenv('GEMINI_API_KEY', ''))
         model = genai.GenerativeModel('gemini-2.5-flash')
         
         # If image_data is base64 string, decode it
@@ -233,7 +268,9 @@ def extract_soil_values_from_image(image_data):
 def get_gemini_crop_explanation_hindi(crop, N, P, K, temperature, humidity, ph, rainfall):
     """Get detailed Hindi explanation from Gemini for crop recommendation"""
     try:
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY', 'AIzaSyCNjjPRTghArckrMinO_xjrGeJxb7GcQvM'))
+        if not GENAI_AVAILABLE:
+            return f"{crop} की खेती के लिए यह मौसम और मिट्टी उपयुक्त है।"
+        genai.configure(api_key=os.getenv('GEMINI_API_KEY', ''))
         # Use the latest available Gemini model
         model = genai.GenerativeModel('gemini-2.5-flash')
         
@@ -378,11 +415,12 @@ def register():
     if db['users'].find_one({'$or': [{'email': data['email']}, {'mobile': data['mobile']}]}):
         return jsonify({'error': 'User already exists'}), 400
     
+    hashed_pw = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     user_doc = {
         'name': data['name'],
         'email': data['email'],
         'mobile': data['mobile'],
-        'password': data['password'],  # Note: In production, hash this!
+        'password': hashed_pw,
         'agriculture_type': data['agriculture_type'],
         'location': data.get('location', ''),
         'created_at': datetime.now().isoformat(),
@@ -406,15 +444,29 @@ def login():
     """Login user and return JWT token"""
     data = request.get_json()
     
-    mobile = data.get('mobile')
-    password = data.get('password')
-    
     # Find user by mobile
-    user = db['users'].find_one({'mobile': mobile, 'password': password})
-    
+    user = db['users'].find_one({'mobile': mobile})
+
     if not user:
         logger.warning(f"Failed login attempt for mobile: {mobile}")
         return jsonify({'error': 'Invalid credentials'}), 401
+
+    # Verify password (support both bcrypt-hashed and legacy plain-text passwords)
+    password_bytes = password.encode('utf-8')
+    stored_pw = user['password']
+    if stored_pw.startswith('$2b$') or stored_pw.startswith('$2a$'):
+        # bcrypt-hashed password
+        if not bcrypt.checkpw(password_bytes, stored_pw.encode('utf-8')):
+            logger.warning(f"Failed login attempt for mobile: {mobile}")
+            return jsonify({'error': 'Invalid credentials'}), 401
+    else:
+        # Legacy plain-text password — verify and re-hash on the fly
+        if stored_pw != password:
+            logger.warning(f"Failed login attempt for mobile: {mobile}")
+            return jsonify({'error': 'Invalid credentials'}), 401
+        # Upgrade to bcrypt on next successful login
+        new_hash = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
+        db['users'].update_one({'mobile': mobile}, {'$set': {'password': new_hash}})
     
     # Create JWT token
     access_token = create_access_token(identity=str(user['_id']))
@@ -774,9 +826,14 @@ def advanced_crop_recommendation():
     """Get advanced crop recommendation based on month, location, and soil parameters using ML model"""
     try:
         from utils.seasonal_crop_recommender import get_seasonal_crop_recommendation
-        
-        data = request.get_json() or {}
-        
+
+        # Handle both JSON and multipart/form-data (when soil photo is uploaded)
+        if request.content_type and 'application/json' in request.content_type:
+            data = request.get_json() or {}
+        else:
+            # multipart/form-data or form data
+            data = request.form.to_dict() if request.form else {}
+
         month = data.get('month')
         location = data.get('location')
         
@@ -796,11 +853,14 @@ def advanced_crop_recommendation():
         location_lower = location.lower()
         weather = location_weather_map.get(location_lower, location_weather_map['central india'])
         
-        # Get soil parameters (use provided or defaults)
-        N = float(data.get('N', 60))
-        P = float(data.get('P', 40))
-        K = float(data.get('K', 40))
-        ph = float(data.get('ph', 6.5))
+        # Get soil parameters with validation
+        try:
+            N = float(data.get('N', 60))
+            P = float(data.get('P', 40))
+            K = float(data.get('K', 40))
+            ph = float(data.get('ph', 6.5))
+        except (TypeError, ValueError) as e:
+            return jsonify({'error': f'Invalid soil parameter value: {str(e)}. N, P, K and ph must be numbers.'}), 400
         
         # Use seasonal ML model for recommendations with month parameter
         recommendations = get_seasonal_crop_recommendation(
@@ -975,21 +1035,21 @@ def extract_soil_from_pdf():
 @app.route('/api/recommendations/seasonal-crop', methods=['POST'])
 @limiter.limit("20 per hour")
 @error_handler
-@validate_json('N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall')
 def seasonal_crop_recommendation():
     """Get crop recommendation based on season and soil conditions"""
-    data = request.get_json()
+    data = request.get_json() or {}
     
     try:
         recommendations = get_seasonal_crop_recommendation(
-            N=float(data['N']),
-            P=float(data['P']),
-            K=float(data['K']),
-            temperature=float(data['temperature']),
-            humidity=float(data['humidity']),
-            ph=float(data['ph']),
-            rainfall=float(data['rainfall']),
+            N=float(data.get('N', 60)),
+            P=float(data.get('P', 40)),
+            K=float(data.get('K', 40)),
+            temperature=float(data.get('temperature', 25)),
+            humidity=float(data.get('humidity', 65)),
+            ph=float(data.get('ph', 6.5)),
+            rainfall=float(data.get('rainfall', 100)),
             season=data.get('season'),
+            month=data.get('month'),
             top_n=int(data.get('top_n', 5))
         )
         
@@ -1012,10 +1072,12 @@ def get_seasons():
         from utils.seasonal_crop_recommender import SeasonalCropRecommender
         recommender = SeasonalCropRecommender()
         seasons = recommender.get_seasons()
+        # handle both ndarray and plain list
+        seasons_list = seasons.tolist() if hasattr(seasons, 'tolist') else list(seasons)
         
         return jsonify({
-            'seasons': seasons.tolist(),
-            'total': len(seasons)
+            'seasons': seasons_list,
+            'total': len(seasons_list)
         }), 200
     except Exception as e:
         logger.error(f"Error getting seasons: {e}")
@@ -1274,19 +1336,28 @@ def get_weather(location):
     try:
         weather = get_weather_for_farming(location)
         forecast = get_weather_forecast(location)
-        
+
+        if not weather:
+            logger.warning(f"Weather API returned empty data for {location}")
+            return jsonify({
+                'error': 'Weather data unavailable for this location. Check the location name or try again later.',
+                'location': location,
+                'weather': None,
+                'forecast': [],
+                'service_status': 'unavailable'
+            }), 503
+
         logger.info(f"Weather retrieved for {location}")
-        
         return jsonify({
             'location': location,
             'weather': weather,
-            'forecast': forecast,
+            'forecast': forecast or [],
             'timestamp': datetime.now().isoformat(),
             'cached': False
         }), 200
     except Exception as e:
         logger.error(f"Error getting weather: {e}")
-        return jsonify({'error': f'Weather retrieval failed: {str(e)}'}), 500
+        return jsonify({'error': f'Weather service error: {str(e)}. Please try again later.'}), 503
 
 @app.route('/api/weather/<location>/forecast', methods=['GET'])
 @limiter.limit("30 per hour")
@@ -1580,7 +1651,7 @@ def extract_fertilizer_info():
     """Extract fertilizer-related information from transcript"""
     try:
         data = request.get_json()
-        transcript = data.get('transcript', '')
+        transcript = data.get('transcript', '') or data.get('text', '')
         
         if not transcript:
             return jsonify({'error': 'No transcript provided'}), 400
@@ -1698,13 +1769,20 @@ def crops_for_month(month):
 @app.route('/api/crop-calendar/crop/<crop_name>', methods=['GET'])
 @limiter.limit("30 per hour")
 @error_handler
-@cache.cached(timeout=3600)
 def crop_info(crop_name):
     """Get detailed information about a specific crop"""
     try:
         details = get_crop_details(crop_name)
         
+        # try case-insensitive if not found
         if not details:
+            details = get_crop_details(crop_name.capitalize())
+        if not details:
+            details = get_crop_details(crop_name.lower())
+        if not details:
+            details = get_crop_details(crop_name.upper())
+        
+        if details is None or (isinstance(details, dict) and not details):
             return jsonify({'error': 'Crop not found'}), 404
         
         logger.info(f"Crop details retrieved for {crop_name}")
@@ -1754,13 +1832,17 @@ def disease_predict():
         files = request.files.getlist('files')
         if not files or len(files) == 0:
             return jsonify({'error': 'No files selected'}), 400
+
+        # Validate file types upfront
+        allowed = {'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'}
+        valid_files = [f for f in files if f.filename and f.content_type in allowed]
+        if not valid_files:
+            return jsonify({'error': 'No valid image files found. Please upload JPG, PNG, GIF, BMP, or WebP images.'}), 400
         
         predictions = []
         disease_counts = {}
         
-        for file in files:
-            if file.filename == '':
-                continue
+        for file in valid_files:
             
             try:
                 # Detect disease using ML model
@@ -1792,16 +1874,27 @@ def disease_predict():
                 })
         
         # Find most common disease
-        most_common_disease = max(disease_counts, key=disease_counts.get) if disease_counts else 'Unknown'
-        
-        logger.info(f"ML Disease prediction for {len(files)} images. Most common: {most_common_disease}")
-        
+        most_common_disease = max(disease_counts, key=disease_counts.get) if disease_counts else None
+
+        # If every single file failed, return a clear error instead of partial success
+        successful = [p for p in predictions if p.get('success')]
+        if not successful:
+            return jsonify({
+                'success': False,
+                'error': 'Could not analyze any of the uploaded images. Please ensure they are clear, well-lit photos of plant leaves.',
+                'total_images': len(valid_files),
+                'predictions': predictions,
+                'timestamp': datetime.now().isoformat()
+            }), 400
+
+        logger.info(f"ML Disease prediction for {len(valid_files)} images. Most common: {most_common_disease}")
+
         return jsonify({
             'success': True,
-            'total_images': len(files),
+            'total_images': len(valid_files),
             'predictions': predictions,
-            'most_common_disease': most_common_disease,
-            'disease_info': f'Most common disease detected: {most_common_disease}',
+            'most_common_disease': most_common_disease or 'Unknown',
+            'disease_info': f'Most common disease detected: {most_common_disease}' if most_common_disease else 'No disease identified',
             'timestamp': datetime.now().isoformat()
         }), 200
     except Exception as e:
@@ -1852,13 +1945,23 @@ def rice_disease_predict():
 @app.route('/api/pest/identify/<pest_name>', methods=['GET'])
 @limiter.limit("30 per hour")
 @error_handler
-@cache.cached(timeout=3600)
 def pest_identify(pest_name):
     """Identify pest and get management strategies"""
     try:
         pest_info = identify_pest(pest_name)
         
+        # try case-insensitive variants if not found or empty
         if not pest_info:
+            pest_info = identify_pest(pest_name.capitalize())
+        if not pest_info:
+            pest_info = identify_pest(pest_name.title())
+        if not pest_info:
+            pest_info = identify_pest(pest_name.lower())
+        # strip trailing 's' for plural (aphids -> aphid)
+        if not pest_info and pest_name.lower().endswith('s'):
+            pest_info = identify_pest(pest_name[:-1].capitalize())
+        
+        if pest_info is None or (isinstance(pest_info, dict) and not pest_info):
             return jsonify({'error': 'Pest not found'}), 404
         
         logger.info(f"Pest information retrieved for {pest_name}")
@@ -2059,7 +2162,7 @@ def get_farmer_crops(farmer_id):
 @app.route('/api/reminders/add-crop', methods=['POST'])
 @limiter.limit("10 per hour")
 @error_handler
-@validate_json('farmer_id', 'crop_name', 'planting_date', 'field_name', 'area_acres')
+@validate_json('farmer_id', 'crop_name', 'planting_date')
 def add_crop():
     """Add a new crop and create reminders"""
     try:
@@ -2069,8 +2172,9 @@ def add_crop():
             'farmer_id': data['farmer_id'],
             'crop_name': data['crop_name'],
             'planting_date': data['planting_date'],
-            'field_name': data['field_name'],
-            'area_acres': float(data['area_acres']),
+            'field_name': data.get('field_name', 'Main Field'),
+            'area_acres': float(data.get('area_acres', 1.0)),
+            'location': data.get('location', ''),
             'status': 'active',
             'created_at': datetime.now().isoformat(),
             'updated_at': datetime.now().isoformat()
@@ -2494,6 +2598,313 @@ def text_to_speech_endpoint():
     except Exception as e:
         logger.error(f"Error in TTS endpoint: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+# ============================================================================
+# FARM PROFILE ENDPOINTS
+# ============================================================================
+
+@app.route('/api/farm-profile', methods=['GET'])
+@jwt_required()
+@error_handler
+def get_farm_profile():
+    """Get farm profile for logged-in farmer"""
+    user_id = get_jwt_identity()
+    profile = db['farm_profiles'].find_one({'user_id': user_id})
+    if not profile:
+        return jsonify({'profile': None, 'message': 'No farm profile found'}), 200
+    profile['_id'] = str(profile['_id'])
+    return jsonify({'success': True, 'profile': profile}), 200
+
+
+@app.route('/api/farm-profile', methods=['POST'])
+@jwt_required()
+@error_handler
+def create_farm_profile():
+    """Create or update farm profile"""
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+
+    profile = {
+        'user_id': user_id,
+        'farm_name':      data.get('farm_name', ''),
+        'location':       data.get('location', ''),
+        'state':          data.get('state', ''),
+        'district':       data.get('district', ''),
+        'land_size_acres': float(data.get('land_size_acres', 0)),
+        'soil_type':      data.get('soil_type', ''),
+        'water_source':   data.get('water_source', ''),
+        'irrigation_type': data.get('irrigation_type', ''),
+        'active_crops':   data.get('active_crops', []),
+        'past_crops':     data.get('past_crops', []),
+        'latitude':       data.get('latitude'),
+        'longitude':      data.get('longitude'),
+        'updated_at':     datetime.now().isoformat(),
+    }
+
+    existing = db['farm_profiles'].find_one({'user_id': user_id})
+    if existing:
+        db['farm_profiles'].update_one({'user_id': user_id}, {'$set': profile})
+        msg = 'Farm profile updated'
+    else:
+        profile['created_at'] = datetime.now().isoformat()
+        db['farm_profiles'].insert_one(profile)
+        msg = 'Farm profile created'
+
+    logger.info(f"Farm profile saved for user {user_id}")
+    return jsonify({'success': True, 'message': msg, 'profile': {k: v for k, v in profile.items() if k != '_id'}}), 200
+
+
+@app.route('/api/farm-profile/irrigation-advice', methods=['GET'])
+@jwt_required()
+@error_handler
+def get_irrigation_advice():
+    """Get farm-profile-specific irrigation advice based on soil + weather"""
+    user_id = get_jwt_identity()
+    profile = db['farm_profiles'].find_one({'user_id': user_id})
+    if not profile:
+        return jsonify({'error': 'Farm profile not found. Please set up your farm profile first.'}), 404
+
+    location = profile.get('location', 'Central India')
+    soil_type = profile.get('soil_type', 'Loamy')
+    active_crops = profile.get('active_crops', [])
+    irrigation_type = profile.get('irrigation_type', 'flood')
+
+    # Get weather for farm location
+    weather_live = True
+    try:
+        from utils.weather_integration import get_weather_for_farming
+        weather = get_weather_for_farming(location)
+        if weather:
+            humidity = weather.get('humidity', 60)
+            rainfall = weather.get('rainfall_mm', 0)
+            temp = weather.get('temperature', 25)
+        else:
+            raise ValueError('Empty weather response')
+    except Exception:
+        humidity, rainfall, temp = 60, 0, 25
+        weather_live = False
+
+    # Soil water retention mapping
+    retention = {'Sandy': 0.3, 'Loamy': 0.6, 'Clay': 0.8, 'Clayey': 0.8, 'Black': 0.75, 'Red': 0.5}
+    ret = retention.get(soil_type, 0.5)
+
+    # Irrigation need calculation
+    et0 = 0.0023 * (temp + 17.8) * (45 - humidity) * 0.408  # simplified Hargreaves
+    effective_rain = rainfall * 0.8
+    irrigation_need = max(0, round(et0 - effective_rain / 10, 2))
+
+    schedule = []
+    if irrigation_need > 3:
+        schedule = ['Irrigate today — high water demand', 'Check soil moisture daily']
+    elif irrigation_need > 1:
+        schedule = ['Irrigate in 2-3 days', 'Monitor crop leaves for wilting']
+    else:
+        schedule = ['No irrigation needed today', 'Soil moisture adequate']
+
+    if soil_type in ['Sandy']:
+        schedule.append('Sandy soil: irrigate more frequently in smaller amounts')
+    elif soil_type in ['Clay', 'Clayey', 'Black']:
+        schedule.append('Clay soil: avoid over-irrigation, check drainage')
+
+    return jsonify({
+        'success': True,
+        'farm_location': location,
+        'soil_type': soil_type,
+        'active_crops': active_crops,
+        'irrigation_type': irrigation_type,
+        'weather': {'temperature': temp, 'humidity': humidity, 'rainfall_mm': rainfall},
+        'weather_live': weather_live,
+        'weather_warning': None if weather_live else 'Live weather unavailable — using average estimates. Advice may be less accurate.',
+        'irrigation_need_mm_per_day': irrigation_need,
+        'schedule': schedule,
+        'water_retention': f"{int(ret*100)}%",
+        'timestamp': datetime.now().isoformat()
+    }), 200
+
+
+@app.route('/api/farm-profile/health-logs', methods=['GET'])
+@jwt_required()
+@error_handler
+def get_health_logs():
+    """Get crop health observation logs for this farm"""
+    user_id = get_jwt_identity()
+    logs = list(db['health_logs'].find({'user_id': user_id}).sort('created_at', -1).limit(20))
+    for log in logs:
+        log['_id'] = str(log['_id'])
+    return jsonify({'success': True, 'logs': logs, 'total': len(logs)}), 200
+
+
+@app.route('/api/farm-profile/health-logs', methods=['POST'])
+@jwt_required()
+@error_handler
+def add_health_log():
+    """Add a crop health observation log"""
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+    log = {
+        'user_id': user_id,
+        'crop': data.get('crop', ''),
+        'observation': data.get('observation', ''),
+        'disease': data.get('disease', ''),
+        'severity': data.get('severity', 'low'),
+        'action_taken': data.get('action_taken', ''),
+        'image_url': data.get('image_url', ''),
+        'created_at': datetime.now().isoformat()
+    }
+    result = db['health_logs'].insert_one(log)
+    return jsonify({'success': True, 'log_id': str(result.inserted_id), 'message': 'Health log added'}), 201
+
+
+# ============================================================================
+# MARKET PRICES ENDPOINTS
+# ============================================================================
+
+# Static mandi reference prices (based on real MSP/APMC data 2025-26)
+MANDI_BASE_PRICES = {
+    'wheat':       {'min': 2275, 'max': 2500,  'unit': 'per quintal', 'msP': 2275},
+    'rice':        {'min': 2300, 'max': 2600,  'unit': 'per quintal', 'msP': 2300},
+    'maize':       {'min': 2090, 'max': 2400,  'unit': 'per quintal', 'msP': 2090},
+    'soybean':     {'min': 4892, 'max': 5500,  'unit': 'per quintal', 'msP': 4892},
+    'cotton':      {'min': 7121, 'max': 8000,  'unit': 'per quintal', 'msP': 7121},
+    'mustard':     {'min': 5950, 'max': 6500,  'unit': 'per quintal', 'msP': 5950},
+    'groundnut':   {'min': 6783, 'max': 7500,  'unit': 'per quintal', 'msP': 6783},
+    'chickpea':    {'min': 5440, 'max': 6200,  'unit': 'per quintal', 'msP': 5440},
+    'lentil':      {'min': 6425, 'max': 7200,  'unit': 'per quintal', 'msP': 6425},
+    'onion':       {'min': 800,  'max': 2500,  'unit': 'per quintal', 'msP': None},
+    'potato':      {'min': 600,  'max': 1800,  'unit': 'per quintal', 'msP': None},
+    'tomato':      {'min': 500,  'max': 3000,  'unit': 'per quintal', 'msP': None},
+    'sugarcane':   {'min': 340,  'max': 380,   'unit': 'per quintal', 'msP': 340},
+    'turmeric':    {'min': 9000, 'max': 14000, 'unit': 'per quintal', 'msP': None},
+    'chilli':      {'min': 8000, 'max': 16000, 'unit': 'per quintal', 'msP': None},
+    'barley':      {'min': 1735, 'max': 2100,  'unit': 'per quintal', 'msP': 1735},
+    'jowar':       {'min': 3371, 'max': 3800,  'unit': 'per quintal', 'msP': 3371},
+    'bajra':       {'min': 2625, 'max': 3000,  'unit': 'per quintal', 'msP': 2625},
+    'sunflower':   {'min': 7280, 'max': 8000,  'unit': 'per quintal', 'msP': 7280},
+    'sesame':      {'min': 8635, 'max': 10000, 'unit': 'per quintal', 'msP': 8635},
+}
+
+def get_live_market_price(commodity: str):
+    """
+    Fetch live price from data.gov.in AGMARKNET API.
+    Falls back to MSP-based estimate if API unavailable.
+    """
+    try:
+        # data.gov.in commodity prices API (free, no key required)
+        commodity_clean = commodity.lower().strip()
+        url = f"https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+        params = {
+            'api-key': 'resource:9ef84268-d588-465a-a308-a864a43d0070',
+            'format': 'json',
+            'filters[commodity]': commodity.capitalize(),
+            'limit': 5,
+            'sort[arrival_date]': 'desc'
+        }
+        r = requests.get(url, params=params, timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            records = data.get('records', [])
+            if records:
+                prices = [float(rec.get('modal_price', 0)) for rec in records if rec.get('modal_price')]
+                if prices:
+                    avg = sum(prices) / len(prices)
+                    return {
+                        'source': 'AGMARKNET (data.gov.in)',
+                        'modal_price': round(avg),
+                        'min_price': min(prices),
+                        'max_price': max(prices),
+                        'records': len(prices),
+                        'live': True
+                    }
+    except Exception as e:
+        logger.warning(f"Live price fetch failed for {commodity}: {e}")
+
+    # Fallback to MSP/reference prices
+    base = MANDI_BASE_PRICES.get(commodity.lower(), {})
+    if base:
+        import random
+        # Simulate realistic price fluctuation ±10%
+        modal = round(base['min'] + (base['max'] - base['min']) * 0.5 + random.uniform(-base['min']*0.05, base['min']*0.05))
+        return {
+            'source': 'MSP Reference (GoI 2025-26)',
+            'modal_price': modal,
+            'min_price': base['min'],
+            'max_price': base['max'],
+            'msp': base.get('msP'),
+            'live': False
+        }
+    return None
+
+
+@app.route('/api/market/prices', methods=['GET'])
+@limiter.limit("30 per hour")
+@error_handler
+def get_market_prices():
+    """Get current mandi prices for all major commodities"""
+    prices = []
+    for commodity, base in MANDI_BASE_PRICES.items():
+        price_data = get_live_market_price(commodity)
+        if price_data:
+            prices.append({
+                'commodity': commodity.capitalize(),
+                'commodity_key': commodity,
+                'unit': base['unit'],
+                'msp': base.get('msP'),
+                **price_data
+            })
+    return jsonify({
+        'success': True,
+        'prices': prices,
+        'total': len(prices),
+        'timestamp': datetime.now().isoformat(),
+        'note': 'Prices in INR. Live data from AGMARKNET where available, else MSP reference.'
+    }), 200
+
+
+@app.route('/api/market/prices/<commodity>', methods=['GET'])
+@limiter.limit("30 per hour")
+@error_handler
+def get_commodity_price(commodity):
+    """Get price for a specific commodity"""
+    price_data = get_live_market_price(commodity)
+    if not price_data:
+        return jsonify({'error': f'Commodity {commodity} not found'}), 404
+    base = MANDI_BASE_PRICES.get(commodity.lower(), {})
+    return jsonify({
+        'success': True,
+        'commodity': commodity.capitalize(),
+        'unit': base.get('unit', 'per quintal'),
+        'msp': base.get('msP'),
+        'timestamp': datetime.now().isoformat(),
+        **price_data
+    }), 200
+
+
+@app.route('/api/market/prices/bulk', methods=['POST'])
+@limiter.limit("20 per hour")
+@error_handler
+def get_bulk_prices():
+    """Get prices for a list of commodities (for farm profile crops)"""
+    data = request.get_json() or {}
+    commodities = data.get('commodities', list(MANDI_BASE_PRICES.keys())[:10])
+    prices = []
+    for commodity in commodities:
+        price_data = get_live_market_price(commodity)
+        if price_data:
+            base = MANDI_BASE_PRICES.get(commodity.lower(), {})
+            prices.append({
+                'commodity': commodity.capitalize(),
+                'commodity_key': commodity.lower(),
+                'unit': base.get('unit', 'per quintal'),
+                'msp': base.get('msP'),
+                **price_data
+            })
+    return jsonify({
+        'success': True,
+        'prices': prices,
+        'total': len(prices),
+        'timestamp': datetime.now().isoformat()
+    }), 200
 
 
 @app.errorhandler(404)

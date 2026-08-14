@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Arial, sans-serif">
+  <!-- Background -->
+  <rect width="900" height="600" fill="#f8fdf8"/>
+  <text x="450" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a5c1a">KisanSathi — System Architecture</text>
+
+  <!-- USER -->
+  <rect x="370" y="55" width="160" height="50" rx="8" fill="#4CAF50" stroke="#2e7d32" stroke-width="2"/>
+  <text x="450" y="76" text-anchor="middle" font-size="13" fill="white" font-weight="bold">👨‍🌾 Farmer</text>
+  <text x="450" y="94" text-anchor="middle" font-size="11" fill="#e8f5e9">Browser / Mobile</text>
+
+  <!-- Arrow down -->
+  <line x1="450" y1="105" x2="450" y2="130" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- FRONTEND -->
+  <rect x="250" y="130" width="400" height="70" rx="8" fill="#1565C0" stroke="#0d47a1" stroke-width="2"/>
+  <text x="450" y="153" text-anchor="middle" font-size="13" fill="white" font-weight="bold">⚛ React 18 + TypeScript Frontend</text>
+  <text x="450" y="171" text-anchor="middle" font-size="11" fill="#bbdefb">Vite • TailwindCSS • shadcn/ui • JWT Auth</text>
+  <text x="450" y="189" text-anchor="middle" font-size="10" fill="#90caf9">Dashboard | Crop | Disease | Fertilizer | Market | Weather | Farm Profile</text>
+
+  <!-- Arrow down -->
+  <line x1="450" y1="200" x2="450" y2="230" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- BACKEND -->
+  <rect x="200" y="230" width="500" height="70" rx="8" fill="#E65100" stroke="#bf360c" stroke-width="2"/>
+  <text x="450" y="253" text-anchor="middle" font-size="13" fill="white" font-weight="bold">🐍 Flask 3.1 REST API Backend (57 endpoints)</text>
+  <text x="450" y="271" text-anchor="middle" font-size="11" fill="#ffe0b2">JWT • Rate Limiting • CORS • SocketIO • Caching</text>
+  <text x="450" y="289" text-anchor="middle" font-size="10" fill="#ffcc80">Farm Profile | Crop Rec | Soil | Fertilizer | Disease | Weather | Market | Community</text>
+
+  <!-- Arrows from backend -->
+  <line x1="280" y1="300" x2="180" y2="350" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="390" y1="300" x2="360" y2="350" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="510" y1="300" x2="540" y2="350" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="640" y1="300" x2="720" y2="350" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- MongoDB -->
+  <rect x="80" y="350" width="190" height="60" rx="8" fill="#2E7D32" stroke="#1b5e20" stroke-width="2"/>
+  <text x="175" y="374" text-anchor="middle" font-size="12" fill="white" font-weight="bold">🍃 MongoDB Atlas</text>
+  <text x="175" y="392" text-anchor="middle" font-size="10" fill="#c8e6c9">Users • Farm Profiles</text>
+  <text x="175" y="406" text-anchor="middle" font-size="10" fill="#c8e6c9">Crops • Reminders • Logs</text>
+
+  <!-- ML Models -->
+  <rect x="290" y="350" width="190" height="60" rx="8" fill="#6A1B9A" stroke="#4a148c" stroke-width="2"/>
+  <text x="385" y="374" text-anchor="middle" font-size="12" fill="white" font-weight="bold">🤖 ML Models</text>
+  <text x="385" y="392" text-anchor="middle" font-size="10" fill="#e1bee7">XGBoost • ResNet50</text>
+  <text x="385" y="406" text-anchor="middle" font-size="10" fill="#e1bee7">Random Forest • PyTorch</text>
+
+  <!-- External APIs -->
+  <rect x="500" y="350" width="190" height="60" rx="8" fill="#00695C" stroke="#004d40" stroke-width="2"/>
+  <text x="595" y="374" text-anchor="middle" font-size="12" fill="white" font-weight="bold">🌐 External APIs</text>
+  <text x="595" y="392" text-anchor="middle" font-size="10" fill="#b2dfdb">WeatherAPI • Gemini AI</text>
+  <text x="595" y="406" text-anchor="middle" font-size="10" fill="#b2dfdb">Cloudinary • gTTS</text>
+
+  <!-- Market/Mandi -->
+  <rect x="710" y="350" width="140" height="60" rx="8" fill="#BF360C" stroke="#870000" stroke-width="2"/>
+  <text x="780" y="374" text-anchor="middle" font-size="12" fill="white" font-weight="bold">📊 Market</text>
+  <text x="780" y="392" text-anchor="middle" font-size="10" fill="#ffccbc">Mandi Prices</text>
+  <text x="780" y="406" text-anchor="middle" font-size="10" fill="#ffccbc">Commodity API</text>
+
+  <!-- ML Details -->
+  <rect x="100" y="460" width="680" height="110" rx="8" fill="#fff" stroke="#ccc" stroke-width="1"/>
+  <text x="440" y="482" text-anchor="middle" font-size="12" fill="#333" font-weight="bold">ML Pipeline</text>
+  <!-- Crop -->
+  <rect x="120" y="492" width="140" height="65" rx="5" fill="#e8f5e9" stroke="#4CAF50" stroke-width="1"/>
+  <text x="190" y="510" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">Crop Rec</text>
+  <text x="190" y="525" text-anchor="middle" font-size="9" fill="#555">XGBoost 97%+</text>
+  <text x="190" y="538" text-anchor="middle" font-size="9" fill="#555">N,P,K,Temp</text>
+  <text x="190" y="551" text-anchor="middle" font-size="9" fill="#555">Humidity,pH,Rain</text>
+  <!-- Disease -->
+  <rect x="275" y="492" width="140" height="65" rx="5" fill="#fce4ec" stroke="#e91e63" stroke-width="1"/>
+  <text x="345" y="510" text-anchor="middle" font-size="11" fill="#880e4f" font-weight="bold">Disease Detect</text>
+  <text x="345" y="525" text-anchor="middle" font-size="9" fill="#555">ResNet50+XGBoost</text>
+  <text x="345" y="538" text-anchor="middle" font-size="9" fill="#555">Image → Features</text>
+  <text x="345" y="551" text-anchor="middle" font-size="9" fill="#555">→ Disease Class</text>
+  <!-- Fertilizer -->
+  <rect x="430" y="492" width="140" height="65" rx="5" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+  <text x="500" y="510" text-anchor="middle" font-size="11" fill="#e65100" font-weight="bold">Fertilizer</text>
+  <text x="500" y="525" text-anchor="middle" font-size="9" fill="#555">XGBoost 100%</text>
+  <text x="500" y="538" text-anchor="middle" font-size="9" fill="#555">Soil params</text>
+  <text x="500" y="551" text-anchor="middle" font-size="9" fill="#555">→ NPK advice</text>
+  <!-- Soil -->
+  <rect x="585" y="492" width="140" height="65" rx="5" fill="#e8eaf6" stroke="#3f51b5" stroke-width="1"/>
+  <text x="655" y="510" text-anchor="middle" font-size="11" fill="#1a237e" font-weight="bold">Soil Analysis</text>
+  <text x="655" y="525" text-anchor="middle" font-size="9" fill="#555">Random Forest</text>
+  <text x="655" y="538" text-anchor="middle" font-size="9" fill="#555">Dual model</text>
+  <text x="655" y="551" text-anchor="middle" font-size="9" fill="#555">Crop+Fertilizer</text>
+
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>
