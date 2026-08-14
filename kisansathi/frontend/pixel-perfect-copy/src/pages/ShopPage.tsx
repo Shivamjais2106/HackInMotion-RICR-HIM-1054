@@ -3,7 +3,80 @@ import Footer from "@/components/Footer";
 import { ShoppingCart, ExternalLink, Mic } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/context/LanguageContext";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getAPIBaseURL } from "@/utils/api";
+
+// Mandi Prices Section Component
+const MandiPricesSection = () => {
+  const [prices, setPrices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState('');
+
+  useEffect(() => {
+    fetch(`${getAPIBaseURL()}/market/prices`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setPrices(data.prices);
+          setLastUpdated(new Date(data.timestamp).toLocaleTimeString());
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <section className="py-10 bg-gradient-to-br from-green-50 to-yellow-50">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-eco-green-dark">📊 Live Mandi Prices</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Source: AGMARKNET / MSP Reference (GoI 2025-26)
+              {lastUpdated && ` • Updated: ${lastUpdated}`}
+            </p>
+          </div>
+          <span className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full border border-green-300">
+            🟢 Live Data
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">⏳ Loading mandi prices...</div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {prices.map((item) => (
+              <div key={item.commodity_key}
+                className="bg-white rounded-xl border border-green-100 shadow-sm p-3 hover:shadow-md transition-shadow">
+                <div className="font-semibold text-gray-800 text-sm mb-1 capitalize">{item.commodity}</div>
+                <div className="text-lg font-bold text-eco-green">
+                  ₹{item.modal_price?.toLocaleString('en-IN')}
+                </div>
+                <div className="text-xs text-gray-500">{item.unit}</div>
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>Low: ₹{item.min_price?.toLocaleString('en-IN')}</span>
+                  <span>High: ₹{item.max_price?.toLocaleString('en-IN')}</span>
+                </div>
+                {item.msp && (
+                  <div className="text-xs text-blue-600 mt-1 font-medium">
+                    MSP: ₹{item.msp?.toLocaleString('en-IN')}
+                  </div>
+                )}
+                <div className={`text-xs mt-1 ${item.live ? 'text-green-600' : 'text-orange-500'}`}>
+                  {item.live ? '🟢 Live' : '📋 Reference'}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="text-xs text-gray-400 mt-4 text-center">
+          * Modal prices in INR per quintal. MSP = Minimum Support Price declared by Government of India.
+          Live data sourced from AGMARKNET (data.gov.in).
+        </p>
+      </div>
+    </section>
+  );
+};
 
 const products = [
   // ===== RECOMMENDED FERTILIZERS (10 Types) =====
@@ -185,6 +258,9 @@ const ShopPage = () => {
           </p>
         </div>
       </section>
+
+      {/* Live Mandi Prices */}
+      <MandiPricesSection />
 
       {/* Filter Section */}
       <section className="py-8 bg-gradient-to-r from-green-50 to-teal-50 border-b border-green-200">
