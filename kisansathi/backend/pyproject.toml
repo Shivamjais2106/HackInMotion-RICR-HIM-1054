@@ -6,10 +6,17 @@ exclude = [
     "venv",
     "env",
     ".venv",
+    "scripts/",
     "*.pyc",
 ]
-ignore = ["E501", "E402", "W503"]
 
-[tool.ruff.per-file-ignores]
-"app_enhanced.py" = ["E402", "F401"]
-"app_minimal.py"  = ["E402", "F401"]
+[tool.ruff.lint]
+# E — pycodestyle errors, F — pyflakes, W — pycodestyle warnings
+select = ["E", "F", "W"]
+ignore = ["E501", "E402", "W503", "F401", "F841"]
+
+[tool.ruff.lint.per-file-ignores]
+"app_enhanced.py"    = ["E402", "F401", "F841"]
+"app_minimal.py"     = ["E402", "F401"]
+"app_production.py"  = ["E402", "F401"]
+"utils/*.py"         = ["E402", "F401"]

@@ -195,6 +195,7 @@ else:
 # ============================================================================
 
 import base64
+import bcrypt
 from io import BytesIO
 from PIL import Image
 try:
@@ -414,11 +415,12 @@ def register():
     if db['users'].find_one({'$or': [{'email': data['email']}, {'mobile': data['mobile']}]}):
         return jsonify({'error': 'User already exists'}), 400
     
+    hashed_pw = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     user_doc = {
         'name': data['name'],
         'email': data['email'],
         'mobile': data['mobile'],
-        'password': data['password'],  # Note: In production, hash this!
+        'password': hashed_pw,
         'agriculture_type': data['agriculture_type'],
         'location': data.get('location', ''),
         'created_at': datetime.now().isoformat(),
@@ -442,15 +444,29 @@ def login():
     """Login user and return JWT token"""
     data = request.get_json()
     
-    mobile = data.get('mobile')
-    password = data.get('password')
-    
     # Find user by mobile
-    user = db['users'].find_one({'mobile': mobile, 'password': password})
-    
+    user = db['users'].find_one({'mobile': mobile})
+
     if not user:
         logger.warning(f"Failed login attempt for mobile: {mobile}")
         return jsonify({'error': 'Invalid credentials'}), 401
+
+    # Verify password (support both bcrypt-hashed and legacy plain-text passwords)
+    password_bytes = password.encode('utf-8')
+    stored_pw = user['password']
+    if stored_pw.startswith('$2b$') or stored_pw.startswith('$2a$'):
+        # bcrypt-hashed password
+        if not bcrypt.checkpw(password_bytes, stored_pw.encode('utf-8')):
+            logger.warning(f"Failed login attempt for mobile: {mobile}")
+            return jsonify({'error': 'Invalid credentials'}), 401
+    else:
+        # Legacy plain-text password — verify and re-hash on the fly
+        if stored_pw != password:
+            logger.warning(f"Failed login attempt for mobile: {mobile}")
+            return jsonify({'error': 'Invalid credentials'}), 401
+        # Upgrade to bcrypt on next successful login
+        new_hash = bcrypt.hashpw(password_bytes, bcrypt.gensalt()).decode('utf-8')
+        db['users'].update_one({'mobile': mobile}, {'$set': {'password': new_hash}})
     
     # Create JWT token
     access_token = create_access_token(identity=str(user['_id']))
