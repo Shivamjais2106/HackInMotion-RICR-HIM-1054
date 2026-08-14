@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 # Ruff linter configuration — KisanSathi Python backend
 # Run: python -m ruff check . --fix
+=======
+# Ruff linter configuration for KisanSathi Python backend
+# Run: ruff check . --fix
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 
 line-length = 120
 exclude = [
@@ -9,11 +14,15 @@ exclude = [
     "env",
     ".venv",
     "scripts/",
+<<<<<<< HEAD
     "archive/",
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 ]
 
 [lint]
 select = ["E", "F", "W"]
+<<<<<<< HEAD
 ignore = ["E501", "E402", "F401", "F841", "E731", "W291", "W293"]
 
 [lint.per-file-ignores]
@@ -21,3 +30,11 @@ ignore = ["E501", "E402", "F401", "F841", "E731", "W291", "W293"]
 "app.py"            = ["F401"]
 "utils/*.py"        = ["E402", "F401"]
 "test_*.py"         = ["F401", "F811"]
+=======
+# W503 is a flake8-only code and makes ruff abort with "Unknown rule selector".
+ignore = ["E501", "E402", "F401", "F841"]
+
+[lint.per-file-ignores]
+"app_enhanced.py"   = ["E402", "F401", "F841"]
+"utils/*.py"        = ["E402", "F401"]
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6

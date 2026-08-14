@@ -11,13 +11,23 @@ import logging
 from datetime import datetime
 
 # Configure logging
+<<<<<<< HEAD
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+=======
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 logger = logging.getLogger(__name__)
 
 BACKEND_URL = "https://kisansathi-backend.onrender.com/api/health"
 PING_INTERVAL = 300  # 5 minutes in seconds
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 def ping_backend():
     """Ping the backend to keep it alive"""
     try:
@@ -32,13 +42,20 @@ def ping_backend():
         logger.error(f"❌ Failed to ping backend: {e}")
         return False
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 def main():
     """Main loop to keep pinging backend"""
     logger.info("🚀 Starting Keep Alive service...")
     logger.info(f"📍 Backend URL: {BACKEND_URL}")
     logger.info(f"⏱️ Ping interval: {PING_INTERVAL} seconds (5 minutes)")
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     while True:
         try:
             ping_backend()
@@ -50,6 +67,9 @@ def main():
             logger.error(f"Unexpected error: {e}")
             time.sleep(PING_INTERVAL)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 if __name__ == "__main__":
     main()

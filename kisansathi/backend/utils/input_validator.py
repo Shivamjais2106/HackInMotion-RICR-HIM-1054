@@ -50,6 +50,7 @@ def validate_soil_params(data: dict[str, Any]) -> tuple[bool, str]:
     Returns (is_valid, error_message).
     """
     ranges = {
+<<<<<<< HEAD
         "N": (0, 200),
         "P": (0, 200),
         "K": (0, 200),
@@ -57,6 +58,15 @@ def validate_soil_params(data: dict[str, Any]) -> tuple[bool, str]:
         "humidity": (0, 100),
         "ph": (0, 14),
         "rainfall": (0, 5000),
+=======
+        "N":           (0, 200),
+        "P":           (0, 200),
+        "K":           (0, 200),
+        "temperature": (-10, 55),
+        "humidity":    (0, 100),
+        "ph":          (0, 14),
+        "rainfall":    (0, 5000),
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     }
     for field, (lo, hi) in ranges.items():
         if field not in data:
@@ -75,5 +85,9 @@ def validate_location(location: str) -> bool:
     loc = sanitize_string(location, 128)
     return bool(loc) and len(loc) >= 2
 
+<<<<<<< HEAD
 
 # v1.1 � added validate_location helper
+=======
+# v1.1 — added validate_location helper
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6

@@ -22,7 +22,10 @@ logger = logging.getLogger(__name__)
 # Password helpers
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 def hash_password(plain: str) -> str:
     """Hash a plain-text password with bcrypt (12 rounds)."""
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt(rounds=12)).decode()
@@ -45,13 +48,19 @@ def needs_upgrade(hashed: str) -> bool:
 # JWT decorators
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 def jwt_required_custom(f):
     """
     Drop-in decorator that verifies JWT and populates g.user_id.
     Returns 401 with a clear message on missing / invalid token.
     """
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     @wraps(f)
     def decorated(*args, **kwargs):
         try:
@@ -59,6 +68,7 @@ def jwt_required_custom(f):
             g.user_id = get_jwt_identity()
         except Exception as exc:
             logger.warning("JWT verification failed: %s", exc)
+<<<<<<< HEAD
             return jsonify(
                 {
                     "error": "Authentication required.",
@@ -67,6 +77,13 @@ def jwt_required_custom(f):
             ), 401
         return f(*args, **kwargs)
 
+=======
+            return jsonify({
+                "error": "Authentication required.",
+                "hint": "Include a valid Bearer token in the Authorization header.",
+            }), 401
+        return f(*args, **kwargs)
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     return decorated
 
 
@@ -74,13 +91,19 @@ def jwt_required_custom(f):
 # Security headers
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 def add_security_headers(app):
     """
     Register an after-request hook that injects OWASP-recommended
     security headers on every response.
     """
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     @app.after_request
     def _set_headers(response):
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -88,7 +111,13 @@ def add_security_headers(app):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=()"
+<<<<<<< HEAD
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+=======
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
         return response
 
     logger.info("Security headers registered.")
@@ -99,7 +128,10 @@ def add_security_headers(app):
 # Used by Flask-Limiter to identify real client IP behind proxy
 # ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 def get_real_ip() -> str:
     """
     Return the real client IP, honouring X-Forwarded-For when
@@ -109,3 +141,7 @@ def get_real_ip() -> str:
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.remote_addr or "unknown"
+<<<<<<< HEAD
+=======
+
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6

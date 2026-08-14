@@ -26,7 +26,11 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
+<<<<<<< HEAD
 MONGODB_DB = os.getenv("MONGODB_DATABASE", "kisansathi")
+=======
+MONGODB_DB  = os.getenv("MONGODB_DATABASE", "kisansathi")
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 
 
 def create_indexes() -> None:
@@ -34,7 +38,11 @@ def create_indexes() -> None:
     db = client[MONGODB_DB]
 
     # ── users ────────────────────────────────────────────────────────────────
+<<<<<<< HEAD
     db["users"].create_index("email", unique=True, sparse=True)
+=======
+    db["users"].create_index("email",  unique=True, sparse=True)
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     db["users"].create_index("mobile", unique=True, sparse=True)
     logger.info("✅ users: email (unique), mobile (unique)")
 
@@ -43,6 +51,7 @@ def create_indexes() -> None:
     logger.info("✅ farm_profiles: user_id (unique)")
 
     # ── health_logs ──────────────────────────────────────────────────────────
+<<<<<<< HEAD
     db["health_logs"].create_index([("user_id", ASCENDING), ("created_at", DESCENDING)])
     logger.info("✅ health_logs: (user_id, created_at DESC)")
 
@@ -56,6 +65,30 @@ def create_indexes() -> None:
 
     # ── messages ─────────────────────────────────────────────────────────────
     db["messages"].create_index([("group_id", ASCENDING), ("timestamp", ASCENDING)])
+=======
+    db["health_logs"].create_index(
+        [("user_id", ASCENDING), ("created_at", DESCENDING)]
+    )
+    logger.info("✅ health_logs: (user_id, created_at DESC)")
+
+    # ── reminders ────────────────────────────────────────────────────────────
+    db["reminders"].create_index(
+        [("crop_id", ASCENDING), ("completed", ASCENDING),
+         ("scheduled_date", ASCENDING)]
+    )
+    logger.info("✅ reminders: (crop_id, completed, scheduled_date)")
+
+    # ── crops ────────────────────────────────────────────────────────────────
+    db["crops"].create_index(
+        [("farmer_id", ASCENDING), ("status", ASCENDING)]
+    )
+    logger.info("✅ crops: (farmer_id, status)")
+
+    # ── messages ─────────────────────────────────────────────────────────────
+    db["messages"].create_index(
+        [("group_id", ASCENDING), ("timestamp", ASCENDING)]
+    )
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
     logger.info("✅ messages: (group_id, timestamp)")
 
     # ── groups ───────────────────────────────────────────────────────────────
