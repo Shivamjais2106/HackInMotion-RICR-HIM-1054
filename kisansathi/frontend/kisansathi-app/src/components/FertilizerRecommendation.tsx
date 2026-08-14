@@ -1,45 +1,45 @@
-import { useState } from 'react';
-import { getAPIBaseURL } from '@/utils/api';
+import { useState } from "react";
+import { getAPIBaseURL } from "@/utils/api";
 
 function FertilizerRecommendation() {
   const [formData, setFormData] = useState({
-    crop: '',
-    nitrogen: '',
-    phosphorus: '',
-    potassium: '',
-    temperature: '',
-    humidity: '',
-    moisture: '',
-    soil_type: ''
+    crop: "",
+    nitrogen: "",
+    phosphorus: "",
+    potassium: "",
+    temperature: "",
+    humidity: "",
+    moisture: "",
+    soil_type: "",
   });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState('');
+  const [submitError, setSubmitError] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [activeTab, setActiveTab] = useState('manual');
+  const [activeTab, setActiveTab] = useState("manual");
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.crop || !formData.nitrogen || !formData.phosphorus || !formData.potassium) {
-      alert('Please fill all required fields');
+      alert("Please fill all required fields");
       return;
     }
 
     setLoading(true);
-    setSubmitError('');
+    setSubmitError("");
     try {
       const response = await fetch(`${getAPIBaseURL()}/fertilizer/recommend`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           crop_type: formData.crop,
           nitrogen: parseFloat(formData.nitrogen),
@@ -48,8 +48,8 @@ function FertilizerRecommendation() {
           temperature: parseFloat(formData.temperature) || 25,
           humidity: parseFloat(formData.humidity) || 70,
           moisture: parseFloat(formData.moisture) || 50,
-          soil_type: formData.soil_type || 'loamy'
-        })
+          soil_type: formData.soil_type || "loamy",
+        }),
       });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
@@ -61,7 +61,7 @@ function FertilizerRecommendation() {
       setResult(data);
       if (data.recommendation) speakResult(data);
     } catch (error) {
-      setSubmitError('Network error. Could not reach the server. Please check your connection.');
+      setSubmitError("Network error. Could not reach the server. Please check your connection.");
       setResult(null);
     } finally {
       setLoading(false);
@@ -71,7 +71,7 @@ function FertilizerRecommendation() {
   const speakResult = (data) => {
     const rec = data?.recommendation;
     if (!rec) return;
-    const text = `For ${formData.crop}, recommended fertilizer is ${rec.recommended_fertilizer}. Apply ${rec.application_rate?.nitrogen ?? 0} kg nitrogen, ${rec.application_rate?.phosphorus ?? 0} kg phosphorus, and ${rec.application_rate?.potassium ?? 0} kg potassium per hectare. ${rec.timing?.[0] ?? ''}`;
+    const text = `For ${formData.crop}, recommended fertilizer is ${rec.recommended_fertilizer}. Apply ${rec.application_rate?.nitrogen ?? 0} kg nitrogen, ${rec.application_rate?.phosphorus ?? 0} kg phosphorus, and ${rec.application_rate?.potassium ?? 0} kg potassium per hectare. ${rec.timing?.[0] ?? ""}`;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.9;
     utterance.pitch = 1;
@@ -89,11 +89,11 @@ function FertilizerRecommendation() {
   const handleFileUpload = (e) => {
     const files = e.target.files;
     if (files) {
-      const newFiles = Array.from(files).filter(file => file.type.includes('image'));
+      const newFiles = Array.from(files).filter((file) => file.type.includes("image"));
       if (newFiles.length > 0) {
         setUploadedFiles([...uploadedFiles, ...newFiles]);
       } else {
-        alert('Please select image files');
+        alert("Please select image files");
       }
     }
   };
@@ -105,40 +105,45 @@ function FertilizerRecommendation() {
   const handleImagesSubmit = async (e) => {
     e.preventDefault();
     if (uploadedFiles.length === 0) {
-      alert('Please select at least one image');
+      alert("Please select at least one image");
       return;
     }
 
     setLoading(true);
-    setSubmitError('');
+    setSubmitError("");
     try {
       const results = [];
       for (const file of uploadedFiles) {
         const formDataFile = new FormData();
-        formDataFile.append('file', file);
+        formDataFile.append("file", file);
         const response = await fetch(`${getAPIBaseURL()}/fertilizer-from-image`, {
-          method: 'POST',
-          body: formDataFile
+          method: "POST",
+          body: formDataFile,
         });
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          results.push({ filename: file.name, data: { success: false, error: errData.error || `Server error ${response.status}` } });
+          results.push({
+            filename: file.name,
+            data: { success: false, error: errData.error || `Server error ${response.status}` },
+          });
         } else {
           const data = await response.json();
           results.push({ filename: file.name, data });
         }
       }
       setResult({ success: true, results });
-      const firstSuccess = results.find(r => r.data.success);
+      const firstSuccess = results.find((r) => r.data.success);
       if (firstSuccess?.data?.summary) {
         const utterance = new SpeechSynthesisUtterance(firstSuccess.data.summary);
-        utterance.rate = 0.9; utterance.pitch = 1; utterance.volume = 1;
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
         setIsSpeaking(true);
         utterance.onend = () => setIsSpeaking(false);
         window.speechSynthesis.speak(utterance);
       }
     } catch (error) {
-      setSubmitError('Network error. Could not process images. Please check your connection.');
+      setSubmitError("Network error. Could not process images. Please check your connection.");
       setResult(null);
     } finally {
       setLoading(false);
@@ -146,38 +151,62 @@ function FertilizerRecommendation() {
   };
 
   const crops = [
-    'rice', 'wheat', 'maize', 'cotton', 'potato', 'coffee',
-    'sugarcane', 'soybean', 'chickpea', 'lentil', 'groundnut',
-    'sunflower', 'mustard', 'tomato', 'onion', 'cabbage',
-    'carrot', 'brinjal', 'chilli', 'turmeric', 'ginger',
-    'banana', 'mango', 'coconut', 'tea'
+    "rice",
+    "wheat",
+    "maize",
+    "cotton",
+    "potato",
+    "coffee",
+    "sugarcane",
+    "soybean",
+    "chickpea",
+    "lentil",
+    "groundnut",
+    "sunflower",
+    "mustard",
+    "tomato",
+    "onion",
+    "cabbage",
+    "carrot",
+    "brinjal",
+    "chilli",
+    "turmeric",
+    "ginger",
+    "banana",
+    "mango",
+    "coconut",
+    "tea",
   ];
 
   return (
     <div className="min-h-screen bg-eco-cream py-20">
       <div className="max-w-4xl mx-auto px-6">
-        <h1 className="text-4xl font-bold text-eco-green-dark mb-2">🧪 Fertilizer Recommendation</h1>
-        <p className="text-gray-600 mb-8">Get personalized fertilizer suggestions based on your crop and soil nutrients</p>
-        
+        <h1 className="text-4xl font-bold text-eco-green-dark mb-2">
+          🧪 Fertilizer Recommendation
+        </h1>
+        <p className="text-gray-600 mb-8">
+          Get personalized fertilizer suggestions based on your crop and soil nutrients
+        </p>
+
         <div className="bg-white rounded-lg shadow-lg p-8">
           {/* Tab Navigation */}
           <div className="flex gap-2 mb-8 border-b-2 border-gray-200">
             <button
-              onClick={() => setActiveTab('manual')}
+              onClick={() => setActiveTab("manual")}
               className={`px-6 py-3 font-semibold transition-colors whitespace-nowrap ${
-                activeTab === 'manual'
-                  ? 'text-eco-green border-b-4 border-eco-green'
-                  : 'text-gray-600 hover:text-eco-green'
+                activeTab === "manual"
+                  ? "text-eco-green border-b-4 border-eco-green"
+                  : "text-gray-600 hover:text-eco-green"
               }`}
             >
               📝 Manual Input
             </button>
             <button
-              onClick={() => setActiveTab('image')}
+              onClick={() => setActiveTab("image")}
               className={`px-6 py-3 font-semibold transition-colors whitespace-nowrap ${
-                activeTab === 'image'
-                  ? 'text-eco-green border-b-4 border-eco-green'
-                  : 'text-gray-600 hover:text-eco-green'
+                activeTab === "image"
+                  ? "text-eco-green border-b-4 border-eco-green"
+                  : "text-gray-600 hover:text-eco-green"
               }`}
             >
               🖼️ Crop Image
@@ -185,7 +214,7 @@ function FertilizerRecommendation() {
           </div>
 
           {/* Manual Input Tab */}
-          {activeTab === 'manual' && (
+          {activeTab === "manual" && (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Crop Selection */}
               <div>
@@ -198,7 +227,7 @@ function FertilizerRecommendation() {
                   required
                 >
                   <option value="">Choose a crop...</option>
-                  {crops.map(crop => (
+                  {crops.map((crop) => (
                     <option key={crop} value={crop}>
                       {crop.charAt(0).toUpperCase() + crop.slice(1)}
                     </option>
@@ -206,119 +235,133 @@ function FertilizerRecommendation() {
                 </select>
               </div>
 
-            {/* Soil Parameters */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nitrogen (N) mg/kg</label>
-                <input
-                  type="number"
-                  name="nitrogen"
-                  value={formData.nitrogen}
-                  onChange={handleChange}
-                  placeholder="e.g., 90"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
-                  required
-                />
+              {/* Soil Parameters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nitrogen (N) mg/kg
+                  </label>
+                  <input
+                    type="number"
+                    name="nitrogen"
+                    value={formData.nitrogen}
+                    onChange={handleChange}
+                    placeholder="e.g., 90"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phosphorus (P) mg/kg
+                  </label>
+                  <input
+                    type="number"
+                    name="phosphorus"
+                    value={formData.phosphorus}
+                    onChange={handleChange}
+                    placeholder="e.g., 42"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Potassium (K) mg/kg
+                  </label>
+                  <input
+                    type="number"
+                    name="potassium"
+                    value={formData.potassium}
+                    onChange={handleChange}
+                    placeholder="e.g., 43"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
+                    required
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phosphorus (P) mg/kg</label>
-                <input
-                  type="number"
-                  name="phosphorus"
-                  value={formData.phosphorus}
-                  onChange={handleChange}
-                  placeholder="e.g., 42"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Potassium (K) mg/kg</label>
-                <input
-                  type="number"
-                  name="potassium"
-                  value={formData.potassium}
-                  onChange={handleChange}
-                  placeholder="e.g., 43"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
-                  required
-                />
-              </div>
-            </div>
 
-            {/* Additional Parameters */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Temperature (°C)</label>
-                <input
-                  type="number"
-                  name="temperature"
-                  value={formData.temperature}
-                  onChange={handleChange}
-                  placeholder="e.g., 25"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
-                />
+              {/* Additional Parameters */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Temperature (°C)
+                  </label>
+                  <input
+                    type="number"
+                    name="temperature"
+                    value={formData.temperature}
+                    onChange={handleChange}
+                    placeholder="e.g., 25"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Humidity (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="humidity"
+                    value={formData.humidity}
+                    onChange={handleChange}
+                    placeholder="e.g., 70"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Moisture (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="moisture"
+                    value={formData.moisture}
+                    onChange={handleChange}
+                    placeholder="e.g., 50"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Soil Type</label>
+                  <select
+                    name="soil_type"
+                    value={formData.soil_type}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
+                  >
+                    <option value="">Select...</option>
+                    <option value="loamy">Loamy</option>
+                    <option value="sandy">Sandy</option>
+                    <option value="clay">Clay</option>
+                    <option value="silty">Silty</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Humidity (%)</label>
-                <input
-                  type="number"
-                  name="humidity"
-                  value={formData.humidity}
-                  onChange={handleChange}
-                  placeholder="e.g., 70"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Moisture (%)</label>
-                <input
-                  type="number"
-                  name="moisture"
-                  value={formData.moisture}
-                  onChange={handleChange}
-                  placeholder="e.g., 50"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Soil Type</label>
-                <select
-                  name="soil_type"
-                  value={formData.soil_type}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-eco-green"
-                >
-                  <option value="">Select...</option>
-                  <option value="loamy">Loamy</option>
-                  <option value="sandy">Sandy</option>
-                  <option value="clay">Clay</option>
-                  <option value="silty">Silty</option>
-                </select>
-              </div>
-            </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-eco-green text-white font-semibold py-3 rounded-lg hover:bg-eco-green-dark transition-colors disabled:opacity-50"
-            >
-              {loading ? '⏳ Analyzing...' : '🧪 Get Fertilizer Recommendation'}
-            </button>
-            {submitError && (
-              <div className="bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 text-sm">
-                ❌ {submitError}
-              </div>
-            )}
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-eco-green text-white font-semibold py-3 rounded-lg hover:bg-eco-green-dark transition-colors disabled:opacity-50"
+              >
+                {loading ? "⏳ Analyzing..." : "🧪 Get Fertilizer Recommendation"}
+              </button>
+              {submitError && (
+                <div className="bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 text-sm">
+                  ❌ {submitError}
+                </div>
+              )}
             </form>
           )}
 
           {/* Image Upload Tab */}
-          {activeTab === 'image' && (
+          {activeTab === "image" && (
             <form onSubmit={handleImagesSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Upload Crop Images</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Upload Crop Images
+                </label>
                 <div className="border-2 border-dashed border-eco-green rounded-lg p-8 text-center cursor-pointer hover:bg-eco-cream transition-colors">
                   <input
                     type="file"
@@ -330,10 +373,10 @@ function FertilizerRecommendation() {
                   />
                   <label htmlFor="image-input" className="cursor-pointer">
                     <div className="text-4xl mb-2">🖼️</div>
-                    <p className="text-gray-700 font-semibold">
-                      Click to upload crop images
+                    <p className="text-gray-700 font-semibold">Click to upload crop images</p>
+                    <p className="text-gray-500 text-sm mt-1">
+                      JPG, PNG, GIF, BMP supported - Multiple files allowed
                     </p>
-                    <p className="text-gray-500 text-sm mt-1">JPG, PNG, GIF, BMP supported - Multiple files allowed</p>
                   </label>
                 </div>
               </div>
@@ -341,14 +384,21 @@ function FertilizerRecommendation() {
               {/* Uploaded Files List */}
               {uploadedFiles.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-3">📁 Uploaded Files ({uploadedFiles.length})</h3>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">
+                    📁 Uploaded Files ({uploadedFiles.length})
+                  </h3>
                   <div className="space-y-2">
                     {uploadedFiles.map((file, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-300">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-300"
+                      >
                         <div className="flex items-center gap-2">
                           <span className="text-lg">🖼️</span>
                           <span className="text-gray-700 font-semibold">{file.name}</span>
-                          <span className="text-gray-500 text-sm">({(file.size / 1024).toFixed(2)} KB)</span>
+                          <span className="text-gray-500 text-sm">
+                            ({(file.size / 1024).toFixed(2)} KB)
+                          </span>
                         </div>
                         <button
                           type="button"
@@ -365,7 +415,8 @@ function FertilizerRecommendation() {
 
               <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-300">
                 <p className="text-blue-700 text-sm">
-                  <span className="font-semibold">💡 Tip:</span> Upload multiple crop images. The system will identify each crop and recommend fertilizer for each one.
+                  <span className="font-semibold">💡 Tip:</span> Upload multiple crop images. The
+                  system will identify each crop and recommend fertilizer for each one.
                 </p>
               </div>
 
@@ -374,14 +425,16 @@ function FertilizerRecommendation() {
                 disabled={loading || uploadedFiles.length === 0}
                 className="w-full bg-eco-green text-white font-semibold py-3 rounded-lg hover:bg-eco-green-dark transition-colors disabled:opacity-50"
               >
-                {loading ? '⏳ Analyzing Images...' : `📷 Identify Crops & Recommend Fertilizer (${uploadedFiles.length})`}
+                {loading
+                  ? "⏳ Analyzing Images..."
+                  : `📷 Identify Crops & Recommend Fertilizer (${uploadedFiles.length})`}
               </button>
             </form>
           )}
         </div>
 
         {/* Results - Manual */}
-        {result && activeTab === 'manual' && result.recommendation && (
+        {result && activeTab === "manual" && result.recommendation && (
           <div className="mt-8 bg-white rounded-lg shadow-lg p-8">
             <div>
               <h2 className="text-2xl font-bold text-eco-green-dark mb-6">
@@ -409,8 +462,10 @@ function FertilizerRecommendation() {
                   <div>
                     <p className="text-sm text-gray-600">Application Rate (per hectare)</p>
                     <p className="text-gray-700">
-                      N: {result.recommendation.application_rate.nitrogen} kg<br/>
-                      P: {result.recommendation.application_rate.phosphorus} kg<br/>
+                      N: {result.recommendation.application_rate.nitrogen} kg
+                      <br />
+                      P: {result.recommendation.application_rate.phosphorus} kg
+                      <br />
                       K: {result.recommendation.application_rate.potassium} kg
                     </p>
                   </div>
@@ -422,16 +477,17 @@ function FertilizerRecommendation() {
                       ))}
                     </ul>
                   </div>
-                  {result.recommendation.precautions && result.recommendation.precautions.length > 0 && (
-                    <div>
-                      <p className="text-sm text-gray-600">Precautions</p>
-                      <ul className="text-gray-700 mt-1">
-                        {result.recommendation.precautions.map((p, i) => (
-                          <li key={i}>• {p}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                  {result.recommendation.precautions &&
+                    result.recommendation.precautions.length > 0 && (
+                      <div>
+                        <p className="text-sm text-gray-600">Precautions</p>
+                        <ul className="text-gray-700 mt-1">
+                          {result.recommendation.precautions.map((p, i) => (
+                            <li key={i}>• {p}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -449,7 +505,7 @@ function FertilizerRecommendation() {
                   disabled={isSpeaking}
                   className="flex-1 bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
                 >
-                  {isSpeaking ? '🔊 Speaking...' : '🔊 Speak Recommendation'}
+                  {isSpeaking ? "🔊 Speaking..." : "🔊 Speak Recommendation"}
                 </button>
                 {isSpeaking && (
                   <button
@@ -465,7 +521,7 @@ function FertilizerRecommendation() {
         )}
 
         {/* Results - Image */}
-        {result && activeTab === 'image' && result.success && (
+        {result && activeTab === "image" && result.success && (
           <div className="mt-8 space-y-6">
             <h2 className="text-2xl font-bold text-eco-green-dark">
               🖼️ Crop Health Analysis Results ({result.results.length} images)
@@ -481,7 +537,9 @@ function FertilizerRecommendation() {
                   <>
                     {/* Health Status */}
                     <div className="bg-blue-50 p-6 rounded-lg border-2 border-blue-300 mb-6">
-                      <h4 className="text-lg font-bold text-blue-700 mb-3">🏥 Crop Health Status</h4>
+                      <h4 className="text-lg font-bold text-blue-700 mb-3">
+                        🏥 Crop Health Status
+                      </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-gray-600 text-sm">Health Status</p>
@@ -517,7 +575,9 @@ function FertilizerRecommendation() {
 
                     {/* Size/Growth Stage */}
                     <div className="bg-purple-50 p-6 rounded-lg border-2 border-purple-300 mb-6">
-                      <h4 className="text-lg font-bold text-purple-700 mb-3">📏 Crop Size & Growth Stage</h4>
+                      <h4 className="text-lg font-bold text-purple-700 mb-3">
+                        📏 Crop Size & Growth Stage
+                      </h4>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <p className="text-gray-600 text-sm">Size Category</p>
@@ -647,7 +707,7 @@ function FertilizerRecommendation() {
                     disabled={isSpeaking}
                     className="flex-1 bg-blue-500 text-white font-semibold py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
                   >
-                    {isSpeaking ? '🔊 Speaking...' : '🔊 Speak Analysis'}
+                    {isSpeaking ? "🔊 Speaking..." : "🔊 Speak Analysis"}
                   </button>
                   {isSpeaking && (
                     <button
@@ -678,4 +738,3 @@ function FertilizerRecommendation() {
 }
 
 export default FertilizerRecommendation;
-

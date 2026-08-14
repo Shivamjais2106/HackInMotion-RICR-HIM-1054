@@ -1,4 +1,4 @@
-import CropRecommendation from '@/components/CropRecommendation';
+import CropRecommendation from "@/components/CropRecommendation";
 
 export default function CropPage() {
   return <CropRecommendation />;

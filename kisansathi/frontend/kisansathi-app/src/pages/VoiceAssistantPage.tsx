@@ -1,5 +1,5 @@
-import React from 'react';
-import VoiceAssistant from '../components/VoiceAssistant';
+import React from "react";
+import VoiceAssistant from "../components/VoiceAssistant";
 
 const VoiceAssistantPage: React.FC = () => {
   return (

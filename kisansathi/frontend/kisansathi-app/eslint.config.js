@@ -22,10 +22,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
 
       // Fast Refresh: only export components from component files
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 
       // TypeScript rules
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
@@ -36,7 +33,7 @@ export default tseslint.config(
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "no-debugger": "error",
       "prefer-const": "warn",
-      "eqeqeq": ["warn", "smart"],
+      eqeqeq: ["warn", "smart"],
     },
-  },
+  }
 );

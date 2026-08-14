@@ -1,40 +1,42 @@
-import React, { useState } from 'react';
-import { useTextToSpeechContext } from '@/context/TextToSpeechContext';
-import { SentenceReader } from '@/components/SentenceReader';
-import { getAPIBaseURL } from '../utils/api';
+import React, { useState } from "react";
+import { useTextToSpeechContext } from "@/context/TextToSpeechContext";
+import { SentenceReader } from "@/components/SentenceReader";
+import { getAPIBaseURL } from "../utils/api";
 
 /**
  * Dedicated TTS Testing Page
  */
 const TTSTestPage = () => {
   const { isEnabled, toggleTTS, language, setLanguage } = useTextToSpeechContext();
-  const [testText, setTestText] = useState('Welcome to KisanSathi. This is a complete sentence that will be read aloud.');
+  const [testText, setTestText] = useState(
+    "Welcome to KisanSathi. This is a complete sentence that will be read aloud."
+  );
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleTestTTS = async () => {
     setIsLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
       const baseURL = getAPIBaseURL();
-      console.log('Testing TTS with text:', testText);
-      console.log('Language:', language);
+      console.log("Testing TTS with text:", testText);
+      console.log("Language:", language);
 
       const response = await fetch(`${baseURL}/text-to-speech`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           text: testText,
-          language: language === 'auto' ? 'auto' : language === 'hi' ? 'hi-IN' : 'en-US',
+          language: language === "auto" ? "auto" : language === "hi" ? "hi-IN" : "en-US",
         }),
       });
 
-      console.log('Response status:', response.status);
+      console.log("Response status:", response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -42,28 +44,28 @@ const TTSTestPage = () => {
       }
 
       const audioBlob = await response.blob();
-      console.log('Audio blob size:', audioBlob.size);
+      console.log("Audio blob size:", audioBlob.size);
 
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
-      
+
       audio.onplay = () => {
-        setSuccess('🔊 Audio is playing...');
+        setSuccess("🔊 Audio is playing...");
       };
 
       audio.onerror = (e) => {
-        console.error('Audio error:', e);
-        setError('❌ Audio playback error');
+        console.error("Audio error:", e);
+        setError("❌ Audio playback error");
       };
 
       audio.onended = () => {
-        setSuccess('✅ Audio finished playing');
+        setSuccess("✅ Audio finished playing");
       };
 
       await audio.play();
     } catch (err) {
-      console.error('Error:', err);
-      setError(`❌ Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error("Error:", err);
+      setError(`❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`);
     } finally {
       setIsLoading(false);
     }
@@ -79,9 +81,9 @@ const TTSTestPage = () => {
           <h2 className="text-xl font-semibold mb-4">Status</h2>
           <div className="space-y-2">
             <p>
-              <strong>TTS Enabled:</strong>{' '}
-              <span className={isEnabled ? 'text-green-600' : 'text-red-600'}>
-                {isEnabled ? '✅ Yes' : '❌ No'}
+              <strong>TTS Enabled:</strong>{" "}
+              <span className={isEnabled ? "text-green-600" : "text-red-600"}>
+                {isEnabled ? "✅ Yes" : "❌ No"}
               </span>
             </p>
             <p>
@@ -96,12 +98,10 @@ const TTSTestPage = () => {
           <button
             onClick={toggleTTS}
             className={`px-6 py-3 rounded-lg font-semibold text-white transition-all ${
-              isEnabled
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-green-500 hover:bg-green-600'
+              isEnabled ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
             }`}
           >
-            {isEnabled ? 'Disable TTS' : 'Enable TTS'}
+            {isEnabled ? "Disable TTS" : "Enable TTS"}
           </button>
         </div>
 
@@ -111,7 +111,7 @@ const TTSTestPage = () => {
             <h2 className="text-xl font-semibold mb-4">Select Language</h2>
             <select
               value={language}
-              onChange={(e) => setLanguage(e.target.value as 'auto' | 'en' | 'hi')}
+              onChange={(e) => setLanguage(e.target.value as "auto" | "en" | "hi")}
               className="w-full px-4 py-2 border-2 border-eco-green rounded-lg"
             >
               <option value="auto">Auto Detect</option>
@@ -140,11 +140,11 @@ const TTSTestPage = () => {
             disabled={isLoading || !isEnabled}
             className={`w-full px-6 py-3 rounded-lg font-semibold text-white transition-all ${
               isLoading || !isEnabled
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-eco-green hover:bg-eco-green-dark'
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-eco-green hover:bg-eco-green-dark"
             }`}
           >
-            {isLoading ? '⏳ Testing...' : '🎤 Test TTS'}
+            {isLoading ? "⏳ Testing..." : "🎤 Test TTS"}
           </button>
         </div>
 

@@ -117,15 +117,23 @@ export default function MarketPrices({ limit = 10 }: { limit?: number }) {
                     {p.msp ? p.msp.toLocaleString("en-IN") : "—"}
                   </td>
                   <td className="py-2 text-center">
-                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${advice.bg} ${advice.color}`}>
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${advice.bg} ${advice.color}`}
+                    >
                       {advice.label}
                     </span>
                   </td>
                   <td className="py-2 text-center">
                     {p.live ? (
-                      <span className="inline-block w-2 h-2 rounded-full bg-green-500" title="Live data" />
+                      <span
+                        className="inline-block w-2 h-2 rounded-full bg-green-500"
+                        title="Live data"
+                      />
                     ) : (
-                      <span className="inline-block w-2 h-2 rounded-full bg-yellow-400" title="MSP reference" />
+                      <span
+                        className="inline-block w-2 h-2 rounded-full bg-yellow-400"
+                        title="MSP reference"
+                      />
                     )}
                   </td>
                 </tr>

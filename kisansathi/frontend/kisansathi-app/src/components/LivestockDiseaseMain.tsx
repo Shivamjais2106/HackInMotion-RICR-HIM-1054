@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
-import { Upload, AlertCircle, CheckCircle, Loader, ArrowLeft } from 'lucide-react';
-import { getAPIBaseURL } from '@/utils/api';
+import { useState, useRef } from "react";
+import { Upload, AlertCircle, CheckCircle, Loader, ArrowLeft } from "lucide-react";
+import { getAPIBaseURL } from "@/utils/api";
 
 interface DiseaseResult {
   success: boolean;
@@ -20,31 +20,31 @@ interface DiseaseResult {
 
 function LivestockDiseaseMain() {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [selectedAnimal, setSelectedAnimal] = useState<string>('cattle');
+  const [selectedAnimal, setSelectedAnimal] = useState<string>("cattle");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DiseaseResult | null>(null);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const animals = [
-    { id: 'cattle', name: '🐄 Cattle', icon: '🐄' },
-    { id: 'buffalo', name: '🐃 Buffalo', icon: '🐃' },
-    { id: 'goat', name: '🐐 Goat', icon: '🐐' },
-    { id: 'sheep', name: '🐑 Sheep', icon: '🐑' },
-    { id: 'pig', name: '🐷 Pig', icon: '🐷' },
-    { id: 'poultry', name: '🐔 Poultry', icon: '🐔' },
+    { id: "cattle", name: "🐄 Cattle", icon: "🐄" },
+    { id: "buffalo", name: "🐃 Buffalo", icon: "🐃" },
+    { id: "goat", name: "🐐 Goat", icon: "🐐" },
+    { id: "sheep", name: "🐑 Sheep", icon: "🐑" },
+    { id: "pig", name: "🐷 Pig", icon: "🐷" },
+    { id: "poultry", name: "🐔 Poultry", icon: "🐔" },
   ];
 
   const commonSymptoms = {
-    cattle: ['Fever', 'Swelling', 'Lameness', 'Discharge', 'Reduced milk', 'Skin lesions'],
-    buffalo: ['Fever', 'Swelling', 'Lameness', 'Discharge', 'Reduced milk', 'Cough'],
-    goat: ['Lameness', 'Itching', 'Hair loss', 'Cough', 'Fever', 'Swollen udder'],
-    sheep: ['Lameness', 'Itching', 'Hair loss', 'Cough', 'Fever', 'Swollen udder'],
-    pig: ['Fever', 'Lethargy', 'Diarrhea', 'Cough', 'Reduced appetite', 'Swelling'],
-    poultry: ['Twisted neck', 'Paralysis', 'Diarrhea', 'Cough', 'Lethargy', 'Reduced eggs'],
+    cattle: ["Fever", "Swelling", "Lameness", "Discharge", "Reduced milk", "Skin lesions"],
+    buffalo: ["Fever", "Swelling", "Lameness", "Discharge", "Reduced milk", "Cough"],
+    goat: ["Lameness", "Itching", "Hair loss", "Cough", "Fever", "Swollen udder"],
+    sheep: ["Lameness", "Itching", "Hair loss", "Cough", "Fever", "Swollen udder"],
+    pig: ["Fever", "Lethargy", "Diarrhea", "Cough", "Reduced appetite", "Swelling"],
+    poultry: ["Twisted neck", "Paralysis", "Diarrhea", "Cough", "Lethargy", "Reduced eggs"],
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +56,7 @@ function LivestockDiseaseMain() {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      setError('');
+      setError("");
     }
   };
 
@@ -68,24 +68,24 @@ function LivestockDiseaseMain() {
 
   const handlePredict = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedImage) {
-      setError('Please select an image');
+      setError("Please select an image");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
     setResult(null);
 
     try {
       const formData = new FormData();
-      formData.append('file', selectedImage);
-      formData.append('animal_type', selectedAnimal);
-      symptoms.forEach((symptom) => formData.append('symptoms', symptom));
+      formData.append("file", selectedImage);
+      formData.append("animal_type", selectedAnimal);
+      symptoms.forEach((symptom) => formData.append("symptoms", symptom));
 
       const response = await fetch(`${getAPIBaseURL()}/livestock-disease-predict`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
 
@@ -94,10 +94,10 @@ function LivestockDiseaseMain() {
       if (data.success) {
         setResult(data);
       } else {
-        setError(data.error || 'Failed to predict disease');
+        setError(data.error || "Failed to predict disease");
       }
     } catch (err) {
-      setError('Error connecting to server. Make sure backend is running.');
+      setError("Error connecting to server. Make sure backend is running.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -106,31 +106,31 @@ function LivestockDiseaseMain() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity?.toLowerCase()) {
-      case 'critical':
-        return 'bg-red-100 border-red-300 text-red-800';
-      case 'high':
-        return 'bg-orange-100 border-orange-300 text-orange-800';
-      case 'medium':
-        return 'bg-yellow-100 border-yellow-300 text-yellow-800';
-      case 'low':
-        return 'bg-green-100 border-green-300 text-green-800';
+      case "critical":
+        return "bg-red-100 border-red-300 text-red-800";
+      case "high":
+        return "bg-orange-100 border-orange-300 text-orange-800";
+      case "medium":
+        return "bg-yellow-100 border-yellow-300 text-yellow-800";
+      case "low":
+        return "bg-green-100 border-green-300 text-green-800";
       default:
-        return 'bg-gray-100 border-gray-300 text-gray-800';
+        return "bg-gray-100 border-gray-300 text-gray-800";
     }
   };
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency?.toLowerCase()) {
-      case 'emergency':
-        return 'text-red-600 bg-red-50';
-      case 'immediate':
-        return 'text-orange-600 bg-orange-50';
-      case 'within 24 hours':
-        return 'text-yellow-600 bg-yellow-50';
-      case 'within 48 hours':
-        return 'text-blue-600 bg-blue-50';
+      case "emergency":
+        return "text-red-600 bg-red-50";
+      case "immediate":
+        return "text-orange-600 bg-orange-50";
+      case "within 24 hours":
+        return "text-yellow-600 bg-yellow-50";
+      case "within 48 hours":
+        return "text-blue-600 bg-blue-50";
       default:
-        return 'text-gray-600 bg-gray-50';
+        return "text-gray-600 bg-gray-50";
     }
   };
 
@@ -138,19 +138,24 @@ function LivestockDiseaseMain() {
     return (
       <div className="min-h-screen bg-eco-cream py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <h1 className="text-4xl font-bold text-eco-green-dark mb-4 text-center">🏥 Livestock Disease Detection</h1>
-          <p className="text-gray-600 text-center mb-12">Choose how you want to diagnose your animal</p>
+          <h1 className="text-4xl font-bold text-eco-green-dark mb-4 text-center">
+            🏥 Livestock Disease Detection
+          </h1>
+          <p className="text-gray-600 text-center mb-12">
+            Choose how you want to diagnose your animal
+          </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Option 1: Image-based */}
             <div
-              onClick={() => setSelectedOption('image')}
+              onClick={() => setSelectedOption("image")}
               className="bg-white rounded-lg shadow-lg p-8 cursor-pointer hover:shadow-xl transition-shadow"
             >
               <div className="text-6xl mb-4">📸</div>
               <h2 className="text-2xl font-bold text-eco-green-dark mb-3">Image-Based Diagnosis</h2>
               <p className="text-gray-600 mb-4">
-                Upload a photo of your sick animal and let our AI analyze it to detect diseases with high accuracy.
+                Upload a photo of your sick animal and let our AI analyze it to detect diseases with
+                high accuracy.
               </p>
               <div className="bg-eco-cream p-4 rounded-lg mb-4">
                 <p className="text-sm text-gray-700">
@@ -164,13 +169,16 @@ function LivestockDiseaseMain() {
 
             {/* Option 2: Symptom-based */}
             <div
-              onClick={() => setSelectedOption('symptoms')}
+              onClick={() => setSelectedOption("symptoms")}
               className="bg-white rounded-lg shadow-lg p-8 cursor-pointer hover:shadow-xl transition-shadow"
             >
               <div className="text-6xl mb-4">🔍</div>
-              <h2 className="text-2xl font-bold text-eco-green-dark mb-3">Symptom-Based Diagnosis</h2>
+              <h2 className="text-2xl font-bold text-eco-green-dark mb-3">
+                Symptom-Based Diagnosis
+              </h2>
               <p className="text-gray-600 mb-4">
-                Describe the symptoms you observe in your animal and get disease predictions based on symptom matching.
+                Describe the symptoms you observe in your animal and get disease predictions based
+                on symptom matching.
               </p>
               <div className="bg-eco-cream p-4 rounded-lg mb-4">
                 <p className="text-sm text-gray-700">
@@ -187,7 +195,7 @@ function LivestockDiseaseMain() {
     );
   }
 
-  if (selectedOption === 'image') {
+  if (selectedOption === "image") {
     return (
       <div className="min-h-screen bg-eco-cream py-20">
         <div className="max-w-6xl mx-auto px-6">
@@ -195,10 +203,10 @@ function LivestockDiseaseMain() {
             onClick={() => {
               setSelectedOption(null);
               setSelectedImage(null);
-              setImagePreview('');
+              setImagePreview("");
               setSymptoms([]);
               setResult(null);
-              setError('');
+              setError("");
             }}
             className="flex items-center gap-2 text-eco-green-dark font-semibold mb-8 hover:text-eco-green-dark/70"
           >
@@ -206,8 +214,12 @@ function LivestockDiseaseMain() {
             Back to Options
           </button>
 
-          <h1 className="text-4xl font-bold text-eco-green-dark mb-4 text-center">📸 Image-Based Diagnosis</h1>
-          <p className="text-gray-600 text-center mb-12">Upload a photo of your sick animal for AI diagnosis</p>
+          <h1 className="text-4xl font-bold text-eco-green-dark mb-4 text-center">
+            📸 Image-Based Diagnosis
+          </h1>
+          <p className="text-gray-600 text-center mb-12">
+            Upload a photo of your sick animal for AI diagnosis
+          </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Panel */}
@@ -222,12 +234,14 @@ function LivestockDiseaseMain() {
                       onClick={() => setSelectedAnimal(animal.id)}
                       className={`p-6 rounded-lg border-2 transition-all ${
                         selectedAnimal === animal.id
-                          ? 'border-eco-green bg-eco-cream'
-                          : 'border-gray-200 bg-white hover:border-eco-green'
+                          ? "border-eco-green bg-eco-cream"
+                          : "border-gray-200 bg-white hover:border-eco-green"
                       }`}
                     >
                       <div className="text-4xl mb-2">{animal.icon}</div>
-                      <div className="text-sm font-medium text-eco-green-dark">{animal.name.split(' ')[1]}</div>
+                      <div className="text-sm font-medium text-eco-green-dark">
+                        {animal.name.split(" ")[1]}
+                      </div>
                     </button>
                   ))}
                 </div>
@@ -241,7 +255,9 @@ function LivestockDiseaseMain() {
                   className="border-2 border-dashed border-eco-green/30 rounded-lg p-12 text-center cursor-pointer hover:bg-eco-cream transition-colors"
                 >
                   <Upload className="w-16 h-16 text-eco-green mx-auto mb-4" />
-                  <p className="text-eco-green-dark font-semibold text-lg mb-2">Click to upload or drag and drop</p>
+                  <p className="text-eco-green-dark font-semibold text-lg mb-2">
+                    Click to upload or drag and drop
+                  </p>
                   <p className="text-gray-600">PNG, JPG, GIF up to 10MB</p>
                 </div>
                 <input
@@ -262,7 +278,7 @@ function LivestockDiseaseMain() {
                     <button
                       onClick={() => {
                         setSelectedImage(null);
-                        setImagePreview('');
+                        setImagePreview("");
                       }}
                       className="mt-4 text-red-600 hover:text-red-700 text-sm font-semibold"
                     >
@@ -274,7 +290,9 @@ function LivestockDiseaseMain() {
 
               {/* Symptoms Selection */}
               <div className="bg-white rounded-lg shadow-md p-8">
-                <h2 className="text-2xl font-bold text-eco-green-dark mb-6">Observed Symptoms (Optional)</h2>
+                <h2 className="text-2xl font-bold text-eco-green-dark mb-6">
+                  Observed Symptoms (Optional)
+                </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {commonSymptoms[selectedAnimal as keyof typeof commonSymptoms]?.map((symptom) => (
                     <button
@@ -282,8 +300,8 @@ function LivestockDiseaseMain() {
                       onClick={() => toggleSymptom(symptom)}
                       className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
                         symptoms.includes(symptom)
-                          ? 'border-eco-green bg-eco-cream text-eco-green-dark'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-eco-green'
+                          ? "border-eco-green bg-eco-cream text-eco-green-dark"
+                          : "border-gray-200 bg-white text-gray-700 hover:border-eco-green"
                       }`}
                     >
                       {symptom}
@@ -315,7 +333,7 @@ function LivestockDiseaseMain() {
                       Analyzing...
                     </>
                   ) : (
-                    '🔍 Predict Disease'
+                    "🔍 Predict Disease"
                   )}
                 </button>
               </form>
@@ -340,7 +358,9 @@ function LivestockDiseaseMain() {
                   {/* Severity Badge */}
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600 font-medium">Severity:</span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getSeverityColor(result.severity)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${getSeverityColor(result.severity)}`}
+                    >
                       {result.severity}
                     </span>
                   </div>
@@ -367,7 +387,9 @@ function LivestockDiseaseMain() {
                   {/* Symptom Match */}
                   {result.symptoms_match && result.symptoms_match.length > 0 && (
                     <div className="border-t pt-4">
-                      <p className="text-sm font-semibold text-eco-green-dark mb-2">Matching Symptoms</p>
+                      <p className="text-sm font-semibold text-eco-green-dark mb-2">
+                        Matching Symptoms
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {result.symptoms_match.map((symptom) => (
                           <span
@@ -384,7 +406,9 @@ function LivestockDiseaseMain() {
                   {/* Alternative Diseases */}
                   {result.alternative_diseases && result.alternative_diseases.length > 0 && (
                     <div className="border-t pt-4">
-                      <p className="text-sm font-semibold text-eco-green-dark mb-2">Other Possibilities</p>
+                      <p className="text-sm font-semibold text-eco-green-dark mb-2">
+                        Other Possibilities
+                      </p>
                       <div className="space-y-2">
                         {result.alternative_diseases.map((alt) => (
                           <div key={alt.disease} className="flex justify-between text-sm">
@@ -400,7 +424,9 @@ function LivestockDiseaseMain() {
 
               {!result && !loading && (
                 <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500 sticky top-6">
-                  <p className="text-sm">Upload an image and click "Predict Disease" to see results</p>
+                  <p className="text-sm">
+                    Upload an image and click "Predict Disease" to see results
+                  </p>
                 </div>
               )}
             </div>
@@ -410,7 +436,7 @@ function LivestockDiseaseMain() {
     );
   }
 
-  if (selectedOption === 'symptoms') {
+  if (selectedOption === "symptoms") {
     return (
       <div className="min-h-screen bg-eco-cream py-20">
         <div className="max-w-4xl mx-auto px-6">
@@ -419,7 +445,7 @@ function LivestockDiseaseMain() {
               setSelectedOption(null);
               setSymptoms([]);
               setResult(null);
-              setError('');
+              setError("");
             }}
             className="flex items-center gap-2 text-eco-green-dark font-semibold mb-8 hover:text-eco-green-dark/70"
           >
@@ -427,11 +453,17 @@ function LivestockDiseaseMain() {
             Back to Options
           </button>
 
-          <h1 className="text-4xl font-bold text-eco-green-dark mb-4 text-center">🔍 Symptom-Based Diagnosis</h1>
-          <p className="text-gray-600 text-center mb-12">Coming Soon - Symptom-based diagnosis feature</p>
+          <h1 className="text-4xl font-bold text-eco-green-dark mb-4 text-center">
+            🔍 Symptom-Based Diagnosis
+          </h1>
+          <p className="text-gray-600 text-center mb-12">
+            Coming Soon - Symptom-based diagnosis feature
+          </p>
 
           <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <p className="text-gray-600 text-lg">This feature is coming soon. Please use the Image-Based Diagnosis for now.</p>
+            <p className="text-gray-600 text-lg">
+              This feature is coming soon. Please use the Image-Based Diagnosis for now.
+            </p>
           </div>
         </div>
       </div>

@@ -100,10 +100,7 @@ def build_dashboard(db, user_id: str) -> dict:
 
     # ── 4. Latest Crop Health Log ────────────────────────────────────────────
     try:
-        log = db["health_logs"].find_one(
-            {"user_id": user_id},
-            sort=[("created_at", -1)]
-        )
+        log = db["health_logs"].find_one({"user_id": user_id}, sort=[("created_at", -1)])
         if log:
             log["_id"] = str(log["_id"])
             result["health_summary"] = {
@@ -122,37 +119,45 @@ def build_dashboard(db, user_id: str) -> dict:
 
     irr = result.get("irrigation") or {}
     if irr.get("decision") == "irrigate_today":
-        actions.append({
-            "priority": "high",
-            "icon": "💧",
-            "action": "Irrigate today",
-            "detail": irr.get("message", ""),
-        })
+        actions.append(
+            {
+                "priority": "high",
+                "icon": "💧",
+                "action": "Irrigate today",
+                "detail": irr.get("message", ""),
+            }
+        )
     elif irr.get("decision") == "irrigate_within_24h":
-        actions.append({
-            "priority": "medium",
-            "icon": "💧",
-            "action": "Plan irrigation within 24 hours",
-            "detail": irr.get("message", ""),
-        })
+        actions.append(
+            {
+                "priority": "medium",
+                "icon": "💧",
+                "action": "Plan irrigation within 24 hours",
+                "detail": irr.get("message", ""),
+            }
+        )
 
     for alert in result["alerts"]:
         if alert.get("severity") in ("critical", "high"):
-            actions.append({
-                "priority": alert["severity"],
-                "icon": "⚠️",
-                "action": alert["type"].replace("_", " ").title(),
-                "detail": alert.get("action", alert.get("message", "")),
-            })
+            actions.append(
+                {
+                    "priority": alert["severity"],
+                    "icon": "⚠️",
+                    "action": alert["type"].replace("_", " ").title(),
+                    "detail": alert.get("action", alert.get("message", "")),
+                }
+            )
 
     health = result.get("health_summary") or {}
     if health.get("severity") in ("high", "critical"):
-        actions.append({
-            "priority": "high",
-            "icon": "🌿",
-            "action": f"Treat {health.get('crop', 'crop')} — {health.get('disease', 'disease detected')}",
-            "detail": "Check recent crop health log for recommended action.",
-        })
+        actions.append(
+            {
+                "priority": "high",
+                "icon": "🌿",
+                "action": f"Treat {health.get('crop', 'crop')} — {health.get('disease', 'disease detected')}",
+                "detail": "Check recent crop health log for recommended action.",
+            }
+        )
 
     # Sort: critical > high > medium > low
     priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}

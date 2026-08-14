@@ -26,12 +26,15 @@ const Projects = () => {
     <section className="py-20 bg-eco-green-dark">
       <div className="max-w-7xl mx-auto px-6 lg:px-16">
         <div className="text-center mb-4">
-          <span className="text-eco-yellow font-semibold text-sm uppercase tracking-widest">Recently Completed</span>
+          <span className="text-eco-yellow font-semibold text-sm uppercase tracking-widest">
+            Recently Completed
+          </span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold text-primary-foreground mt-3">
             Recently Completed Project
           </h2>
           <p className="text-primary-foreground/60 max-w-2xl mx-auto mt-4 text-sm">
-            Affordable rental of well-maintained farming equipment to support your agricultural needs. Innovative irrigation solutions to ensure efficient water use and healthy crops.
+            Affordable rental of well-maintained farming equipment to support your agricultural
+            needs. Innovative irrigation solutions to ensure efficient water use and healthy crops.
           </p>
         </div>
 
@@ -46,7 +49,9 @@ const Projects = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-eco-green-dark/70 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
-                  <h4 className="font-heading text-lg font-bold text-primary-foreground">{project.title}</h4>
+                  <h4 className="font-heading text-lg font-bold text-primary-foreground">
+                    {project.title}
+                  </h4>
                 </div>
               </div>
             </div>
@@ -59,7 +64,9 @@ const Projects = () => {
             className="inline-flex items-center gap-3 bg-eco-yellow text-eco-green-dark font-semibold px-7 py-4 rounded-full text-sm hover:brightness-110 transition-all"
           >
             See All Projects
-            <span className="bg-eco-green-dark text-eco-yellow rounded-full w-7 h-7 flex items-center justify-center">→</span>
+            <span className="bg-eco-green-dark text-eco-yellow rounded-full w-7 h-7 flex items-center justify-center">
+              →
+            </span>
           </a>
         </div>
       </div>

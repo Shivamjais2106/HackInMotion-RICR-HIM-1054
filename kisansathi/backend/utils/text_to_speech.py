@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from gtts import gTTS
+
     HAS_GTTS = True
 except ImportError:
     logger.warning("gtts not installed")
@@ -19,15 +20,15 @@ except ImportError:
 
 def detect_language(text):
     """Detect language from text characters"""
-    hindi_chars = set('अआइईउऊऋएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह')
+    hindi_chars = set("अआइईउऊऋएऐओऔकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसह")
     text_chars = set(text)
     hindi_count = len(text_chars & hindi_chars)
     if hindi_count > len(text) * 0.1:
-        return 'hi'
-    return 'en'
+        return "hi"
+    return "en"
 
 
-def generate_speech(text, language='en'):
+def generate_speech(text, language="en"):
     """
     Generate speech from text using gTTS
 
@@ -49,11 +50,14 @@ def generate_speech(text, language='en'):
 
         # Normalize language codes
         lang_map = {
-            'en-US': 'en', 'en-IN': 'en', 'en-GB': 'en',
-            'hi-IN': 'hi', 'hi-in': 'hi',
-            'auto': detect_language(text)
+            "en-US": "en",
+            "en-IN": "en",
+            "en-GB": "en",
+            "hi-IN": "hi",
+            "hi-in": "hi",
+            "auto": detect_language(text),
         }
-        lang = lang_map.get(language, language.split('-')[0] if '-' in language else language)
+        lang = lang_map.get(language, language.split("-")[0] if "-" in language else language)
 
         # Generate speech
         tts = gTTS(text=text, lang=lang, slow=False)

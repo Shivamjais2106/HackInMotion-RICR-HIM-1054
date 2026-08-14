@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Zap, Globe } from 'lucide-react';
-import animalsImg from '@/assets/external/animals-pair.jpg';
+import { Link } from "react-router-dom";
+import { ArrowRight, Heart, Zap, Globe } from "lucide-react";
+import animalsImg from "@/assets/external/animals-pair.jpg";
 
 const PetHealthAdvisorSection = () => {
   return (
@@ -12,19 +12,23 @@ const PetHealthAdvisorSection = () => {
           <div className="flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-3 sm:mb-4">
               <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] text-red-600">Pet Health Advisor</p>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] text-red-600">
+                Pet Health Advisor
+              </p>
             </div>
-            
+
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-gray-800 mb-4 sm:mb-6">
               Worried about your <span className="text-red-600">livestock?</span>
             </h2>
-            
+
             <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed mb-4">
-              Don't wait for symptoms to worsen. Our AI analyzes photos and symptoms to suggest the most likely diseases along with first-aid steps you can take immediately.
+              Don't wait for symptoms to worsen. Our AI analyzes photos and symptoms to suggest the
+              most likely diseases along with first-aid steps you can take immediately.
             </p>
-            
+
             <p className="text-sm sm:text-base md:text-lg text-gray-600 leading-relaxed mb-6 sm:mb-8">
-              From foot-and-mouth in cattle to coccidiosis in poultry — fast guidance whenever you need it, in your own language.
+              From foot-and-mouth in cattle to coccidiosis in poultry — fast guidance whenever you
+              need it, in your own language.
             </p>
 
             {/* Features */}
@@ -32,7 +36,9 @@ const PetHealthAdvisorSection = () => {
               <div className="flex items-start gap-3">
                 <Zap className="w-5 h-5 text-orange-500 flex-shrink-0 mt-1" />
                 <div>
-                  <p className="font-semibold text-gray-800 text-sm sm:text-base">Instant Diagnosis</p>
+                  <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                    Instant Diagnosis
+                  </p>
                   <p className="text-xs sm:text-sm text-gray-600">AI-powered analysis in seconds</p>
                 </div>
               </div>
@@ -73,13 +79,18 @@ const PetHealthAdvisorSection = () => {
         {/* Stats Section */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-10 sm:mt-12 md:mt-16">
           {[
-            { label: 'Diseases Detected', value: '50+' },
-            { label: 'Accuracy Rate', value: '95%' },
-            { label: 'Response Time', value: '<5s' },
-            { label: 'Languages', value: '5+' }
+            { label: "Diseases Detected", value: "50+" },
+            { label: "Accuracy Rate", value: "95%" },
+            { label: "Response Time", value: "<5s" },
+            { label: "Languages", value: "5+" },
           ].map((stat, idx) => (
-            <div key={idx} className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 text-center shadow-md border border-orange-100">
-              <p className="text-2xl sm:text-3xl font-bold text-red-600 mb-1 sm:mb-2">{stat.value}</p>
+            <div
+              key={idx}
+              className="bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 text-center shadow-md border border-orange-100"
+            >
+              <p className="text-2xl sm:text-3xl font-bold text-red-600 mb-1 sm:mb-2">
+                {stat.value}
+              </p>
               <p className="text-xs sm:text-sm text-gray-600 font-medium">{stat.label}</p>
             </div>
           ))}

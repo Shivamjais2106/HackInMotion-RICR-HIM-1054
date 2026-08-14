@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { getAPIBaseURL } from '../utils/api';
-import '../styles/Monitoring.css';
+import React, { useState, useEffect } from "react";
+import { getAPIBaseURL } from "../utils/api";
+import "../styles/Monitoring.css";
 
 interface Stats {
   uptime_seconds: number;
@@ -23,7 +23,7 @@ interface SystemStats {
 
 interface Alert {
   type: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: "high" | "medium" | "low";
   message: string;
 }
 
@@ -32,7 +32,7 @@ const MonitoringPage: React.FC = () => {
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,14 +42,14 @@ const MonitoringPage: React.FC = () => {
         const statsData = await statsResponse.json();
         setStats(statsData.performance);
         setSystemStats(statsData.system);
-        
+
         const alertsResponse = await fetch(`${baseURL}/dashboard/alerts`);
         const alertsData = await alertsResponse.json();
         setAlerts(alertsData.alerts);
-        
+
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching monitoring data:', error);
+        console.error("Error fetching monitoring data:", error);
         setLoading(false);
       }
     };
@@ -66,35 +66,35 @@ const MonitoringPage: React.FC = () => {
   return (
     <div className="monitoring-container">
       <h1>System Monitoring Dashboard</h1>
-      
+
       <div className="monitoring-tabs">
-        <button 
-          className={`tab ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
+        <button
+          className={`tab ${activeTab === "overview" ? "active" : ""}`}
+          onClick={() => setActiveTab("overview")}
         >
           Overview
         </button>
-        <button 
-          className={`tab ${activeTab === 'performance' ? 'active' : ''}`}
-          onClick={() => setActiveTab('performance')}
+        <button
+          className={`tab ${activeTab === "performance" ? "active" : ""}`}
+          onClick={() => setActiveTab("performance")}
         >
           Performance
         </button>
-        <button 
-          className={`tab ${activeTab === 'system' ? 'active' : ''}`}
-          onClick={() => setActiveTab('system')}
+        <button
+          className={`tab ${activeTab === "system" ? "active" : ""}`}
+          onClick={() => setActiveTab("system")}
         >
           System
         </button>
-        <button 
-          className={`tab ${activeTab === 'alerts' ? 'active' : ''}`}
-          onClick={() => setActiveTab('alerts')}
+        <button
+          className={`tab ${activeTab === "alerts" ? "active" : ""}`}
+          onClick={() => setActiveTab("alerts")}
         >
           Alerts ({alerts.length})
         </button>
       </div>
 
-      {activeTab === 'overview' && (
+      {activeTab === "overview" && (
         <div className="monitoring-section">
           <h2>System Overview</h2>
           <div className="overview-grid">
@@ -108,7 +108,7 @@ const MonitoringPage: React.FC = () => {
             </div>
             <div className="overview-card">
               <h3>Error Rate</h3>
-              <p className={`value ${(stats?.error_rate || 0) > 5 ? 'error' : 'success'}`}>
+              <p className={`value ${(stats?.error_rate || 0) > 5 ? "error" : "success"}`}>
                 {stats?.error_rate.toFixed(2) || 0}%
               </p>
             </div>
@@ -120,7 +120,7 @@ const MonitoringPage: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'performance' && (
+      {activeTab === "performance" && (
         <div className="monitoring-section">
           <h2>Performance Metrics</h2>
           <div className="metrics-grid">
@@ -130,16 +130,16 @@ const MonitoringPage: React.FC = () => {
             </div>
             <div className="metric-card">
               <h3>Total Errors</h3>
-              <p className={`metric-value ${(stats?.total_errors || 0) > 0 ? 'error' : 'success'}`}>
+              <p className={`metric-value ${(stats?.total_errors || 0) > 0 ? "error" : "success"}`}>
                 {stats?.total_errors || 0}
               </p>
             </div>
             <div className="metric-card">
               <h3>Error Rate</h3>
               <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{width: `${Math.min(stats?.error_rate || 0, 100)}%`}}
+                <div
+                  className="progress-fill"
+                  style={{ width: `${Math.min(stats?.error_rate || 0, 100)}%` }}
                 ></div>
               </div>
               <p>{stats?.error_rate.toFixed(2) || 0}%</p>
@@ -148,16 +148,16 @@ const MonitoringPage: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'system' && (
+      {activeTab === "system" && (
         <div className="monitoring-section">
           <h2>System Resources</h2>
           <div className="resources-grid">
             <div className="resource-card">
               <h3>CPU Usage</h3>
               <div className="progress-bar">
-                <div 
-                  className="progress-fill cpu" 
-                  style={{width: `${systemStats?.cpu_percent || 0}%`}}
+                <div
+                  className="progress-fill cpu"
+                  style={{ width: `${systemStats?.cpu_percent || 0}%` }}
                 ></div>
               </div>
               <p>{systemStats?.cpu_percent.toFixed(1) || 0}%</p>
@@ -165,28 +165,34 @@ const MonitoringPage: React.FC = () => {
             <div className="resource-card">
               <h3>Memory Usage</h3>
               <div className="progress-bar">
-                <div 
-                  className="progress-fill memory" 
-                  style={{width: `${systemStats?.memory_percent || 0}%`}}
+                <div
+                  className="progress-fill memory"
+                  style={{ width: `${systemStats?.memory_percent || 0}%` }}
                 ></div>
               </div>
-              <p>{systemStats?.memory_used_mb.toFixed(0) || 0}MB / {systemStats?.memory_total_mb.toFixed(0) || 0}MB</p>
+              <p>
+                {systemStats?.memory_used_mb.toFixed(0) || 0}MB /{" "}
+                {systemStats?.memory_total_mb.toFixed(0) || 0}MB
+              </p>
             </div>
             <div className="resource-card">
               <h3>Disk Usage</h3>
               <div className="progress-bar">
-                <div 
-                  className="progress-fill disk" 
-                  style={{width: `${systemStats?.disk_percent || 0}%`}}
+                <div
+                  className="progress-fill disk"
+                  style={{ width: `${systemStats?.disk_percent || 0}%` }}
                 ></div>
               </div>
-              <p>{systemStats?.disk_used_gb.toFixed(1) || 0}GB / {systemStats?.disk_total_gb.toFixed(1) || 0}GB</p>
+              <p>
+                {systemStats?.disk_used_gb.toFixed(1) || 0}GB /{" "}
+                {systemStats?.disk_total_gb.toFixed(1) || 0}GB
+              </p>
             </div>
           </div>
         </div>
       )}
 
-      {activeTab === 'alerts' && (
+      {activeTab === "alerts" && (
         <div className="monitoring-section">
           <h2>System Alerts</h2>
           {alerts.length === 0 ? (

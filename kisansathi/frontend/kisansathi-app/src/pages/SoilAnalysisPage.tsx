@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Leaf, Droplets, Thermometer, Wind, Zap, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
-import { getAPIBaseURL } from '../utils/api';
+import React, { useState, useEffect } from "react";
+import {
+  Leaf,
+  Droplets,
+  Thermometer,
+  Wind,
+  Zap,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { getAPIBaseURL } from "../utils/api";
 
 interface SoilAnalysisResult {
   success: boolean;
@@ -32,13 +41,13 @@ const SoilAnalysisPage: React.FC = () => {
   const [soilTypes, setSoilTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SoilAnalysisResult | null>(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
     temperature: 28,
     humidity: 54,
     moisture: 46,
-    soil_type: 'Clayey',
+    soil_type: "Clayey",
     nitrogen: 35,
     potassium: 0,
     phosphorous: 0,
@@ -55,8 +64,8 @@ const SoilAnalysisPage: React.FC = () => {
           setSoilTypes(data.soil_types);
         }
       } catch (err) {
-        console.error('Error loading soil types:', err);
-        setSoilTypes(['Sandy', 'Loamy', 'Black', 'Red', 'Clayey']);
+        console.error("Error loading soil types:", err);
+        setSoilTypes(["Sandy", "Loamy", "Black", "Red", "Clayey"]);
       }
     };
     loadSoilTypes();
@@ -64,34 +73,34 @@ const SoilAnalysisPage: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: isNaN(Number(value)) ? value : Number(value)
+      [name]: isNaN(Number(value)) ? value : Number(value),
     }));
   };
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     setResult(null);
 
     try {
       const baseURL = getAPIBaseURL();
       const response = await fetch(`${baseURL}/soil/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
       if (data.success) {
         setResult(data);
       } else {
-        setError(data.error || 'Analysis failed');
+        setError(data.error || "Analysis failed");
       }
     } catch (err) {
-      setError('Unable to connect to server');
+      setError("Unable to connect to server");
       console.error(err);
     } finally {
       setLoading(false);
@@ -103,15 +112,21 @@ const SoilAnalysisPage: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-1 sm:mb-2">🌾 Soil Analysis</h1>
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg">Analyze your soil and get crop & fertilizer recommendations</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-1 sm:mb-2">
+            🌾 Soil Analysis
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+            Analyze your soil and get crop & fertilizer recommendations
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {/* Input Form */}
           <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">📊 Soil Parameters</h2>
-            
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
+              📊 Soil Parameters
+            </h2>
+
             <form onSubmit={handleAnalyze} className="space-y-3 sm:space-y-4">
               {/* Temperature */}
               <div>
@@ -176,8 +191,10 @@ const SoilAnalysisPage: React.FC = () => {
                   onChange={handleInputChange}
                   className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                 >
-                  {soilTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
+                  {soilTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -239,7 +256,7 @@ const SoilAnalysisPage: React.FC = () => {
                 disabled={loading}
                 className="w-full mt-4 sm:mt-6 px-4 sm:px-6 py-2 sm:py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md transition disabled:bg-gray-400 font-semibold text-sm sm:text-base"
               >
-                {loading ? 'Analyzing...' : 'Analyze Soil'}
+                {loading ? "Analyzing..." : "Analyze Soil"}
               </button>
             </form>
           </div>
@@ -262,15 +279,22 @@ const SoilAnalysisPage: React.FC = () => {
                     Recommended Crop
                   </h3>
                   <div className="bg-white rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
-                    <p className="text-2xl sm:text-3xl font-bold text-green-600">{result.crop_recommendation.primary}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-green-600">
+                      {result.crop_recommendation.primary}
+                    </p>
                     <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">
                       Confidence: {(result.crop_recommendation.confidence * 100).toFixed(1)}%
                     </p>
                   </div>
                   <div className="space-y-1 sm:space-y-2">
-                    <p className="text-xs sm:text-sm font-semibold text-gray-700">Top Alternatives:</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-700">
+                      Top Alternatives:
+                    </p>
                     {result.crop_recommendation.top_3.map((crop, idx) => (
-                      <div key={idx} className="flex justify-between items-center bg-white rounded p-2 text-xs sm:text-sm">
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center bg-white rounded p-2 text-xs sm:text-sm"
+                      >
                         <span className="text-gray-700">{crop.name}</span>
                         <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs">
                           {(crop.confidence * 100).toFixed(1)}%
@@ -287,15 +311,22 @@ const SoilAnalysisPage: React.FC = () => {
                     Recommended Fertilizer
                   </h3>
                   <div className="bg-white rounded-lg p-3 sm:p-4 mb-3 sm:mb-4">
-                    <p className="text-2xl sm:text-3xl font-bold text-blue-600">{result.fertilizer_recommendation.primary}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-blue-600">
+                      {result.fertilizer_recommendation.primary}
+                    </p>
                     <p className="text-xs sm:text-sm text-gray-600 mt-1 sm:mt-2">
                       Confidence: {(result.fertilizer_recommendation.confidence * 100).toFixed(1)}%
                     </p>
                   </div>
                   <div className="space-y-1 sm:space-y-2">
-                    <p className="text-xs sm:text-sm font-semibold text-gray-700">Top Alternatives:</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-700">
+                      Top Alternatives:
+                    </p>
                     {result.fertilizer_recommendation.top_3.map((fert, idx) => (
-                      <div key={idx} className="flex justify-between items-center bg-white rounded p-2 text-xs sm:text-sm">
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center bg-white rounded p-2 text-xs sm:text-sm"
+                      >
                         <span className="text-gray-700">{fert.name}</span>
                         <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">
                           {(fert.confidence * 100).toFixed(1)}%
@@ -313,7 +344,10 @@ const SoilAnalysisPage: React.FC = () => {
                   </h3>
                   <div className="space-y-2 sm:space-y-3">
                     {result.recommendations.map((rec, idx) => (
-                      <div key={idx} className="flex gap-2 sm:gap-3 items-start bg-white rounded p-2 sm:p-3">
+                      <div
+                        key={idx}
+                        className="flex gap-2 sm:gap-3 items-start bg-white rounded p-2 sm:p-3"
+                      >
                         <span className="text-base sm:text-lg flex-shrink-0">💡</span>
                         <p className="text-xs sm:text-sm text-gray-700">{rec}</p>
                       </div>

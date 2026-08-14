@@ -63,11 +63,12 @@ export default function IrrigationAdviceCard() {
 
   if (loading) return <div className="animate-pulse h-32 bg-blue-50 rounded-xl" />;
 
-  if (error) return (
-    <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-orange-700 text-sm">
-      💧 {error}
-    </div>
-  );
+  if (error)
+    return (
+      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-orange-700 text-sm">
+        💧 {error}
+      </div>
+    );
 
   if (!data) return null;
 
@@ -80,9 +81,7 @@ export default function IrrigationAdviceCard() {
         <span className="text-xs font-medium">{riskLabel(need)}</span>
       </div>
 
-      {data.weather_warning && (
-        <p className="text-xs mb-2 opacity-80">⚠️ {data.weather_warning}</p>
-      )}
+      {data.weather_warning && <p className="text-xs mb-2 opacity-80">⚠️ {data.weather_warning}</p>}
 
       {/* Weather row */}
       <div className="grid grid-cols-3 gap-2 mb-3 text-center text-xs">
@@ -103,7 +102,9 @@ export default function IrrigationAdviceCard() {
       {/* Schedule */}
       <ul className="space-y-1">
         {data.schedule.map((s, i) => (
-          <li key={i} className="text-sm">• {s}</li>
+          <li key={i} className="text-sm">
+            • {s}
+          </li>
         ))}
       </ul>
 

@@ -16,30 +16,34 @@ const About = () => {
               <div className="absolute top-10 right-10 w-40 h-40 bg-eco-yellow rounded-full blur-3xl"></div>
               <div className="absolute bottom-10 left-10 w-40 h-40 bg-eco-yellow rounded-full blur-3xl"></div>
             </div>
-            
+
             {/* Content */}
             <div className="relative z-10 flex flex-col items-center gap-6">
               <div className="text-center">
-                <h3 className="text-primary-foreground text-2xl font-bold mb-2">{t('about.talk')}</h3>
-                <p className="text-primary-foreground/70 text-sm">{t('about.click')}</p>
+                <h3 className="text-primary-foreground text-2xl font-bold mb-2">
+                  {t("about.talk")}
+                </h3>
+                <p className="text-primary-foreground/70 text-sm">{t("about.click")}</p>
               </div>
-              
+
               <button
                 onClick={() => navigate("/about")}
                 className="bg-eco-yellow text-eco-green-dark p-8 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 hover:shadow-3xl hover:brightness-110 group/btn"
               >
                 <Mic className="w-12 h-12 group-hover/btn:animate-pulse" />
               </button>
-              
-              <p className="text-primary-foreground/60 text-xs mt-4">🎤 {t('about.voice')}</p>
+
+              <p className="text-primary-foreground/60 text-xs mt-4">🎤 {t("about.voice")}</p>
             </div>
           </div>
 
           {/* Content */}
           <div>
-            <span className="text-eco-green font-semibold text-sm uppercase tracking-widest">{t('about.title')}</span>
+            <span className="text-eco-green font-semibold text-sm uppercase tracking-widest">
+              {t("about.title")}
+            </span>
             <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mt-3 mb-8">
-              {t('about.heading')}
+              {t("about.heading")}
             </h2>
 
             <div className="space-y-6">
@@ -48,8 +52,10 @@ const About = () => {
                   🤖
                 </div>
                 <div>
-                  <h4 className="font-heading text-lg font-bold text-foreground">{t('about.ai')}</h4>
-                  <p className="text-muted-foreground text-sm mt-1">{t('about.ai_desc')}</p>
+                  <h4 className="font-heading text-lg font-bold text-foreground">
+                    {t("about.ai")}
+                  </h4>
+                  <p className="text-muted-foreground text-sm mt-1">{t("about.ai_desc")}</p>
                 </div>
               </div>
 
@@ -58,8 +64,10 @@ const About = () => {
                   🔍
                 </div>
                 <div>
-                  <h4 className="font-heading text-lg font-bold text-foreground">{t('about.disease')}</h4>
-                  <p className="text-muted-foreground text-sm mt-1">{t('about.disease_desc')}</p>
+                  <h4 className="font-heading text-lg font-bold text-foreground">
+                    {t("about.disease")}
+                  </h4>
+                  <p className="text-muted-foreground text-sm mt-1">{t("about.disease_desc")}</p>
                 </div>
               </div>
 
@@ -68,8 +76,10 @@ const About = () => {
                   🌤️
                 </div>
                 <div>
-                  <h4 className="font-heading text-lg font-bold text-foreground">{t('about.weather')}</h4>
-                  <p className="text-muted-foreground text-sm mt-1">{t('about.weather_desc')}</p>
+                  <h4 className="font-heading text-lg font-bold text-foreground">
+                    {t("about.weather")}
+                  </h4>
+                  <p className="text-muted-foreground text-sm mt-1">{t("about.weather_desc")}</p>
                 </div>
               </div>
 
@@ -78,12 +88,15 @@ const About = () => {
                   🎤
                 </div>
                 <div>
-                  <h4 className="font-heading text-lg font-bold text-foreground">{t('about.voice_support')}</h4>
-                  <p className="text-muted-foreground text-sm mt-1">{t('about.voice_support_desc')}</p>
+                  <h4 className="font-heading text-lg font-bold text-foreground">
+                    {t("about.voice_support")}
+                  </h4>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {t("about.voice_support_desc")}
+                  </p>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>

@@ -1,7 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Cloud, CloudRain, Sun, Wind, Droplets, MapPin, Search, AlertCircle, Calendar, Thermometer } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
-import { getAPIBaseURL } from '@/utils/api';
+import React, { useState, useEffect } from "react";
+import {
+  Cloud,
+  CloudRain,
+  Sun,
+  Wind,
+  Droplets,
+  MapPin,
+  Search,
+  AlertCircle,
+  Calendar,
+  Thermometer,
+} from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { getAPIBaseURL } from "@/utils/api";
 
 interface CurrentWeather {
   temperature: number;
@@ -35,35 +46,36 @@ interface WeatherForecastData {
 
 const WeatherForecast: React.FC = () => {
   const { t } = useLanguage();
-  const [city, setCity] = useState('Delhi');
-  const [searchInput, setSearchInput] = useState('');
+  const [city, setCity] = useState("Delhi");
+  const [searchInput, setSearchInput] = useState("");
   const [forecastData, setForecastData] = useState<WeatherForecastData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const getWeatherIcon = (description: string) => {
     const lower = description.toLowerCase();
-    if (lower.includes('rain')) return <CloudRain className="w-12 h-12 text-blue-400" />;
-    if (lower.includes('cloud')) return <Cloud className="w-12 h-12 text-gray-400" />;
-    if (lower.includes('clear') || lower.includes('sunny')) return <Sun className="w-12 h-12 text-yellow-400" />;
-    if (lower.includes('partly')) return <Cloud className="w-12 h-12 text-gray-300" />;
+    if (lower.includes("rain")) return <CloudRain className="w-12 h-12 text-blue-400" />;
+    if (lower.includes("cloud")) return <Cloud className="w-12 h-12 text-gray-400" />;
+    if (lower.includes("clear") || lower.includes("sunny"))
+      return <Sun className="w-12 h-12 text-yellow-400" />;
+    if (lower.includes("partly")) return <Cloud className="w-12 h-12 text-gray-300" />;
     return <Cloud className="w-12 h-12 text-gray-400" />;
   };
 
   const getWeatherColor = (description: string) => {
     const lower = description.toLowerCase();
-    if (lower.includes('rain')) return 'from-blue-400 to-blue-600';
-    if (lower.includes('cloud')) return 'from-gray-400 to-gray-600';
-    if (lower.includes('clear') || lower.includes('sunny')) return 'from-yellow-300 to-yellow-500';
-    if (lower.includes('partly')) return 'from-blue-300 to-gray-400';
-    return 'from-gray-400 to-gray-600';
+    if (lower.includes("rain")) return "from-blue-400 to-blue-600";
+    if (lower.includes("cloud")) return "from-gray-400 to-gray-600";
+    if (lower.includes("clear") || lower.includes("sunny")) return "from-yellow-300 to-yellow-500";
+    if (lower.includes("partly")) return "from-blue-300 to-gray-400";
+    return "from-gray-400 to-gray-600";
   };
 
   const fetchForecast = async (cityName: string) => {
     if (!cityName.trim()) return;
 
     setLoading(true);
-    setError('');
+    setError("");
     try {
       const baseURL = getAPIBaseURL();
       const response = await fetch(`${baseURL}/weather/${encodeURIComponent(cityName)}`);
@@ -73,42 +85,42 @@ const WeatherForecast: React.FC = () => {
         // Transform backend response to match frontend expectations
         const weather = data.weather;
         const forecast = data.forecast || [];
-        
+
         // Transform forecast data to match ForecastDay interface
         const transformedForecast: ForecastDay[] = forecast.map((day: any) => ({
-          date: day.date || '',
+          date: day.date || "",
           day: day.day || new Date(day.date).getDate().toString(),
           temp_min: day.temp_min || 20,
           temp_max: day.temp_max || 30,
           temp_avg: day.temp_avg || 25,
           humidity_avg: day.humidity_avg || 60,
-          description: day.description || 'Clear',
-          wind_speed_avg: day.wind_speed_avg || 10
+          description: day.description || "Clear",
+          wind_speed_avg: day.wind_speed_avg || 10,
         }));
-        
+
         const transformedData: WeatherForecastData = {
           success: true,
           city: weather.location || cityName,
-          country: 'India',
+          country: "India",
           current: {
             temperature: weather.temperature || 25,
             feels_like: weather.temperature || 25,
             temp_min: (weather.temperature || 25) - 5,
             temp_max: (weather.temperature || 25) + 5,
             humidity: weather.humidity || 60,
-            description: weather.condition || 'Clear',
+            description: weather.condition || "Clear",
             wind_speed: weather.wind_speed || 10,
-            timestamp: data.timestamp || new Date().toISOString()
+            timestamp: data.timestamp || new Date().toISOString(),
           },
-          upcoming_days: transformedForecast
+          upcoming_days: transformedForecast,
         };
         setForecastData(transformedData);
         setCity(cityName);
       } else {
-        setError(data.error || 'Failed to fetch forecast');
+        setError(data.error || "Failed to fetch forecast");
       }
     } catch (err) {
-      setError('Unable to connect to weather service');
+      setError("Unable to connect to weather service");
       console.error(err);
     } finally {
       setLoading(false);
@@ -119,21 +131,24 @@ const WeatherForecast: React.FC = () => {
     e.preventDefault();
     if (searchInput.trim()) {
       fetchForecast(searchInput);
-      setSearchInput('');
+      setSearchInput("");
     }
   };
 
   // Helper: fetch with timeout using AbortController
-  const fetchWithTimeout = (url: string, options: RequestInit = {}, ms = 6000): Promise<Response> => {
+  const fetchWithTimeout = (
+    url: string,
+    options: RequestInit = {},
+    ms = 6000
+  ): Promise<Response> => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), ms);
-    return fetch(url, { ...options, signal: controller.signal })
-      .finally(() => clearTimeout(id));
+    return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
   };
 
   const handleLocationClick = async () => {
     setLoading(true);
-    setError('');
+    setError("");
     const baseURL = getAPIBaseURL();
 
     const fallback = async () => {
@@ -147,8 +162,8 @@ const WeatherForecast: React.FC = () => {
         }
       } catch {}
       // Final fallback — always show something, never hang
-      setCity('Delhi');
-      fetchForecast('Delhi');
+      setCity("Delhi");
+      fetchForecast("Delhi");
     };
 
     if (!navigator.geolocation) {
@@ -161,11 +176,15 @@ const WeatherForecast: React.FC = () => {
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-          const res = await fetchWithTimeout(`${baseURL}/location/from-gps`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ latitude, longitude })
-          }, 6000);
+          const res = await fetchWithTimeout(
+            `${baseURL}/location/from-gps`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ latitude, longitude }),
+            },
+            6000
+          );
           if (!res.ok) throw new Error(`${res.status}`);
           const data = await res.json();
           if (data.success && data.city) {
@@ -173,7 +192,7 @@ const WeatherForecast: React.FC = () => {
             fetchForecast(data.city);
             return;
           }
-          throw new Error('no city');
+          throw new Error("no city");
         } catch {
           await fallback();
         } finally {
@@ -196,8 +215,9 @@ const WeatherForecast: React.FC = () => {
       try {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), 6000);
-        const res = await fetch(`${baseURL}/location/detect`, { signal: controller.signal })
-          .finally(() => clearTimeout(id));
+        const res = await fetch(`${baseURL}/location/detect`, {
+          signal: controller.signal,
+        }).finally(() => clearTimeout(id));
         const data = await res.json();
         if (data.success && data.city) {
           setCity(data.city);
@@ -206,8 +226,8 @@ const WeatherForecast: React.FC = () => {
         }
       } catch {}
       // Always fall back — never leave user with a blank screen
-      setCity('Delhi');
-      fetchForecast('Delhi');
+      setCity("Delhi");
+      fetchForecast("Delhi");
     };
     autoDetectLocation();
   }, []);
@@ -217,8 +237,12 @@ const WeatherForecast: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-1 sm:mb-2">Weather Forecast</h1>
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg">5-day forecast for your farming activities</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-1 sm:mb-2">
+            Weather Forecast
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+            5-day forecast for your farming activities
+          </p>
         </div>
 
         {/* Search Bar */}
@@ -239,7 +263,7 @@ const WeatherForecast: React.FC = () => {
               disabled={loading}
               className="px-3 sm:px-6 py-2 sm:py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-md transition disabled:bg-gray-400 font-semibold text-sm sm:text-base"
             >
-              {loading ? 'Loading...' : 'Search'}
+              {loading ? "Loading..." : "Search"}
             </button>
             <button
               type="button"
@@ -256,25 +280,29 @@ const WeatherForecast: React.FC = () => {
 
         {/* Quick Location Selector */}
         <div className="mb-6 sm:mb-8 bg-white rounded-lg shadow-md p-3 sm:p-4">
-          <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">📍 Popular Locations:</p>
+          <p className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3">
+            📍 Popular Locations:
+          </p>
           <div className="flex flex-wrap gap-1 sm:gap-2">
-            {['Jaipur', 'Jodhpur', 'Udaipur', 'Bikaner', 'Ajmer', 'Kota', 'Delhi', 'Mumbai'].map((loc) => (
-              <button
-                key={loc}
-                onClick={() => {
-                  setCity(loc);
-                  fetchForecast(loc);
-                }}
-                disabled={loading}
-                className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm ${
-                  city === loc
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                } disabled:opacity-50`}
-              >
-                {loc}
-              </button>
-            ))}
+            {["Jaipur", "Jodhpur", "Udaipur", "Bikaner", "Ajmer", "Kota", "Delhi", "Mumbai"].map(
+              (loc) => (
+                <button
+                  key={loc}
+                  onClick={() => {
+                    setCity(loc);
+                    fetchForecast(loc);
+                  }}
+                  disabled={loading}
+                  className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-medium transition text-xs sm:text-sm ${
+                    city === loc
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  } disabled:opacity-50`}
+                >
+                  {loc}
+                </button>
+              )
+            )}
           </div>
         </div>
 
@@ -293,7 +321,9 @@ const WeatherForecast: React.FC = () => {
               {/* Location Header */}
               <div className="flex items-center gap-2 text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg">
                 <MapPin className="w-4 sm:w-5 h-4 sm:h-5 flex-shrink-0" />
-                <span className="font-semibold">{forecastData.city}, {forecastData.country}</span>
+                <span className="font-semibold">
+                  {forecastData.city}, {forecastData.country}
+                </span>
               </div>
 
               {/* Current Weather Display */}
@@ -330,10 +360,13 @@ const WeatherForecast: React.FC = () => {
                   <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-3 sm:p-4 border border-orange-200">
                     <div className="flex items-center gap-2 mb-1 sm:mb-2">
                       <Thermometer className="w-4 sm:w-5 h-4 sm:h-5 text-red-500 flex-shrink-0" />
-                      <span className="text-xs sm:text-sm font-medium text-gray-700">Temp Range</span>
+                      <span className="text-xs sm:text-sm font-medium text-gray-700">
+                        Temp Range
+                      </span>
                     </div>
                     <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
-                      {Math.round(forecastData.current.temp_min)}° - {Math.round(forecastData.current.temp_max)}°C
+                      {Math.round(forecastData.current.temp_min)}° -{" "}
+                      {Math.round(forecastData.current.temp_max)}°C
                     </p>
                   </div>
 
@@ -343,7 +376,9 @@ const WeatherForecast: React.FC = () => {
                       <Droplets className="w-4 sm:w-5 h-4 sm:h-5 text-blue-500 flex-shrink-0" />
                       <span className="text-xs sm:text-sm font-medium text-gray-700">Humidity</span>
                     </div>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{forecastData.current.humidity}%</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
+                      {forecastData.current.humidity}%
+                    </p>
                   </div>
 
                   {/* Wind Speed */}
@@ -352,14 +387,18 @@ const WeatherForecast: React.FC = () => {
                       <Wind className="w-4 sm:w-5 h-4 sm:h-5 text-green-500 flex-shrink-0" />
                       <span className="text-xs sm:text-sm font-medium text-gray-700">Wind</span>
                     </div>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{Math.round(forecastData.current.wind_speed)} km/h</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
+                      {Math.round(forecastData.current.wind_speed)} km/h
+                    </p>
                   </div>
 
                   {/* Avg Humidity */}
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-3 sm:p-4 border border-purple-200">
                     <div className="flex items-center gap-2 mb-1 sm:mb-2">
                       <Cloud className="w-4 sm:w-5 h-4 sm:h-5 text-purple-500 flex-shrink-0" />
-                      <span className="text-xs sm:text-sm font-medium text-gray-700">Condition</span>
+                      <span className="text-xs sm:text-sm font-medium text-gray-700">
+                        Condition
+                      </span>
                     </div>
                     <p className="text-sm sm:text-base md:text-lg font-bold text-gray-800 capitalize">
                       {forecastData.current.description}
@@ -371,83 +410,95 @@ const WeatherForecast: React.FC = () => {
 
             {/* 5-Day Forecast */}
             {forecastData.upcoming_days.length > 0 && (
-            <div className="mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
-                <Calendar className="w-5 sm:w-6 h-5 sm:h-6" />
-                5-Day Forecast
-              </h2>
+              <div className="mb-6 sm:mb-8">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                  <Calendar className="w-5 sm:w-6 h-5 sm:h-6" />
+                  5-Day Forecast
+                </h2>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-                {forecastData.upcoming_days.map((day, index) => (
-                  <div
-                    key={index}
-                    className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden"
-                  >
-                    {/* Header with gradient */}
-                    <div className={`bg-gradient-to-r ${getWeatherColor(day.description)} p-2 sm:p-3 md:p-4 text-white`}>
-                      <p className="font-bold text-sm sm:text-base md:text-lg">{day.day}</p>
-                      <p className="text-xs sm:text-sm opacity-90">{day.date}</p>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-2 sm:p-3 md:p-4">
-                      {/* Weather Icon */}
-                      <div className="flex justify-center mb-2 sm:mb-3 md:mb-4">
-                        <div className="w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12">
-                          {getWeatherIcon(day.description)}
-                        </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                  {forecastData.upcoming_days.map((day, index) => (
+                    <div
+                      key={index}
+                      className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden"
+                    >
+                      {/* Header with gradient */}
+                      <div
+                        className={`bg-gradient-to-r ${getWeatherColor(day.description)} p-2 sm:p-3 md:p-4 text-white`}
+                      >
+                        <p className="font-bold text-sm sm:text-base md:text-lg">{day.day}</p>
+                        <p className="text-xs sm:text-sm opacity-90">{day.date}</p>
                       </div>
 
-                      {/* Description */}
-                      <p className="text-center text-gray-700 font-medium text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 capitalize">
-                        {day.description}
-                      </p>
+                      {/* Content */}
+                      <div className="p-2 sm:p-3 md:p-4">
+                        {/* Weather Icon */}
+                        <div className="flex justify-center mb-2 sm:mb-3 md:mb-4">
+                          <div className="w-8 sm:w-10 md:w-12 h-8 sm:h-10 md:h-12">
+                            {getWeatherIcon(day.description)}
+                          </div>
+                        </div>
 
-                      {/* Temperature */}
-                      <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-2 sm:p-2.5 md:p-3 mb-2 sm:mb-2.5 md:mb-3">
-                        <p className="text-xs text-gray-600 mb-0.5 sm:mb-1">Temp</p>
-                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-800">
-                          {Math.round(day.temp_min)}° - {Math.round(day.temp_max)}°C
+                        {/* Description */}
+                        <p className="text-center text-gray-700 font-medium text-xs sm:text-sm mb-2 sm:mb-3 md:mb-4 capitalize">
+                          {day.description}
                         </p>
-                        <p className="text-xs text-gray-600 mt-0.5 sm:mt-1">
-                          Avg: {Math.round(day.temp_avg)}°C
-                        </p>
-                      </div>
 
-                      {/* Humidity */}
-                      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-2 sm:p-2.5 md:p-3 mb-2 sm:mb-2.5 md:mb-3">
-                        <div className="flex items-center gap-1 mb-0.5 sm:mb-1">
-                          <Droplets className="w-3 sm:w-4 h-3 sm:h-4 text-blue-500" />
-                          <p className="text-xs text-gray-600">Humidity</p>
+                        {/* Temperature */}
+                        <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-2 sm:p-2.5 md:p-3 mb-2 sm:mb-2.5 md:mb-3">
+                          <p className="text-xs text-gray-600 mb-0.5 sm:mb-1">Temp</p>
+                          <p className="text-sm sm:text-base md:text-lg font-bold text-gray-800">
+                            {Math.round(day.temp_min)}° - {Math.round(day.temp_max)}°C
+                          </p>
+                          <p className="text-xs text-gray-600 mt-0.5 sm:mt-1">
+                            Avg: {Math.round(day.temp_avg)}°C
+                          </p>
                         </div>
-                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-800">{Math.round(day.humidity_avg)}%</p>
-                      </div>
 
-                      {/* Wind Speed */}
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-2 sm:p-2.5 md:p-3">
-                        <div className="flex items-center gap-1 mb-0.5 sm:mb-1">
-                          <Wind className="w-3 sm:w-4 h-3 sm:h-4 text-green-500" />
-                          <p className="text-xs text-gray-600">Wind</p>
+                        {/* Humidity */}
+                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-2 sm:p-2.5 md:p-3 mb-2 sm:mb-2.5 md:mb-3">
+                          <div className="flex items-center gap-1 mb-0.5 sm:mb-1">
+                            <Droplets className="w-3 sm:w-4 h-3 sm:h-4 text-blue-500" />
+                            <p className="text-xs text-gray-600">Humidity</p>
+                          </div>
+                          <p className="text-sm sm:text-base md:text-lg font-bold text-gray-800">
+                            {Math.round(day.humidity_avg)}%
+                          </p>
                         </div>
-                        <p className="text-sm sm:text-base md:text-lg font-bold text-gray-800">{Math.round(day.wind_speed_avg)} km/h</p>
+
+                        {/* Wind Speed */}
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-2 sm:p-2.5 md:p-3">
+                          <div className="flex items-center gap-1 mb-0.5 sm:mb-1">
+                            <Wind className="w-3 sm:w-4 h-3 sm:h-4 text-green-500" />
+                            <p className="text-xs text-gray-600">Wind</p>
+                          </div>
+                          <p className="text-sm sm:text-base md:text-lg font-bold text-gray-800">
+                            {Math.round(day.wind_speed_avg)} km/h
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
             )}
 
             {/* Farming Tips */}
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-4 sm:p-6">
-              <h3 className="text-lg sm:text-xl font-bold text-green-800 mb-3 sm:mb-4">🌾 Farming Tips</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-green-800 mb-3 sm:mb-4">
+                🌾 Farming Tips
+              </h3>
               <div className="space-y-2 sm:space-y-3">
                 {forecastData.current.temperature > 35 && (
                   <div className="flex gap-2 sm:gap-3 items-start">
                     <span className="text-xl sm:text-2xl flex-shrink-0">🌡️</span>
                     <div>
-                      <p className="font-semibold text-gray-800 text-sm sm:text-base">High Temperature Alert</p>
-                      <p className="text-gray-700 text-xs sm:text-sm">Increase irrigation frequency and use shade nets for sensitive crops</p>
+                      <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                        High Temperature Alert
+                      </p>
+                      <p className="text-gray-700 text-xs sm:text-sm">
+                        Increase irrigation frequency and use shade nets for sensitive crops
+                      </p>
                     </div>
                   </div>
                 )}
@@ -455,8 +506,12 @@ const WeatherForecast: React.FC = () => {
                   <div className="flex gap-2 sm:gap-3 items-start">
                     <span className="text-xl sm:text-2xl flex-shrink-0">🍃</span>
                     <div>
-                      <p className="font-semibold text-gray-800 text-sm sm:text-base">Disease Risk</p>
-                      <p className="text-gray-700 text-xs sm:text-sm">High humidity increases fungal disease risk. Ensure proper ventilation</p>
+                      <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                        Disease Risk
+                      </p>
+                      <p className="text-gray-700 text-xs sm:text-sm">
+                        High humidity increases fungal disease risk. Ensure proper ventilation
+                      </p>
                     </div>
                   </div>
                 )}
@@ -464,20 +519,30 @@ const WeatherForecast: React.FC = () => {
                   <div className="flex gap-2 sm:gap-3 items-start">
                     <span className="text-xl sm:text-2xl flex-shrink-0">💨</span>
                     <div>
-                      <p className="font-semibold text-gray-800 text-sm sm:text-base">Strong Winds</p>
-                      <p className="text-gray-700 text-xs sm:text-sm">Protect crops from wind damage. Check support structures</p>
+                      <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                        Strong Winds
+                      </p>
+                      <p className="text-gray-700 text-xs sm:text-sm">
+                        Protect crops from wind damage. Check support structures
+                      </p>
                     </div>
                   </div>
                 )}
-                {forecastData.current.temperature <= 35 && forecastData.current.humidity <= 80 && forecastData.current.wind_speed <= 40 && (
-                  <div className="flex gap-2 sm:gap-3 items-start">
-                    <span className="text-xl sm:text-2xl flex-shrink-0">✅</span>
-                    <div>
-                      <p className="font-semibold text-gray-800 text-sm sm:text-base">Favorable Conditions</p>
-                      <p className="text-gray-700 text-xs sm:text-sm">Weather conditions are favorable for farming activities</p>
+                {forecastData.current.temperature <= 35 &&
+                  forecastData.current.humidity <= 80 &&
+                  forecastData.current.wind_speed <= 40 && (
+                    <div className="flex gap-2 sm:gap-3 items-start">
+                      <span className="text-xl sm:text-2xl flex-shrink-0">✅</span>
+                      <div>
+                        <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                          Favorable Conditions
+                        </p>
+                        <p className="text-gray-700 text-xs sm:text-sm">
+                          Weather conditions are favorable for farming activities
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </div>
           </>

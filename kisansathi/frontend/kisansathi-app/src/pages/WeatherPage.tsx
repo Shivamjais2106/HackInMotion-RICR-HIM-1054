@@ -1,5 +1,5 @@
-import React from 'react';
-import WeatherForecast from '../components/WeatherForecast';
+import React from "react";
+import WeatherForecast from "../components/WeatherForecast";
 
 const WeatherPage: React.FC = () => {
   return (
@@ -10,4 +10,3 @@ const WeatherPage: React.FC = () => {
 };
 
 export default WeatherPage;
-

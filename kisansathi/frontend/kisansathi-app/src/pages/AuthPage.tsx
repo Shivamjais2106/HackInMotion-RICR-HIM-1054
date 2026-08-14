@@ -14,10 +14,10 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  
+
   // Signup states
   const [signupStep, setSignupStep] = useState<"details" | "mobile">("details");
-  
+
   const [formData, setFormData] = useState({
     name: "",
     password: "",
@@ -95,7 +95,7 @@ const AuthPage = () => {
         localStorage.setItem("user_name", formData.name);
         localStorage.setItem("username", username);
         localStorage.setItem("token_type", "Bearer");
-        
+
         setSuccess("Account created successfully! Redirecting...");
         setTimeout(() => {
           navigate("/");
@@ -151,7 +151,7 @@ const AuthPage = () => {
         localStorage.setItem("user_name", data.name);
         localStorage.setItem("username", data.username || data.name);
         localStorage.setItem("token_type", data.token_type || "Bearer");
-        
+
         setSuccess("Login successful! Redirecting...");
         setTimeout(() => {
           navigate("/");
@@ -191,12 +191,8 @@ const AuthPage = () => {
         </div>
         <div className="relative max-w-7xl mx-auto px-6 lg:px-16">
           <div className="text-center">
-            <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4">
-              {t('auth.title')}
-            </h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
-              {t('auth.subtitle')}
-            </p>
+            <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4">{t("auth.title")}</h1>
+            <p className="text-white/80 text-lg max-w-2xl mx-auto">{t("auth.subtitle")}</p>
           </div>
         </div>
       </section>
@@ -217,7 +213,7 @@ const AuthPage = () => {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              {t('auth.login')}
+              {t("auth.login")}
             </button>
             <button
               onClick={() => {
@@ -230,7 +226,7 @@ const AuthPage = () => {
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              {t('auth.signup')}
+              {t("auth.signup")}
             </button>
           </div>
 
@@ -254,7 +250,7 @@ const AuthPage = () => {
               // LOGIN FORM
               <>
                 <h2 className="text-2xl font-bold text-eco-green-dark mb-2 text-center">
-                  {t('auth.welcome')}
+                  {t("auth.welcome")}
                 </h2>
                 <p className="text-center text-gray-600 text-sm mb-6">
                   Login with your mobile number and password
@@ -300,7 +296,11 @@ const AuthPage = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-3 text-gray-500 hover:text-eco-green transition"
                       >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -344,9 +344,7 @@ const AuthPage = () => {
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-eco-green focus:ring-2 focus:ring-eco-green/20 focus:outline-none transition"
                           required
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          💡 This will be your username
-                        </p>
+                        <p className="text-xs text-gray-500 mt-1">💡 This will be your username</p>
                       </div>
 
                       {/* Password */}
@@ -370,7 +368,11 @@ const AuthPage = () => {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-3 text-gray-500 hover:text-eco-green transition"
                           >
-                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            {showPassword ? (
+                              <EyeOff className="w-5 h-5" />
+                            ) : (
+                              <Eye className="w-5 h-5" />
+                            )}
                           </button>
                         </div>
                       </div>
@@ -411,9 +413,7 @@ const AuthPage = () => {
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-eco-green focus:ring-2 focus:ring-eco-green/20 focus:outline-none transition"
                           required
                         />
-                        <p className="text-xs text-gray-500 mt-1">
-                          📱 This will be used for login
-                        </p>
+                        <p className="text-xs text-gray-500 mt-1">📱 This will be used for login</p>
                       </div>
 
                       {/* Submit Button */}
@@ -459,7 +459,8 @@ const AuthPage = () => {
           {/* Info Box */}
           <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-teal-50 border-l-4 border-eco-green rounded-lg">
             <p className="text-sm text-gray-700">
-              <strong>💡 Tip:</strong> {isLogin ? "Use your mobile number to login" : "Your name will be your username"}
+              <strong>💡 Tip:</strong>{" "}
+              {isLogin ? "Use your mobile number to login" : "Your name will be your username"}
             </p>
           </div>
         </div>

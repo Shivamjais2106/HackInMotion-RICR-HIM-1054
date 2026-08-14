@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/context/LanguageContext";
 import { Loader2 } from "lucide-react";
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { getAPIBaseURL } from '@/utils/api';
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { getAPIBaseURL } from "@/utils/api";
 
 interface CropRecommendation {
   crop: string;
@@ -33,7 +33,7 @@ const CropRecommendationComplete = () => {
   const [result, setResult] = useState<Result | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [extractingImage, setExtractingImage] = useState(false);
-  const [activeTab, setActiveTab] = useState<'manual' | 'advanced' | 'perMonth'>('manual');
+  const [activeTab, setActiveTab] = useState<"manual" | "advanced" | "perMonth">("manual");
   const [voiceMode, setVoiceMode] = useState(false);
   const [cameraMode, setCameraMode] = useState(false);
   const [months, setMonths] = useState<string[]>([]);
@@ -41,20 +41,21 @@ const CropRecommendationComplete = () => {
   const [soilPhotoFile, setSoilPhotoFile] = useState<File | null>(null);
   const [detectingLocation, setDetectingLocation] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    nitrogen: '',
-    phosphorus: '',
-    potassium: '',
-    ph: '',
-    rainfall: '',
-    temperature: '',
-    humidity: '',
-    month: '',
-    location: ''
+    nitrogen: "",
+    phosphorus: "",
+    potassium: "",
+    ph: "",
+    rainfall: "",
+    temperature: "",
+    humidity: "",
+    month: "",
+    location: "",
   });
 
-  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
+  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
+    useSpeechRecognition();
 
   // Function to map coordinates to Indian region
   const mapCoordinatesToRegion = (latitude: number, longitude: number): string => {
@@ -67,42 +68,68 @@ const CropRecommendationComplete = () => {
     // Northeast India: latitude > 24, longitude > 88
 
     if (latitude > 28 && longitude >= 75 && longitude <= 85) {
-      return 'North India';
+      return "North India";
     } else if (latitude < 15 && longitude >= 75 && longitude <= 80) {
-      return 'South India';
+      return "South India";
     } else if (latitude >= 20 && latitude <= 28 && longitude > 85) {
-      return 'East India';
+      return "East India";
     } else if (latitude >= 18 && latitude <= 28 && longitude < 75) {
-      return 'West India';
+      return "West India";
     } else if (latitude >= 20 && latitude <= 25 && longitude >= 75 && longitude <= 82) {
-      return 'Central India';
+      return "Central India";
     } else if (latitude > 24 && longitude > 88) {
-      return 'Northeast India';
+      return "Northeast India";
     }
-    
+
     // Default to North India if coordinates don't match
-    return 'North India';
+    return "North India";
   };
 
   // Detect current location on component mount
   useEffect(() => {
     // Fetch months
     fetch(`${getAPIBaseURL()}/months`)
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error(`Server ${res.status}`);
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         if (data.success && data.months?.length > 0) {
           setMonths(data.months);
         } else {
           // Fallback static months so dropdowns are never empty
-          setMonths(['January','February','March','April','May','June','July','August','September','October','November','December']);
+          setMonths([
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ]);
         }
       })
       .catch(() => {
         // Fallback static months on any error — dropdowns must never be empty
-        setMonths(['January','February','March','April','May','June','July','August','September','October','November','December']);
+        setMonths([
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ]);
         setMonthsError(true);
       });
 
@@ -115,13 +142,13 @@ const CropRecommendationComplete = () => {
           const detectedRegion = mapCoordinatesToRegion(latitude, longitude);
           setFormData((prev) => ({
             ...prev,
-            location: detectedRegion
+            location: detectedRegion,
           }));
           setLocationDetected(true);
           setDetectingLocation(false);
         },
         (error) => {
-          console.log('Geolocation error:', error);
+          console.log("Geolocation error:", error);
           setDetectingLocation(false);
           // Silently fail - user can manually select location
         }
@@ -152,13 +179,13 @@ const CropRecommendationComplete = () => {
       const key = words[i];
       const value = words[i + 1];
 
-      if (key === 'nitrogen' && !isNaN(Number(value))) newData.nitrogen = value;
-      else if (key === 'phosphorus' && !isNaN(Number(value))) newData.phosphorus = value;
-      else if (key === 'potassium' && !isNaN(Number(value))) newData.potassium = value;
-      else if (key === 'temperature' && !isNaN(Number(value))) newData.temperature = value;
-      else if (key === 'humidity' && !isNaN(Number(value))) newData.humidity = value;
-      else if (key === 'ph' && !isNaN(Number(value))) newData.ph = value;
-      else if (key === 'rainfall' && !isNaN(Number(value))) newData.rainfall = value;
+      if (key === "nitrogen" && !isNaN(Number(value))) newData.nitrogen = value;
+      else if (key === "phosphorus" && !isNaN(Number(value))) newData.phosphorus = value;
+      else if (key === "potassium" && !isNaN(Number(value))) newData.potassium = value;
+      else if (key === "temperature" && !isNaN(Number(value))) newData.temperature = value;
+      else if (key === "humidity" && !isNaN(Number(value))) newData.humidity = value;
+      else if (key === "ph" && !isNaN(Number(value))) newData.ph = value;
+      else if (key === "rainfall" && !isNaN(Number(value))) newData.rainfall = value;
     }
 
     setFormData(newData);
@@ -173,10 +200,10 @@ const CropRecommendationComplete = () => {
     setExtractingImage(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('image', file);
+      formDataToSend.append("image", file);
 
       const response = await fetch(`${getAPIBaseURL()}/recommendations/extract-from-image`, {
-        method: 'POST',
+        method: "POST",
         body: formDataToSend,
       });
 
@@ -199,7 +226,7 @@ const CropRecommendationComplete = () => {
         }
       }
     } catch (error) {
-      console.error('Error processing image:', error);
+      console.error("Error processing image:", error);
     } finally {
       setExtractingImage(false);
     }
@@ -210,10 +237,10 @@ const CropRecommendationComplete = () => {
     setLoading(true);
 
     try {
-      let endpoint = '';
+      let endpoint = "";
       let payload: any = {};
-      
-      if (activeTab === 'manual') {
+
+      if (activeTab === "manual") {
         // Manual input endpoint
         endpoint = `${getAPIBaseURL()}/recommendations/crop`;
         payload = {
@@ -224,34 +251,34 @@ const CropRecommendationComplete = () => {
           humidity: parseFloat(formData.humidity) || 70,
           ph: parseFloat(formData.ph),
           rainfall: parseFloat(formData.rainfall),
-          top_n: 2
+          top_n: 2,
         };
-      } else if (activeTab === 'perMonth') {
+      } else if (activeTab === "perMonth") {
         // Per Month endpoint - uses advanced-crop with just month
         endpoint = `${getAPIBaseURL()}/recommendations/advanced-crop`;
         payload = {
           month: formData.month,
-          location: 'Central India' // Default location for per-month recommendations
+          location: "Central India", // Default location for per-month recommendations
         };
       } else {
         // Advanced endpoint - Location & Season
         endpoint = `${getAPIBaseURL()}/recommendations/advanced-crop`;
         payload = {
           month: formData.month,
-          location: formData.location
+          location: formData.location,
         };
-        
+
         // Add soil photo if provided
         if (soilPhotoFile) {
           const formDataToSend = new FormData();
-          formDataToSend.append('month', formData.month);
-          formDataToSend.append('location', formData.location);
-          formDataToSend.append('soil_photo', soilPhotoFile);
-          
+          formDataToSend.append("month", formData.month);
+          formDataToSend.append("location", formData.location);
+          formDataToSend.append("soil_photo", soilPhotoFile);
+
           const response = await fetch(endpoint, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
             body: formDataToSend,
           });
@@ -260,7 +287,9 @@ const CropRecommendationComplete = () => {
             const data = await response.json();
             const recs = data.recommendations ?? [];
             if (recs.length === 0) {
-              setResult({ error: data.error || 'No recommendations found. Try a different month or location.' });
+              setResult({
+                error: data.error || "No recommendations found. Try a different month or location.",
+              });
               setLoading(false);
               return;
             }
@@ -272,21 +301,23 @@ const CropRecommendationComplete = () => {
                 confidence: parseFloat(rec.confidence_value || rec.confidence || 0),
                 confidence_str: `${(parseFloat(rec.confidence_value || rec.confidence || 0) * 100).toFixed(1)}%`,
                 rank: idx + 1,
-                detailed_explanation: rec.detailed_explanation || ''
+                detailed_explanation: rec.detailed_explanation || "",
               })),
-              primary_crop: recs[0]?.crop || 'Unknown',
-              explanation: recs[0]?.reason || '',
+              primary_crop: recs[0]?.crop || "Unknown",
+              explanation: recs[0]?.reason || "",
             };
             setResult(transformed);
             if (transformed.primary_crop) speakResult(transformed);
           } else {
             const errData = await response.json().catch(() => ({}));
-            setResult({ error: errData.error || `Server error ${response.status}. Please try again.` });
+            setResult({
+              error: errData.error || `Server error ${response.status}. Please try again.`,
+            });
           }
           setLoading(false);
           return;
         }
-        
+
         // If no soil photo, send as JSON
         payload = {
           month: formData.month,
@@ -299,10 +330,10 @@ const CropRecommendationComplete = () => {
       }
 
       const response = await fetch(endpoint, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(payload),
       });
@@ -311,7 +342,9 @@ const CropRecommendationComplete = () => {
         const data = await response.json();
         const recs = data.recommendations ?? [];
         if (recs.length === 0) {
-          setResult({ error: data.error || 'No recommendations found. Please check your input values.' });
+          setResult({
+            error: data.error || "No recommendations found. Please check your input values.",
+          });
         } else {
           const transformed = {
             top_crops: recs.map((rec: any, idx: number) => ({
@@ -321,10 +354,10 @@ const CropRecommendationComplete = () => {
               confidence: parseFloat(rec.confidence_value || rec.confidence || 0),
               confidence_str: `${(parseFloat(rec.confidence_value || rec.confidence || 0) * 100).toFixed(1)}%`,
               rank: idx + 1,
-              detailed_explanation: rec.detailed_explanation || ''
+              detailed_explanation: rec.detailed_explanation || "",
             })),
-            primary_crop: recs[0]?.crop || 'Unknown',
-            explanation: recs[0]?.reason || '',
+            primary_crop: recs[0]?.crop || "Unknown",
+            explanation: recs[0]?.reason || "",
             temperature: parseFloat(formData.temperature) || 25,
             humidity: parseFloat(formData.humidity) || 65,
           };
@@ -333,10 +366,14 @@ const CropRecommendationComplete = () => {
         }
       } else {
         const errData = await response.json().catch(() => ({}));
-        setResult({ error: errData.error || `Request failed (${response.status}). Please check your inputs.` });
+        setResult({
+          error: errData.error || `Request failed (${response.status}). Please check your inputs.`,
+        });
       }
     } catch (error) {
-      setResult({ error: 'Network error. Could not reach the server. Please check your connection.' });
+      setResult({
+        error: "Network error. Could not reach the server. Please check your connection.",
+      });
     } finally {
       setLoading(false);
     }
@@ -344,70 +381,70 @@ const CropRecommendationComplete = () => {
 
   const speakExplanation = (explanation: string) => {
     if (!explanation) return;
-    
+
     // Truncate very long explanations for audio
     let text = explanation;
     if (text.length > 500) {
-      text = text.substring(0, 500) + '...';
+      text = text.substring(0, 500) + "...";
     }
-    
+
     // Try to use Hindi voice if available, otherwise use English
     const utterance = new SpeechSynthesisUtterance(text);
-    
+
     // Get available voices
     const voices = window.speechSynthesis.getVoices();
-    const hindiVoice = voices.find(voice => voice.lang.includes('hi'));
-    
+    const hindiVoice = voices.find((voice) => voice.lang.includes("hi"));
+
     if (hindiVoice) {
       utterance.voice = hindiVoice;
-      utterance.lang = 'hi-IN';
+      utterance.lang = "hi-IN";
     } else {
       // Fallback to English if Hindi not available
-      utterance.lang = 'en-US';
+      utterance.lang = "en-US";
     }
-    
+
     utterance.rate = 0.85;
     utterance.pitch = 1;
     utterance.volume = 1;
-    
+
     setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
+      console.error("Speech synthesis error:", event);
       setIsSpeaking(false);
     };
-    
+
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   };
 
   const speakResult = (data: Result) => {
     // Create a shorter version for audio - just the key information
-    let text = '';
-    
+    let text = "";
+
     if (data.top_crops && data.top_crops.length > 0) {
       const crop1 = data.top_crops[0];
       const crop2 = data.top_crops[1];
-      
+
       // Try Hindi first, but have English fallback
-      text = `Recommended crops are: First crop ${crop1.crop} with confidence ${crop1.confidence_str}. Second crop ${crop2?.crop || 'none'} with confidence ${crop2?.confidence_str || '0%'}.`;
+      text = `Recommended crops are: First crop ${crop1.crop} with confidence ${crop1.confidence_str}. Second crop ${crop2?.crop || "none"} with confidence ${crop2?.confidence_str || "0%"}.`;
     } else {
-      text = `Recommended crop is ${data.primary_crop}. ${data.explanation || ''}`;
+      text = `Recommended crop is ${data.primary_crop}. ${data.explanation || ""}`;
     }
-    
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US'; // Use English for better browser support
+    utterance.lang = "en-US"; // Use English for better browser support
     utterance.rate = 0.9;
     utterance.pitch = 1;
     utterance.volume = 1;
-    
+
     setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
+      console.error("Speech synthesis error:", event);
       setIsSpeaking(false);
     };
-    
+
     window.speechSynthesis.cancel(); // Cancel any previous speech
     window.speechSynthesis.speak(utterance);
   };
@@ -421,7 +458,9 @@ const CropRecommendationComplete = () => {
     <div className="space-y-6">
       {/* Month Selection */}
       <div className="p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-        <h3 className="text-lg font-bold text-blue-900 mb-4">📅 {language === 'en' ? 'Select Month' : 'महीना चुनें'}</h3>
+        <h3 className="text-lg font-bold text-blue-900 mb-4">
+          📅 {language === "en" ? "Select Month" : "महीना चुनें"}
+        </h3>
         <select
           name="month"
           value={formData.month}
@@ -429,31 +468,43 @@ const CropRecommendationComplete = () => {
           className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-eco-green text-lg"
           required
         >
-          <option value="">{language === 'en' ? 'Choose a month...' : 'एक महीना चुनें...'}</option>
-          {months.map(month => (
-            <option key={month} value={month}>{month}</option>
+          <option value="">{language === "en" ? "Choose a month..." : "एक महीना चुनें..."}</option>
+          {months.map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
           ))}
         </select>
         {monthsError && (
-          <p className="text-xs text-orange-500 mt-1">⚠️ {language === 'en' ? 'Using offline month list (server unavailable)' : 'ऑफलाइन माह सूची उपयोग हो रही है'}</p>
+          <p className="text-xs text-orange-500 mt-1">
+            ⚠️{" "}
+            {language === "en"
+              ? "Using offline month list (server unavailable)"
+              : "ऑफलाइन माह सूची उपयोग हो रही है"}
+          </p>
         )}
         <p className="text-sm text-blue-700 mt-3">
-          💡 {language === 'en' ? 'Select the month to get crops suitable for that season' : 'उस मौसम के लिए उपयुक्त फसलें प्राप्त करने के लिए महीना चुनें'}
+          💡{" "}
+          {language === "en"
+            ? "Select the month to get crops suitable for that season"
+            : "उस मौसम के लिए उपयुक्त फसलें प्राप्त करने के लिए महीना चुनें"}
         </p>
       </div>
 
       {/* Location Selection */}
       <div className="p-6 bg-purple-50 rounded-lg border-2 border-purple-200">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-purple-900">🌍 {language === 'en' ? 'Select Location' : 'स्थान चुनें'}</h3>
+          <h3 className="text-lg font-bold text-purple-900">
+            🌍 {language === "en" ? "Select Location" : "स्थान चुनें"}
+          </h3>
           {detectingLocation && (
             <span className="text-sm text-purple-600 font-semibold">
-              📍 {language === 'en' ? 'Detecting...' : 'पता लगा रहे हैं...'}
+              📍 {language === "en" ? "Detecting..." : "पता लगा रहे हैं..."}
             </span>
           )}
           {locationDetected && !detectingLocation && (
             <span className="text-sm text-green-600 font-semibold">
-              ✓ {language === 'en' ? 'Auto-detected' : 'स्वचालित रूप से पता लगाया गया'}
+              ✓ {language === "en" ? "Auto-detected" : "स्वचालित रूप से पता लगाया गया"}
             </span>
           )}
         </div>
@@ -464,22 +515,34 @@ const CropRecommendationComplete = () => {
           className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-eco-green text-lg"
           required
         >
-          <option value="">{language === 'en' ? 'Choose a location...' : 'एक स्थान चुनें...'}</option>
-          <option value="North India">{language === 'en' ? 'North India' : 'उत्तर भारत'}</option>
-          <option value="South India">{language === 'en' ? 'South India' : 'दक्षिण भारत'}</option>
-          <option value="East India">{language === 'en' ? 'East India' : 'पूर्व भारत'}</option>
-          <option value="West India">{language === 'en' ? 'West India' : 'पश्चिम भारत'}</option>
-          <option value="Central India">{language === 'en' ? 'Central India' : 'मध्य भारत'}</option>
-          <option value="Northeast India">{language === 'en' ? 'Northeast India' : 'पूर्वोत्तर भारत'}</option>
+          <option value="">
+            {language === "en" ? "Choose a location..." : "एक स्थान चुनें..."}
+          </option>
+          <option value="North India">{language === "en" ? "North India" : "उत्तर भारत"}</option>
+          <option value="South India">{language === "en" ? "South India" : "दक्षिण भारत"}</option>
+          <option value="East India">{language === "en" ? "East India" : "पूर्व भारत"}</option>
+          <option value="West India">{language === "en" ? "West India" : "पश्चिम भारत"}</option>
+          <option value="Central India">{language === "en" ? "Central India" : "मध्य भारत"}</option>
+          <option value="Northeast India">
+            {language === "en" ? "Northeast India" : "पूर्वोत्तर भारत"}
+          </option>
         </select>
         <p className="text-sm text-purple-700 mt-3">
-          💡 {language === 'en' ? 'Your location is auto-detected. You can change it manually if needed.' : 'आपका स्थान स्वचालित रूप से पता लगाया गया है। यदि आवश्यक हो तो आप इसे मैन्युअल रूप से बदल सकते हैं।'}
+          💡{" "}
+          {language === "en"
+            ? "Your location is auto-detected. You can change it manually if needed."
+            : "आपका स्थान स्वचालित रूप से पता लगाया गया है। यदि आवश्यक हो तो आप इसे मैन्युअल रूप से बदल सकते हैं।"}
         </p>
       </div>
 
       {/* Soil Photo Upload (Optional) */}
       <div className="p-6 bg-orange-50 rounded-lg border-2 border-orange-200">
-        <h3 className="text-lg font-bold text-orange-900 mb-4">📷 {language === 'en' ? 'Upload Soil Photo (Optional)' : 'मिट्टी की फोटो अपलोड करें (वैकल्पिक)'}</h3>
+        <h3 className="text-lg font-bold text-orange-900 mb-4">
+          📷{" "}
+          {language === "en"
+            ? "Upload Soil Photo (Optional)"
+            : "मिट्टी की फोटो अपलोड करें (वैकल्पिक)"}
+        </h3>
         <div className="space-y-3">
           <input
             type="file"
@@ -494,11 +557,14 @@ const CropRecommendationComplete = () => {
           />
           {soilPhotoFile && (
             <p className="text-sm text-orange-700 font-semibold">
-              ✓ {language === 'en' ? 'File selected:' : 'फाइल चुनी गई:'} {soilPhotoFile.name}
+              ✓ {language === "en" ? "File selected:" : "फाइल चुनी गई:"} {soilPhotoFile.name}
             </p>
           )}
           <p className="text-sm text-orange-700">
-            💡 {language === 'en' ? 'Upload a soil photo for more accurate recommendations (optional)' : 'अधिक सटीक सिफारिशों के लिए मिट्टी की फोटो अपलोड करें (वैकल्पिक)'}
+            💡{" "}
+            {language === "en"
+              ? "Upload a soil photo for more accurate recommendations (optional)"
+              : "अधिक सटीक सिफारिशों के लिए मिट्टी की फोटो अपलोड करें (वैकल्पिक)"}
           </p>
         </div>
       </div>
@@ -509,13 +575,20 @@ const CropRecommendationComplete = () => {
     <div className="space-y-6">
       {/* Camera Input Section */}
       <div className="p-6 bg-orange-50 rounded-lg border-2 border-orange-200">
-        <h3 className="text-lg font-bold text-orange-900 mb-4">📷 {language === 'en' ? 'Capture Soil Report (Optional)' : 'मिट्टी रिपोर्ट की फोटो लें (वैकल्पिक)'}</h3>
-        
+        <h3 className="text-lg font-bold text-orange-900 mb-4">
+          📷{" "}
+          {language === "en"
+            ? "Capture Soil Report (Optional)"
+            : "मिट्टी रिपोर्ट की फोटो लें (वैकल्पिक)"}
+        </h3>
+
         {cameraMode ? (
           <div className="space-y-4">
             <div className="p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
               <p className="text-sm font-semibold mb-3 text-gray-700">
-                {extractingImage ? '⏳ Processing image...' : '📸 Select or capture soil report image'}
+                {extractingImage
+                  ? "⏳ Processing image..."
+                  : "📸 Select or capture soil report image"}
               </p>
               <input
                 type="file"
@@ -540,18 +613,20 @@ const CropRecommendationComplete = () => {
             onClick={() => setCameraMode(true)}
             className="w-full bg-orange-500 text-white font-semibold py-3 rounded-lg hover:bg-orange-600 transition-colors"
           >
-            📷 {language === 'en' ? 'Capture Soil Report' : 'मिट्टी रिपोर्ट की फोटो लें'}
+            📷 {language === "en" ? "Capture Soil Report" : "मिट्टी रिपोर्ट की फोटो लें"}
           </button>
         )}
       </div>
 
       {/* Manual Input Section */}
       <div className="p-6 bg-green-50 rounded-lg border-2 border-green-200">
-        <h3 className="text-lg font-bold text-green-900 mb-4">📝 {language === 'en' ? 'Soil Parameters' : 'मिट्टी के पैरामीटर'}</h3>
+        <h3 className="text-lg font-bold text-green-900 mb-4">
+          📝 {language === "en" ? "Soil Parameters" : "मिट्टी के पैरामीटर"}
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {language === 'en' ? 'Nitrogen (N)' : 'नाइट्रोजन (N)'}
+              {language === "en" ? "Nitrogen (N)" : "नाइट्रोजन (N)"}
             </label>
             <Input
               type="number"
@@ -564,7 +639,7 @@ const CropRecommendationComplete = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {language === 'en' ? 'Phosphorus (P)' : 'फॉस्फोरस (P)'}
+              {language === "en" ? "Phosphorus (P)" : "फॉस्फोरस (P)"}
             </label>
             <Input
               type="number"
@@ -577,7 +652,7 @@ const CropRecommendationComplete = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {language === 'en' ? 'Potassium (K)' : 'पोटेशियम (K)'}
+              {language === "en" ? "Potassium (K)" : "पोटेशियम (K)"}
             </label>
             <Input
               type="number"
@@ -590,7 +665,7 @@ const CropRecommendationComplete = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {language === 'en' ? 'pH Level' : 'पीएच स्तर'}
+              {language === "en" ? "pH Level" : "पीएच स्तर"}
             </label>
             <Input
               type="number"
@@ -604,7 +679,7 @@ const CropRecommendationComplete = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {language === 'en' ? 'Rainfall (mm)' : 'वर्षा (मिमी)'}
+              {language === "en" ? "Rainfall (mm)" : "वर्षा (मिमी)"}
             </label>
             <Input
               type="number"
@@ -617,7 +692,7 @@ const CropRecommendationComplete = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {language === 'en' ? 'Temperature (°C)' : 'तापमान (°C)'}
+              {language === "en" ? "Temperature (°C)" : "तापमान (°C)"}
             </label>
             <Input
               type="number"
@@ -631,7 +706,7 @@ const CropRecommendationComplete = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {language === 'en' ? 'Humidity (%)' : 'आर्द्रता (%)'}
+              {language === "en" ? "Humidity (%)" : "आर्द्रता (%)"}
             </label>
             <Input
               type="number"
@@ -653,21 +728,28 @@ const CropRecommendationComplete = () => {
     <div className="space-y-6">
       {!browserSupportsSpeechRecognition && (
         <div className="text-red-600 p-4 bg-red-50 rounded-lg">
-          {language === 'en' ? "Browser doesn't support speech recognition." : "आपका ब्राउज़र स्पीच रिकग्निशन को सपोर्ट नहीं करता।"}
+          {language === "en"
+            ? "Browser doesn't support speech recognition."
+            : "आपका ब्राउज़र स्पीच रिकग्निशन को सपोर्ट नहीं करता।"}
         </div>
       )}
 
       <div className="p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-        <h3 className="text-lg font-bold text-blue-900 mb-4">🎙️ {language === 'en' ? 'Voice Input' : 'वॉयस इनपुट'}</h3>
-        
+        <h3 className="text-lg font-bold text-blue-900 mb-4">
+          🎙️ {language === "en" ? "Voice Input" : "वॉयस इनपुट"}
+        </h3>
+
         {voiceMode ? (
           <div className="space-y-4">
-            <div className={`p-4 rounded-lg ${listening ? 'bg-red-100 border-2 border-red-500' : 'bg-gray-100'}`}>
+            <div
+              className={`p-4 rounded-lg ${listening ? "bg-red-100 border-2 border-red-500" : "bg-gray-100"}`}
+            >
               <p className="text-sm font-semibold mb-2">
-                {listening ? '🔴 Listening...' : '⏹️ Ready to listen'}
+                {listening ? "🔴 Listening..." : "⏹️ Ready to listen"}
               </p>
               <p className="text-gray-700 min-h-12 p-2 bg-white rounded">
-                {transcript || 'Say: nitrogen 90 phosphorus 42 potassium 43 temperature 20 humidity 82 ph 6.5 rainfall 202'}
+                {transcript ||
+                  "Say: nitrogen 90 phosphorus 42 potassium 43 temperature 20 humidity 82 ph 6.5 rainfall 202"}
               </p>
             </div>
 
@@ -681,7 +763,7 @@ const CropRecommendationComplete = () => {
                 }}
                 className="flex-1 bg-red-500 text-white font-semibold py-2 rounded-lg hover:bg-red-600"
               >
-                {listening ? '🔴 Recording...' : '🎙️ Start Recording'}
+                {listening ? "🔴 Recording..." : "🎙️ Start Recording"}
               </button>
               <button
                 type="button"
@@ -698,13 +780,15 @@ const CropRecommendationComplete = () => {
             onClick={handleVoiceInput}
             className="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition-colors"
           >
-            🎤 {language === 'en' ? 'Enable Voice Input' : 'वॉयस इनपुट सक्षम करें'}
+            🎤 {language === "en" ? "Enable Voice Input" : "वॉयस इनपुट सक्षम करें"}
           </button>
         )}
       </div>
 
       <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">📝 {language === 'en' ? 'Or Enter Manually' : 'या मैन्युअल रूप से दर्ज करें'}</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">
+          📝 {language === "en" ? "Or Enter Manually" : "या मैन्युअल रूप से दर्ज करें"}
+        </h3>
         {renderManualTab()}
       </div>
     </div>
@@ -713,7 +797,9 @@ const CropRecommendationComplete = () => {
   const renderSeasonalTab = () => (
     <div className="space-y-6">
       <div className="p-6 bg-blue-50 rounded-lg border-2 border-blue-200">
-        <h3 className="text-lg font-bold text-blue-900 mb-4">📅 {language === 'en' ? 'Select Month' : 'महीना चुनें'}</h3>
+        <h3 className="text-lg font-bold text-blue-900 mb-4">
+          📅 {language === "en" ? "Select Month" : "महीना चुनें"}
+        </h3>
         <select
           name="month"
           value={formData.month}
@@ -721,18 +807,25 @@ const CropRecommendationComplete = () => {
           className="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-eco-green text-lg"
           required
         >
-          <option value="">{language === 'en' ? 'Choose a month...' : 'एक महीना चुनें...'}</option>
-          {months.map(month => (
-            <option key={month} value={month}>{month}</option>
+          <option value="">{language === "en" ? "Choose a month..." : "एक महीना चुनें..."}</option>
+          {months.map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
           ))}
         </select>
         <p className="text-sm text-blue-700 mt-3">
-          💡 {language === 'en' ? 'Selecting a month helps us recommend crops suitable for that season' : 'महीना चुनने से हमें उस मौसम के लिए उपयुक्त फसलों की सिफारिश करने में मदद मिलती है'}
+          💡{" "}
+          {language === "en"
+            ? "Selecting a month helps us recommend crops suitable for that season"
+            : "महीना चुनने से हमें उस मौसम के लिए उपयुक्त फसलों की सिफारिश करने में मदद मिलती है"}
         </p>
       </div>
 
       <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">🌱 {language === 'en' ? 'Soil Parameters' : 'मिट्टी के पैरामीटर'}</h3>
+        <h3 className="text-lg font-bold text-gray-800 mb-4">
+          🌱 {language === "en" ? "Soil Parameters" : "मिट्टी के पैरामीटर"}
+        </h3>
         {renderManualTab()}
       </div>
     </div>
@@ -741,7 +834,10 @@ const CropRecommendationComplete = () => {
   const renderPerMonthTab = () => (
     <div className="space-y-6">
       <div className="p-6 bg-purple-50 rounded-lg border-2 border-purple-200">
-        <h3 className="text-lg font-bold text-purple-900 mb-4">📅 {language === 'en' ? 'Select Month for Recommendations' : 'सिफारिशों के लिए महीना चुनें'}</h3>
+        <h3 className="text-lg font-bold text-purple-900 mb-4">
+          📅{" "}
+          {language === "en" ? "Select Month for Recommendations" : "सिफारिशों के लिए महीना चुनें"}
+        </h3>
         <select
           name="month"
           value={formData.month}
@@ -749,22 +845,29 @@ const CropRecommendationComplete = () => {
           className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:ring-2 focus:ring-eco-green text-lg"
           required
         >
-          <option value="">{language === 'en' ? 'Choose a month...' : 'एक महीना चुनें...'}</option>
-          {months.map(month => (
-            <option key={month} value={month}>{month}</option>
+          <option value="">{language === "en" ? "Choose a month..." : "एक महीना चुनें..."}</option>
+          {months.map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
           ))}
         </select>
         <p className="text-sm text-purple-700 mt-3">
-          💡 {language === 'en' ? 'Get crops recommended specifically for the selected month' : 'चुने गए महीने के लिए विशेष रूप से अनुशंसित फसलें प्राप्त करें'}
+          💡{" "}
+          {language === "en"
+            ? "Get crops recommended specifically for the selected month"
+            : "चुने गए महीने के लिए विशेष रूप से अनुशंसित फसलें प्राप्त करें"}
         </p>
       </div>
 
       <div className="p-6 bg-indigo-50 rounded-lg border-2 border-indigo-200">
-        <h3 className="text-lg font-bold text-indigo-900 mb-4">ℹ️ {language === 'en' ? 'About This Option' : 'इस विकल्प के बारे में'}</h3>
+        <h3 className="text-lg font-bold text-indigo-900 mb-4">
+          ℹ️ {language === "en" ? "About This Option" : "इस विकल्प के बारे में"}
+        </h3>
         <p className="text-sm text-indigo-700 leading-relaxed">
-          {language === 'en' 
-            ? 'This option provides crops that are best suited for the selected month based on seasonal patterns. The recommendations are consistent and based on traditional agricultural practices in India.'
-            : 'यह विकल्प चुने गए महीने के लिए सबसे उपयुक्त फसलें प्रदान करता है। सिफारिशें भारत में पारंपरिक कृषि प्रथाओं पर आधारित हैं।'}
+          {language === "en"
+            ? "This option provides crops that are best suited for the selected month based on seasonal patterns. The recommendations are consistent and based on traditional agricultural practices in India."
+            : "यह विकल्प चुने गए महीने के लिए सबसे उपयुक्त फसलें प्रदान करता है। सिफारिशें भारत में पारंपरिक कृषि प्रथाओं पर आधारित हैं।"}
         </p>
       </div>
     </div>
@@ -775,12 +878,12 @@ const CropRecommendationComplete = () => {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            {language === 'en' ? '🌾 Crop Recommendation' : '🌾 फसल की सिफारिश'}
+            {language === "en" ? "🌾 Crop Recommendation" : "🌾 फसल की सिफारिश"}
           </h1>
           <p className="text-gray-600 mt-2">
-            {language === 'en'
-              ? 'Get personalized crop recommendations using manual input, voice, or seasonal selection'
-              : 'मैन्युअल इनपुट, वॉयस, या मौसमी चयन का उपयोग करके व्यक्तिगत फसल सिफारिशें प्राप्त करें'}
+            {language === "en"
+              ? "Get personalized crop recommendations using manual input, voice, or seasonal selection"
+              : "मैन्युअल इनपुट, वॉयस, या मौसमी चयन का उपयोग करके व्यक्तिगत फसल सिफारिशें प्राप्त करें"}
           </p>
         </div>
 
@@ -789,44 +892,49 @@ const CropRecommendationComplete = () => {
             {/* Tab Selection */}
             <div className="flex gap-4 mb-6 border-b-2 overflow-x-auto">
               <button
-                onClick={() => setActiveTab('manual')}
+                onClick={() => setActiveTab("manual")}
                 className={`px-6 py-3 font-bold transition-colors whitespace-nowrap ${
-                  activeTab === 'manual'
-                    ? 'text-green-600 border-b-4 border-green-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                  activeTab === "manual"
+                    ? "text-green-600 border-b-4 border-green-600"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                📝 {language === 'en' ? 'Manual Input' : 'मैन्युअल इनपुट'}
+                📝 {language === "en" ? "Manual Input" : "मैन्युअल इनपुट"}
               </button>
               <button
-                onClick={() => setActiveTab('advanced')}
+                onClick={() => setActiveTab("advanced")}
                 className={`px-6 py-3 font-bold transition-colors whitespace-nowrap ${
-                  activeTab === 'advanced'
-                    ? 'text-blue-600 border-b-4 border-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                  activeTab === "advanced"
+                    ? "text-blue-600 border-b-4 border-blue-600"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                🌍 {language === 'en' ? 'By Location & Season' : 'स्थान और मौसम से'}
+                🌍 {language === "en" ? "By Location & Season" : "स्थान और मौसम से"}
               </button>
               <button
-                onClick={() => setActiveTab('perMonth')}
+                onClick={() => setActiveTab("perMonth")}
                 className={`px-6 py-3 font-bold transition-colors whitespace-nowrap ${
-                  activeTab === 'perMonth'
-                    ? 'text-purple-600 border-b-4 border-purple-600'
-                    : 'text-gray-600 hover:text-gray-900'
+                  activeTab === "perMonth"
+                    ? "text-purple-600 border-b-4 border-purple-600"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
-                📅 {language === 'en' ? 'Per Month' : 'प्रति महीना'}
+                📅 {language === "en" ? "Per Month" : "प्रति महीना"}
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Manual Tab */}
-              {activeTab === 'manual' && (
+              {activeTab === "manual" && (
                 <>
                   {/* PDF Upload Section */}
                   <div className="p-6 bg-red-50 rounded-lg border-2 border-red-200">
-                    <h3 className="text-lg font-bold text-red-900 mb-4">📄 {language === 'en' ? 'Upload Soil Report PDF' : 'मिट्टी रिपोर्ट PDF अपलोड करें'}</h3>
+                    <h3 className="text-lg font-bold text-red-900 mb-4">
+                      📄{" "}
+                      {language === "en"
+                        ? "Upload Soil Report PDF"
+                        : "मिट्टी रिपोर्ट PDF अपलोड करें"}
+                    </h3>
                     <div className="space-y-3">
                       <input
                         type="file"
@@ -834,39 +942,67 @@ const CropRecommendationComplete = () => {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          
+
                           setExtractingImage(true);
                           try {
                             const formDataToSend = new FormData();
-                            formDataToSend.append('pdf', file);
-                            
-                            const response = await fetch(`${getAPIBaseURL()}/recommendations/extract-from-pdf`, {
-                              method: 'POST',
-                              body: formDataToSend,
-                            });
-                            
+                            formDataToSend.append("pdf", file);
+
+                            const response = await fetch(
+                              `${getAPIBaseURL()}/recommendations/extract-from-pdf`,
+                              {
+                                method: "POST",
+                                body: formDataToSend,
+                              }
+                            );
+
                             if (response.ok) {
                               const data = await response.json();
                               if (data.success && data.values) {
                                 const values = data.values;
                                 setFormData((prev) => ({
                                   ...prev,
-                                  nitrogen: values.nitrogen ? String(values.nitrogen) : prev.nitrogen,
-                                  phosphorus: values.phosphorus ? String(values.phosphorus) : prev.phosphorus,
-                                  potassium: values.potassium ? String(values.potassium) : prev.potassium,
+                                  nitrogen: values.nitrogen
+                                    ? String(values.nitrogen)
+                                    : prev.nitrogen,
+                                  phosphorus: values.phosphorus
+                                    ? String(values.phosphorus)
+                                    : prev.phosphorus,
+                                  potassium: values.potassium
+                                    ? String(values.potassium)
+                                    : prev.potassium,
                                   ph: values.ph ? String(values.ph) : prev.ph,
-                                  rainfall: values.rainfall ? String(values.rainfall) : prev.rainfall,
-                                  temperature: values.temperature ? String(values.temperature) : prev.temperature,
-                                  humidity: values.humidity ? String(values.humidity) : prev.humidity,
+                                  rainfall: values.rainfall
+                                    ? String(values.rainfall)
+                                    : prev.rainfall,
+                                  temperature: values.temperature
+                                    ? String(values.temperature)
+                                    : prev.temperature,
+                                  humidity: values.humidity
+                                    ? String(values.humidity)
+                                    : prev.humidity,
                                 }));
-                                alert(language === 'en' ? 'PDF processed successfully!' : 'PDF सफलतापूर्वक प्रोसेस हुआ!');
+                                alert(
+                                  language === "en"
+                                    ? "PDF processed successfully!"
+                                    : "PDF सफलतापूर्वक प्रोसेस हुआ!"
+                                );
                               } else {
-                                alert(data.error || (language === 'en' ? 'Could not extract values from PDF' : 'PDF से values निकालने में विफल'));
+                                alert(
+                                  data.error ||
+                                    (language === "en"
+                                      ? "Could not extract values from PDF"
+                                      : "PDF से values निकालने में विफल")
+                                );
                               }
                             }
                           } catch (error) {
-                            console.error('Error processing PDF:', error);
-                            alert(language === 'en' ? 'Error processing PDF' : 'PDF प्रोसेस करने में त्रुटि');
+                            console.error("Error processing PDF:", error);
+                            alert(
+                              language === "en"
+                                ? "Error processing PDF"
+                                : "PDF प्रोसेस करने में त्रुटि"
+                            );
                           } finally {
                             setExtractingImage(false);
                           }
@@ -875,7 +1011,10 @@ const CropRecommendationComplete = () => {
                         className="w-full"
                       />
                       <p className="text-sm text-red-700">
-                        💡 {language === 'en' ? 'Upload a soil report PDF to auto-fill parameters' : 'मिट्टी रिपोर्ट PDF अपलोड करें ताकि parameters स्वचालित रूप से भर जाएं'}
+                        💡{" "}
+                        {language === "en"
+                          ? "Upload a soil report PDF to auto-fill parameters"
+                          : "मिट्टी रिपोर्ट PDF अपलोड करें ताकि parameters स्वचालित रूप से भर जाएं"}
                       </p>
                     </div>
                   </div>
@@ -890,17 +1029,21 @@ const CropRecommendationComplete = () => {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {language === 'en' ? 'Getting Recommendations...' : 'सिफारिशें प्राप्त हो रही हैं...'}
+                        {language === "en"
+                          ? "Getting Recommendations..."
+                          : "सिफारिशें प्राप्त हो रही हैं..."}
                       </>
+                    ) : language === "en" ? (
+                      "🌾 Get Recommendations"
                     ) : (
-                      language === 'en' ? '🌾 Get Recommendations' : '🌾 सिफारिशें प्राप्त करें'
+                      "🌾 सिफारिशें प्राप्त करें"
                     )}
                   </Button>
                 </>
               )}
 
               {/* Advanced Tab */}
-              {activeTab === 'advanced' && (
+              {activeTab === "advanced" && (
                 <>
                   {renderAdvancedTab()}
 
@@ -912,17 +1055,21 @@ const CropRecommendationComplete = () => {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {language === 'en' ? 'Getting Recommendations...' : 'सिफारिशें प्राप्त हो रही हैं...'}
+                        {language === "en"
+                          ? "Getting Recommendations..."
+                          : "सिफारिशें प्राप्त हो रही हैं..."}
                       </>
+                    ) : language === "en" ? (
+                      "🌾 Get Recommendations"
                     ) : (
-                      language === 'en' ? '🌾 Get Recommendations' : '🌾 सिफारिशें प्राप्त करें'
+                      "🌾 सिफारिशें प्राप्त करें"
                     )}
                   </Button>
                 </>
               )}
 
               {/* Per Month Tab */}
-              {activeTab === 'perMonth' && (
+              {activeTab === "perMonth" && (
                 <>
                   {renderPerMonthTab()}
 
@@ -934,10 +1081,14 @@ const CropRecommendationComplete = () => {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {language === 'en' ? 'Getting Recommendations...' : 'सिफारिशें प्राप्त हो रही हैं...'}
+                        {language === "en"
+                          ? "Getting Recommendations..."
+                          : "सिफारिशें प्राप्त हो रही हैं..."}
                       </>
+                    ) : language === "en" ? (
+                      "🌾 Get Recommendations"
                     ) : (
-                      language === 'en' ? '🌾 Get Recommendations' : '🌾 सिफारिशें प्राप्त करें'
+                      "🌾 सिफारिशें प्राप्त करें"
                     )}
                   </Button>
                 </>
@@ -958,35 +1109,41 @@ const CropRecommendationComplete = () => {
             ) : (
               <>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {language === 'en' ? 'Recommended Crops' : 'अनुशंसित फसलें'}
+                  {language === "en" ? "Recommended Crops" : "अनुशंसित फसलें"}
                 </h2>
 
                 {/* Top Crops */}
-                {result.top_crops && result.top_crops.map((crop, index) => (
-                  <Card key={index} className={`${index === 0 ? 'border-2 border-green-600' : ''}`}>
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-lg">
-                            #{crop.rank} {crop.crop.toUpperCase()}
-                          </CardTitle>
-                          <CardDescription>{crop.reason}</CardDescription>
+                {result.top_crops &&
+                  result.top_crops.map((crop, index) => (
+                    <Card
+                      key={index}
+                      className={`${index === 0 ? "border-2 border-green-600" : ""}`}
+                    >
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <CardTitle className="text-lg">
+                              #{crop.rank} {crop.crop.toUpperCase()}
+                            </CardTitle>
+                            <CardDescription>{crop.reason}</CardDescription>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-green-600">
+                              {crop.confidence_str}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">{crop.confidence_str}</p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-green-600 h-2 rounded-full"
+                            style={{ width: `${Math.min(crop.suitability, 100)}%` }}
+                          ></div>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-green-600 h-2 rounded-full"
-                          style={{ width: `${Math.min(crop.suitability, 100)}%` }}
-                        ></div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))}
 
                 {/* Explanation */}
                 {result.top_crops?.[0]?.detailed_explanation && (
@@ -994,23 +1151,29 @@ const CropRecommendationComplete = () => {
                     <CardHeader>
                       <div className="flex justify-between items-center">
                         <CardTitle>
-                          {language === 'en' ? `Why ${result.primary_crop}?` : `${result.primary_crop} क्यों?`}
+                          {language === "en"
+                            ? `Why ${result.primary_crop}?`
+                            : `${result.primary_crop} क्यों?`}
                         </CardTitle>
                         <div className="flex gap-2 items-center">
                           <Button
-                            onClick={() => speakExplanation(result.top_crops![0].detailed_explanation!)}
+                            onClick={() =>
+                              speakExplanation(result.top_crops![0].detailed_explanation!)
+                            }
                             disabled={isSpeaking}
                             size="sm"
                             className="bg-blue-600 hover:bg-blue-700"
                             title="Hindi voice may not be available on all browsers"
                           >
-                            {isSpeaking ? '🔊' : '🔊'}
+                            {isSpeaking ? "🔊" : "🔊"}
                           </Button>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{result.top_crops[0].detailed_explanation}</p>
+                      <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                        {result.top_crops[0].detailed_explanation}
+                      </p>
                     </CardContent>
                   </Card>
                 )}
@@ -1021,7 +1184,9 @@ const CropRecommendationComplete = () => {
                     <CardHeader>
                       <div className="flex justify-between items-center">
                         <CardTitle>
-                          {language === 'en' ? `Why ${result.primary_crop}?` : `${result.primary_crop} क्यों?`}
+                          {language === "en"
+                            ? `Why ${result.primary_crop}?`
+                            : `${result.primary_crop} क्यों?`}
                         </CardTitle>
                         <Button
                           onClick={() => speakExplanation(result.explanation!)}
@@ -1029,7 +1194,7 @@ const CropRecommendationComplete = () => {
                           size="sm"
                           className="bg-blue-600 hover:bg-blue-700"
                         >
-                          {isSpeaking ? '🔊' : '🔊'}
+                          {isSpeaking ? "🔊" : "🔊"}
                         </Button>
                       </div>
                     </CardHeader>
@@ -1046,13 +1211,10 @@ const CropRecommendationComplete = () => {
                     disabled={isSpeaking}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
-                    {isSpeaking ? '🔊 Speaking...' : '🔊 Speak Result'}
+                    {isSpeaking ? "🔊 Speaking..." : "🔊 Speak Result"}
                   </Button>
                   {isSpeaking && (
-                    <Button
-                      onClick={stopSpeaking}
-                      className="flex-1 bg-red-600 hover:bg-red-700"
-                    >
+                    <Button onClick={stopSpeaking} className="flex-1 bg-red-600 hover:bg-red-700">
                       ⏹️ Stop
                     </Button>
                   )}

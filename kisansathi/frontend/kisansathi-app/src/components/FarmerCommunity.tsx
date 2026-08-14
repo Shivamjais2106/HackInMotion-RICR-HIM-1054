@@ -1,8 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, Image, Smile, Users, Search, Phone, Video, MoreVertical, Plus, X, Settings, Trash2, UserPlus, Crown } from 'lucide-react';
-import { useLanguage } from '@/context/LanguageContext';
-import { useToast } from '@/components/ui/use-toast';
-import { getAPIBaseURL } from '@/utils/api';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Send,
+  Image,
+  Smile,
+  Users,
+  Search,
+  Phone,
+  Video,
+  MoreVertical,
+  Plus,
+  X,
+  Settings,
+  Trash2,
+  UserPlus,
+  Crown,
+} from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { useToast } from "@/components/ui/use-toast";
+import { getAPIBaseURL } from "@/utils/api";
 import {
   initializeSocket,
   getSocket,
@@ -20,8 +35,8 @@ import {
   onUserOffline,
   onNotification,
   onUserJoinedGroup,
-  onUserLeftGroup
-} from '@/services/websocket';
+  onUserLeftGroup,
+} from "@/services/websocket";
 
 interface Message {
   id: string;
@@ -43,7 +58,7 @@ interface TypingUser {
 
 interface OnlineUser {
   user_id: string;
-  status: 'online' | 'offline';
+  status: "online" | "offline";
 }
 
 interface Group {
@@ -73,19 +88,19 @@ const FarmerCommunity: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [messageText, setMessageText] = useState('');
+  const [messageText, setMessageText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
-  const [newGroupDesc, setNewGroupDesc] = useState('');
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupDesc, setNewGroupDesc] = useState("");
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]);
-  const [addMemberMobile, setAddMemberMobile] = useState('');
+  const [addMemberMobile, setAddMemberMobile] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [currentUserName, setCurrentUserName] = useState<string>('Farmer');
+  const [currentUserName, setCurrentUserName] = useState<string>("Farmer");
   const [isGroupAdmin, setIsGroupAdmin] = useState(false);
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
@@ -97,8 +112,8 @@ const FarmerCommunity: React.FC = () => {
 
   // Get current user ID from localStorage
   useEffect(() => {
-    const userId = localStorage.getItem('token');
-    const userName = localStorage.getItem('user_name') || 'Farmer';
+    const userId = localStorage.getItem("token");
+    const userName = localStorage.getItem("user_name") || "Farmer";
     if (userId) {
       setCurrentUserId(userId);
       setCurrentUserName(userName);
@@ -121,18 +136,18 @@ const FarmerCommunity: React.FC = () => {
         sender: {
           id: data.user_id,
           name: data.user_name,
-          avatar: '👤'
+          avatar: "👤",
         },
         text: data.message,
-        timestamp: new Date(data.timestamp).toLocaleTimeString()
+        timestamp: new Date(data.timestamp).toLocaleTimeString(),
       };
-      setMessages(prev => [...prev, newMessage]);
+      setMessages((prev) => [...prev, newMessage]);
     });
 
     // Listen for typing indicators
     onUserTyping((data) => {
-      setTypingUsers(prev => {
-        const exists = prev.find(u => u.user_id === data.user_id);
+      setTypingUsers((prev) => {
+        const exists = prev.find((u) => u.user_id === data.user_id);
         if (!exists) {
           return [...prev, { user_id: data.user_id, user_name: data.user_name }];
         }
@@ -142,17 +157,17 @@ const FarmerCommunity: React.FC = () => {
 
     // Listen for stop typing
     onUserStoppedTyping((data) => {
-      setTypingUsers(prev => prev.filter(u => u.user_id !== data.user_id));
+      setTypingUsers((prev) => prev.filter((u) => u.user_id !== data.user_id));
     });
 
     // Listen for online status
     onUserOnline((data) => {
-      setOnlineUsers(prev => new Set([...prev, data.user_id]));
+      setOnlineUsers((prev) => new Set([...prev, data.user_id]));
     });
 
     // Listen for offline status
     onUserOffline((data) => {
-      setOnlineUsers(prev => {
+      setOnlineUsers((prev) => {
         const newSet = new Set(prev);
         newSet.delete(data.user_id);
         return newSet;
@@ -162,7 +177,7 @@ const FarmerCommunity: React.FC = () => {
     // Listen for user joined group
     onUserJoinedGroup((data) => {
       toast({
-        title: 'User Joined',
+        title: "User Joined",
         description: `A user joined the group`,
       });
     });
@@ -170,7 +185,7 @@ const FarmerCommunity: React.FC = () => {
     // Listen for user left group
     onUserLeftGroup((data) => {
       toast({
-        title: 'User Left',
+        title: "User Left",
         description: `A user left the group`,
       });
     });
@@ -196,25 +211,25 @@ const FarmerCommunity: React.FC = () => {
         const data = await response.json();
         const groupsData = data.groups || [];
         setGroups(groupsData);
-        
+
         // Auto-select first group if available
         if (groupsData.length > 0) {
           setSelectedGroup(groupsData[0]);
           fetchMessages(groupsData[0].id);
         }
       } else {
-        console.error('Failed to fetch groups:', response.status);
+        console.error("Failed to fetch groups:", response.status);
         // Set empty groups array on error
         setGroups([]);
       }
     } catch (error) {
-      console.error('Failed to fetch groups:', error);
+      console.error("Failed to fetch groups:", error);
       // Set empty groups array on error
       setGroups([]);
       toast({
-        title: 'Connection Issue',
-        description: 'Could not load community groups. Please try again.',
-        variant: 'destructive',
+        title: "Connection Issue",
+        description: "Could not load community groups. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -229,7 +244,7 @@ const FarmerCommunity: React.FC = () => {
         setMessages(data.messages);
       }
     } catch (error) {
-      console.error('Failed to fetch messages:', error);
+      console.error("Failed to fetch messages:", error);
     }
   };
 
@@ -238,19 +253,19 @@ const FarmerCommunity: React.FC = () => {
     setMessages([]);
     setTypingUsers([]);
     fetchMessages(group.id);
-    
+
     // Check if current user is admin
     if (currentUserId && group.admins) {
       setIsGroupAdmin(group.admins.includes(currentUserId));
     }
-    
+
     // Join group via WebSocket
     if (currentUserId) {
       joinGroup(group.id, currentUserId);
     }
-    
+
     // Auto-join group if logged in
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       joinGroup(group.id, token);
     }
@@ -258,25 +273,25 @@ const FarmerCommunity: React.FC = () => {
 
   const joinGroup = async (groupId: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) return;
 
       await fetch(`${API_BASE}/community/groups/${groupId}/join`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      
+
       // Refresh groups to update member count
       fetchGroups();
     } catch (error) {
-      console.error('Failed to join group:', error);
+      console.error("Failed to join group:", error);
     }
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -300,79 +315,79 @@ const FarmerCommunity: React.FC = () => {
     if (!selectedGroup || !currentUserId) return;
 
     try {
-      let token = localStorage.getItem('token');
-      
+      let token = localStorage.getItem("token");
+
       if (!token) {
-        token = '1';
-        console.log('Using default test user token:', token);
+        token = "1";
+        console.log("Using default test user token:", token);
       }
-      
+
       // Emit via WebSocket for real-time delivery
       emitSendMessage(selectedGroup.id, currentUserId, messageText, currentUserName);
-      
+
       // Also send via REST API for persistence
       const messagePayload = {
         text: messageText,
         image: imagePreview,
-        avatar: '👤',
+        avatar: "👤",
       };
 
       const response = await fetch(`${API_BASE}/community/groups/${selectedGroup.id}/messages`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(messagePayload),
       });
 
       if (response.ok) {
-        setMessageText('');
+        setMessageText("");
         setSelectedImage(null);
         setImagePreview(null);
         setIsTyping(false);
-        
+
         // Emit stop typing
         emitStopTyping(selectedGroup.id, currentUserId);
-        
+
         toast({
-          title: 'Success',
-          description: 'Message sent successfully',
+          title: "Success",
+          description: "Message sent successfully",
         });
       } else {
         const errorData = await response.json();
         toast({
-          title: 'Error',
-          description: errorData.error || 'Failed to send message',
-          variant: 'destructive',
+          title: "Error",
+          description: errorData.error || "Failed to send message",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error("Failed to send message:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to send message',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
       });
     }
   };
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessageText(e.target.value);
-    
+
     if (!selectedGroup || !currentUserId) return;
-    
+
     // Emit typing indicator
     if (!isTyping) {
       setIsTyping(true);
       emitTyping(selectedGroup.id, currentUserId, currentUserName);
     }
-    
+
     // Clear previous timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     // Set new timeout to stop typing after 3 seconds of inactivity
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
@@ -388,108 +403,109 @@ const FarmerCommunity: React.FC = () => {
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) {
       toast({
-        title: 'Error',
-        description: 'Group name is required',
-        variant: 'destructive',
+        title: "Error",
+        description: "Group name is required",
+        variant: "destructive",
       });
       return;
     }
 
     try {
-      let token = localStorage.getItem('token');
-      
+      let token = localStorage.getItem("token");
+
       // If no token, use default test user token
       if (!token) {
-        token = '1'; // Default test user ID
-        console.log('Using default test user token for group creation:', token);
+        token = "1"; // Default test user ID
+        console.log("Using default test user token for group creation:", token);
       }
 
-      console.log('Creating group with:', { name: newGroupName, description: newGroupDesc });
+      console.log("Creating group with:", { name: newGroupName, description: newGroupDesc });
 
       const response = await fetch(`${API_BASE}/community/groups`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: newGroupName,
           description: newGroupDesc,
-          avatar: '🌾',
+          avatar: "🌾",
         }),
       });
 
-      console.log('Response status:', response.status);
+      console.log("Response status:", response.status);
       const data = await response.json();
-      console.log('Response data:', data);
+      console.log("Response data:", data);
 
       if (response.ok) {
         setGroups([...groups, data.group]);
         setShowCreateGroup(false);
-        setNewGroupName('');
-        setNewGroupDesc('');
+        setNewGroupName("");
+        setNewGroupDesc("");
         toast({
-          title: 'Success',
-          description: 'Group created successfully',
+          title: "Success",
+          description: "Group created successfully",
         });
         // Refresh groups
         fetchGroups();
       } else {
         toast({
-          title: 'Error',
-          description: data.error || 'Failed to create group',
-          variant: 'destructive',
+          title: "Error",
+          description: data.error || "Failed to create group",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Failed to create group:', error);
+      console.error("Failed to create group:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to create group: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        variant: 'destructive',
+        title: "Error",
+        description:
+          "Failed to create group: " + (error instanceof Error ? error.message : "Unknown error"),
+        variant: "destructive",
       });
     }
   };
 
   const handleDeleteMessage = async (messageId: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
-          title: 'Error',
-          description: 'Please login to delete messages',
-          variant: 'destructive',
+          title: "Error",
+          description: "Please login to delete messages",
+          variant: "destructive",
         });
         return;
       }
 
       const response = await fetch(`${API_BASE}/community/messages/${messageId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        setMessages(messages.filter(m => m.id !== messageId));
+        setMessages(messages.filter((m) => m.id !== messageId));
         toast({
-          title: 'Success',
-          description: 'Message deleted successfully',
+          title: "Success",
+          description: "Message deleted successfully",
         });
       } else {
         const data = await response.json();
         toast({
-          title: 'Error',
-          description: data.error || 'Failed to delete message',
-          variant: 'destructive',
+          title: "Error",
+          description: data.error || "Failed to delete message",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Failed to delete message:', error);
+      console.error("Failed to delete message:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete message',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete message",
+        variant: "destructive",
       });
     }
   };
@@ -498,21 +514,21 @@ const FarmerCommunity: React.FC = () => {
     if (!addMemberMobile.trim() || !selectedGroup) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
-          title: 'Error',
-          description: 'Please login to add members',
-          variant: 'destructive',
+          title: "Error",
+          description: "Please login to add members",
+          variant: "destructive",
         });
         return;
       }
 
       const response = await fetch(`${API_BASE}/community/groups/${selectedGroup.id}/add-member`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ mobile: addMemberMobile }),
       });
@@ -520,25 +536,25 @@ const FarmerCommunity: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         toast({
-          title: 'Success',
+          title: "Success",
           description: data.message,
         });
-        setAddMemberMobile('');
+        setAddMemberMobile("");
         fetchGroups();
       } else {
         const data = await response.json();
         toast({
-          title: 'Error',
-          description: data.error || 'Failed to add member',
-          variant: 'destructive',
+          title: "Error",
+          description: data.error || "Failed to add member",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Failed to add member:', error);
+      console.error("Failed to add member:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to add member',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to add member",
+        variant: "destructive",
       });
     }
   };
@@ -547,21 +563,21 @@ const FarmerCommunity: React.FC = () => {
     if (!selectedGroup) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
-          title: 'Error',
-          description: 'Please login',
-          variant: 'destructive',
+          title: "Error",
+          description: "Please login",
+          variant: "destructive",
         });
         return;
       }
 
       const response = await fetch(`${API_BASE}/community/groups/${selectedGroup.id}/make-admin`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ mobile }),
       });
@@ -569,24 +585,24 @@ const FarmerCommunity: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         toast({
-          title: 'Success',
+          title: "Success",
           description: data.message,
         });
         fetchGroups();
       } else {
         const data = await response.json();
         toast({
-          title: 'Error',
-          description: data.error || 'Failed to make admin',
-          variant: 'destructive',
+          title: "Error",
+          description: data.error || "Failed to make admin",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Failed to make admin:', error);
+      console.error("Failed to make admin:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to make admin',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to make admin",
+        variant: "destructive",
       });
     }
   };
@@ -595,46 +611,49 @@ const FarmerCommunity: React.FC = () => {
     if (!selectedGroup) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
-          title: 'Error',
-          description: 'Please login',
-          variant: 'destructive',
+          title: "Error",
+          description: "Please login",
+          variant: "destructive",
         });
         return;
       }
 
-      const response = await fetch(`${API_BASE}/community/groups/${selectedGroup.id}/remove-member`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ mobile }),
-      });
+      const response = await fetch(
+        `${API_BASE}/community/groups/${selectedGroup.id}/remove-member`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ mobile }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
         toast({
-          title: 'Success',
+          title: "Success",
           description: data.message,
         });
         fetchGroups();
       } else {
         const data = await response.json();
         toast({
-          title: 'Error',
-          description: data.error || 'Failed to remove member',
-          variant: 'destructive',
+          title: "Error",
+          description: data.error || "Failed to remove member",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Failed to remove member:', error);
+      console.error("Failed to remove member:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to remove member',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to remove member",
+        variant: "destructive",
       });
     }
   };
@@ -642,32 +661,34 @@ const FarmerCommunity: React.FC = () => {
   const handleDeleteGroup = async () => {
     if (!selectedGroup) return;
 
-    if (!window.confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
+    if (
+      !window.confirm("Are you sure you want to delete this group? This action cannot be undone.")
+    ) {
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
-          title: 'Error',
-          description: 'Please login',
-          variant: 'destructive',
+          title: "Error",
+          description: "Please login",
+          variant: "destructive",
         });
         return;
       }
 
       const response = await fetch(`${API_BASE}/community/groups/${selectedGroup.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         toast({
-          title: 'Success',
-          description: 'Group deleted successfully',
+          title: "Success",
+          description: "Group deleted successfully",
         });
         setShowAdminPanel(false);
         setSelectedGroup(null);
@@ -675,26 +696,26 @@ const FarmerCommunity: React.FC = () => {
       } else {
         const data = await response.json();
         toast({
-          title: 'Error',
-          description: data.error || 'Failed to delete group',
-          variant: 'destructive',
+          title: "Error",
+          description: data.error || "Failed to delete group",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Failed to delete group:', error);
+      console.error("Failed to delete group:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete group',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete group",
+        variant: "destructive",
       });
     }
   };
 
-  const filteredGroups = groups.filter(group =>
+  const filteredGroups = groups.filter((group) =>
     group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const emojis = ['😊', '😂', '❤️', '👍', '🙏', '😍', '🔥', '💯', '🌾', '🚜'];
+  const emojis = ["😊", "😂", "❤️", "👍", "🙏", "😍", "🔥", "💯", "🌾", "🚜"];
 
   if (loading) {
     return (
@@ -714,7 +735,7 @@ const FarmerCommunity: React.FC = () => {
         {/* Header */}
         <div className="p-4 border-b border-gray-200">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">👥 Farmer Community</h1>
-          
+
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -751,8 +772,8 @@ const FarmerCommunity: React.FC = () => {
                 onClick={() => handleSelectGroup(group)}
                 className={`p-4 border-b border-gray-100 cursor-pointer transition ${
                   selectedGroup?.id === group.id
-                    ? 'bg-green-50 border-l-4 border-l-green-600'
-                    : 'hover:bg-gray-50'
+                    ? "bg-green-50 border-l-4 border-l-green-600"
+                    : "hover:bg-gray-50"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -796,7 +817,7 @@ const FarmerCommunity: React.FC = () => {
                 <Video className="w-5 h-5" />
               </button>
               {isGroupAdmin && (
-                <button 
+                <button
                   onClick={() => setShowAdminPanel(true)}
                   className="p-2 hover:bg-green-500 rounded-lg transition"
                   title="Group Settings"
@@ -834,7 +855,7 @@ const FarmerCommunity: React.FC = () => {
                         Delete
                       </button>
                     </div>
-                    
+
                     {/* Message Bubble */}
                     <div className="bg-white rounded-lg p-3 shadow-sm max-w-md">
                       {message.image && (
@@ -844,9 +865,7 @@ const FarmerCommunity: React.FC = () => {
                           className="rounded-lg mb-2 max-w-full h-auto"
                         />
                       )}
-                      {message.text && (
-                        <p className="text-gray-800">{message.text}</p>
-                      )}
+                      {message.text && <p className="text-gray-800">{message.text}</p>}
                     </div>
 
                     {/* Reactions */}
@@ -873,12 +892,19 @@ const FarmerCommunity: React.FC = () => {
                 <div className="text-2xl">⌨️</div>
                 <div className="flex-1">
                   <div className="text-sm text-gray-600">
-                    {typingUsers.map(u => u.user_name).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                    {typingUsers.map((u) => u.user_name).join(", ")}{" "}
+                    {typingUsers.length === 1 ? "is" : "are"} typing...
                   </div>
                   <div className="flex gap-1 mt-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -891,11 +917,7 @@ const FarmerCommunity: React.FC = () => {
           {imagePreview && (
             <div className="px-6 py-3 bg-gray-100 border-t border-gray-200">
               <div className="relative inline-block">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="h-24 rounded-lg"
-                />
+                <img src={imagePreview} alt="Preview" className="h-24 rounded-lg" />
                 <button
                   onClick={() => {
                     setImagePreview(null);
@@ -951,7 +973,7 @@ const FarmerCommunity: React.FC = () => {
                 type="text"
                 value={messageText}
                 onChange={handleMessageChange}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Type a message..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               />
@@ -974,7 +996,7 @@ const FarmerCommunity: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Create New Group</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Group Name</label>
@@ -1002,8 +1024,8 @@ const FarmerCommunity: React.FC = () => {
                 <button
                   onClick={() => {
                     setShowCreateGroup(false);
-                    setNewGroupName('');
-                    setNewGroupDesc('');
+                    setNewGroupName("");
+                    setNewGroupDesc("");
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
                 >

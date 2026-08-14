@@ -1,4 +1,4 @@
-import DiseaseDetection from '@/components/DiseaseDetection';
+import DiseaseDetection from "@/components/DiseaseDetection";
 
 export default function DiseasePage() {
   return <DiseaseDetection />;

@@ -1,5 +1,5 @@
-import React from 'react';
-import AboutPage from './AboutPage';
+import React from "react";
+import AboutPage from "./AboutPage";
 
 const ChatbotPage: React.FC = () => {
   return <AboutPage />;

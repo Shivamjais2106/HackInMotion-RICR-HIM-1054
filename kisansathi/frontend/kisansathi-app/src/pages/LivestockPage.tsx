@@ -1,7 +1,7 @@
-import React from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import LivestockDiseaseMain from '../components/LivestockDiseaseMain';
+import React from "react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import LivestockDiseaseMain from "../components/LivestockDiseaseMain";
 
 const LivestockPage: React.FC = () => {
   return (

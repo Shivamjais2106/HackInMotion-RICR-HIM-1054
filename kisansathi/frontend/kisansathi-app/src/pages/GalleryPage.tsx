@@ -40,8 +40,12 @@ const GalleryPage = () => {
           <div className="absolute inset-0 bg-eco-green-dark/50" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-16 w-full">
-          <h1 className="font-heading text-5xl md:text-7xl font-bold text-primary-foreground">Our Gallery</h1>
-          <p className="text-primary-foreground/80 text-lg mt-4">A Visual Journey of Freshness, Sustainability, and Growth</p>
+          <h1 className="font-heading text-5xl md:text-7xl font-bold text-primary-foreground">
+            Our Gallery
+          </h1>
+          <p className="text-primary-foreground/80 text-lg mt-4">
+            A Visual Journey of Freshness, Sustainability, and Growth
+          </p>
         </div>
       </section>
 

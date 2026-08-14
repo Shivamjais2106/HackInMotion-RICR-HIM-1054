@@ -1,4 +1,4 @@
-import CropRecommendationMonth from '@/components/CropRecommendationMonth';
+import CropRecommendationMonth from "@/components/CropRecommendationMonth";
 
 export default function CropMonthPage() {
   return <CropRecommendationMonth />;

@@ -3,9 +3,7 @@
  * Handles all API calls with JWT authentication
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : "/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
 
 /**
  * Get JWT token from localStorage
@@ -28,12 +26,9 @@ export const getAuthHeaders = (): HeadersInit => {
 /**
  * Generic API call function
  */
-export const apiCall = async (
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<any> => {
+export const apiCall = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const config: RequestInit = {
     ...options,
     headers: {
@@ -55,7 +50,7 @@ export const apiCall = async (
         window.location.href = "/auth";
         throw new Error("Session expired. Please login again.");
       }
-      
+
       if (response.status === 429) {
         throw new Error("Too many requests. Please try again later.");
       }

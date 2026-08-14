@@ -62,15 +62,17 @@ const Services = () => {
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const amount = 380;
-      scrollRef.current.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -amount : amount,
+        behavior: "smooth",
+      });
       setTimeout(updateScrollButtons, 400);
     }
   };
 
   return (
     <section id="services" className="py-20 bg-eco-cream">
-      <div className="max-w-7xl mx-auto px-6 lg:px-16">
-      </div>
+      <div className="max-w-7xl mx-auto px-6 lg:px-16"></div>
 
       {/* Horizontal scroll carousel */}
       <div className="relative">
@@ -96,7 +98,9 @@ const Services = () => {
                 </span>
               </div>
               <div className="p-6">
-                <h4 className="font-heading text-xl font-bold text-foreground mb-2">{service.title}</h4>
+                <h4 className="font-heading text-xl font-bold text-foreground mb-2">
+                  {service.title}
+                </h4>
                 <p className="text-muted-foreground text-sm leading-relaxed">{service.desc}</p>
               </div>
             </div>

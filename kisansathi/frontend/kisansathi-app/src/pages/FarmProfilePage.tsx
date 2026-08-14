@@ -1,21 +1,49 @@
-import { useState, useEffect } from 'react';
-import { getAPIBaseURL, getAuthHeaders } from '@/utils/api';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { useState, useEffect } from "react";
+import { getAPIBaseURL, getAuthHeaders } from "@/utils/api";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-const SOIL_TYPES = ['Sandy', 'Loamy', 'Clay', 'Clayey', 'Black', 'Red'];
-const WATER_SOURCES = ['Canal', 'Borewell', 'River', 'Rainwater', 'Pond', 'Other'];
-const IRRIGATION_TYPES = ['Drip', 'Sprinkler', 'Flood', 'Furrow', 'Manual'];
+const SOIL_TYPES = ["Sandy", "Loamy", "Clay", "Clayey", "Black", "Red"];
+const WATER_SOURCES = ["Canal", "Borewell", "River", "Rainwater", "Pond", "Other"];
+const IRRIGATION_TYPES = ["Drip", "Sprinkler", "Flood", "Furrow", "Manual"];
 const STATES = [
-  'Andhra Pradesh', 'Bihar', 'Gujarat', 'Haryana', 'Himachal Pradesh',
-  'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Odisha',
-  'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh',
-  'Uttarakhand', 'West Bengal', 'Other'
+  "Andhra Pradesh",
+  "Bihar",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Tamil Nadu",
+  "Telangana",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Other",
 ];
 const COMMON_CROPS = [
-  'Wheat', 'Rice', 'Maize', 'Cotton', 'Sugarcane', 'Soybean',
-  'Chickpea', 'Mustard', 'Onion', 'Potato', 'Tomato', 'Groundnut',
-  'Barley', 'Lentil', 'Turmeric', 'Chilli', 'Other'
+  "Wheat",
+  "Rice",
+  "Maize",
+  "Cotton",
+  "Sugarcane",
+  "Soybean",
+  "Chickpea",
+  "Mustard",
+  "Onion",
+  "Potato",
+  "Tomato",
+  "Groundnut",
+  "Barley",
+  "Lentil",
+  "Turmeric",
+  "Chilli",
+  "Other",
 ];
 
 interface FarmProfile {
@@ -32,9 +60,16 @@ interface FarmProfile {
 }
 
 const defaultProfile: FarmProfile = {
-  farm_name: '', location: '', state: '', district: '',
-  land_size_acres: '', soil_type: '', water_source: '',
-  irrigation_type: '', active_crops: [], past_crops: []
+  farm_name: "",
+  location: "",
+  state: "",
+  district: "",
+  land_size_acres: "",
+  soil_type: "",
+  water_source: "",
+  irrigation_type: "",
+  active_crops: [],
+  past_crops: [],
 };
 
 export default function FarmProfilePage() {
@@ -42,14 +77,14 @@ export default function FarmProfilePage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [saveError, setSaveError] = useState('');
-  const [loadError, setLoadError] = useState('');
+  const [saveError, setSaveError] = useState("");
+  const [loadError, setLoadError] = useState("");
   const [irrigationAdvice, setIrrigationAdvice] = useState<any>(null);
-  const [irrigationError, setIrrigationError] = useState('');
+  const [irrigationError, setIrrigationError] = useState("");
   const [loadingAdvice, setLoadingAdvice] = useState(false);
-  const [language, setLanguage] = useState<'en' | 'hi'>('en');
+  const [language, setLanguage] = useState<"en" | "hi">("en");
 
-  const t = (en: string, hi: string) => language === 'en' ? en : hi;
+  const t = (en: string, hi: string) => (language === "en" ? en : hi);
 
   useEffect(() => {
     fetchProfile();
@@ -57,19 +92,36 @@ export default function FarmProfilePage() {
 
   const fetchProfile = async () => {
     setLoading(true);
-    setLoadError('');
+    setLoadError("");
     try {
       const res = await fetch(`${getAPIBaseURL()}/farm-profile`, { headers: getAuthHeaders() });
       if (!res.ok) {
-        if (res.status === 401) { setLoadError(t('Session expired. Please log in again.', 'सत्र समाप्त हो गया। कृपया फिर से लॉगिन करें।')); return; }
+        if (res.status === 401) {
+          setLoadError(
+            t(
+              "Session expired. Please log in again.",
+              "सत्र समाप्त हो गया। कृपया फिर से लॉगिन करें।"
+            )
+          );
+          return;
+        }
         throw new Error(`Server error ${res.status}`);
       }
       const data = await res.json();
       if (data.profile) {
-        setProfile({ ...defaultProfile, ...data.profile, land_size_acres: String(data.profile.land_size_acres || '') });
+        setProfile({
+          ...defaultProfile,
+          ...data.profile,
+          land_size_acres: String(data.profile.land_size_acres || ""),
+        });
       }
     } catch (e) {
-      setLoadError(t('Could not load farm profile. Check your connection and try again.', 'खेत प्रोफाइल लोड नहीं हो सकी। अपना कनेक्शन जांचें और पुनः प्रयास करें।'));
+      setLoadError(
+        t(
+          "Could not load farm profile. Check your connection and try again.",
+          "खेत प्रोफाइल लोड नहीं हो सकी। अपना कनेक्शन जांचें और पुनः प्रयास करें।"
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -78,16 +130,22 @@ export default function FarmProfilePage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    setSaveError('');
+    setSaveError("");
     try {
       const res = await fetch(`${getAPIBaseURL()}/farm-profile`, {
-        method: 'POST',
+        method: "POST",
         headers: getAuthHeaders(),
-        body: JSON.stringify({ ...profile, land_size_acres: parseFloat(profile.land_size_acres) || 0 })
+        body: JSON.stringify({
+          ...profile,
+          land_size_acres: parseFloat(profile.land_size_acres) || 0,
+        }),
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        setSaveError(errData.error || t('Failed to save. Please try again.', 'सहेजने में विफल। कृपया पुनः प्रयास करें।'));
+        setSaveError(
+          errData.error ||
+            t("Failed to save. Please try again.", "सहेजने में विफल। कृपया पुनः प्रयास करें।")
+        );
         return;
       }
       const data = await res.json();
@@ -95,10 +153,12 @@ export default function FarmProfilePage() {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
       } else {
-        setSaveError(data.error || t('Save failed. Please try again.', 'सहेजना विफल हुआ।'));
+        setSaveError(data.error || t("Save failed. Please try again.", "सहेजना विफल हुआ।"));
       }
     } catch (e) {
-      setSaveError(t('Network error. Could not save profile.', 'नेटवर्क त्रुटि। प्रोफाइल सहेजी नहीं जा सकी।'));
+      setSaveError(
+        t("Network error. Could not save profile.", "नेटवर्क त्रुटि। प्रोफाइल सहेजी नहीं जा सकी।")
+      );
     } finally {
       setSaving(false);
     }
@@ -106,73 +166,85 @@ export default function FarmProfilePage() {
 
   const fetchIrrigationAdvice = async () => {
     setLoadingAdvice(true);
-    setIrrigationError('');
+    setIrrigationError("");
     try {
-      const res = await fetch(`${getAPIBaseURL()}/farm-profile/irrigation-advice`, { headers: getAuthHeaders() });
+      const res = await fetch(`${getAPIBaseURL()}/farm-profile/irrigation-advice`, {
+        headers: getAuthHeaders(),
+      });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        setIrrigationError(errData.error || t('Could not fetch irrigation advice.', 'सिंचाई सलाह नहीं मिल सकी।'));
+        setIrrigationError(
+          errData.error || t("Could not fetch irrigation advice.", "सिंचाई सलाह नहीं मिल सकी।")
+        );
         return;
       }
       const data = await res.json();
       if (data.success) {
         setIrrigationAdvice(data);
       } else {
-        setIrrigationError(data.error || t('Save your farm profile first.', 'पहले खेत प्रोफाइल सहेजें।'));
+        setIrrigationError(
+          data.error || t("Save your farm profile first.", "पहले खेत प्रोफाइल सहेजें।")
+        );
       }
     } catch (e) {
-      setIrrigationError(t('Network error. Could not get irrigation advice.', 'नेटवर्क त्रुटि।'));
+      setIrrigationError(t("Network error. Could not get irrigation advice.", "नेटवर्क त्रुटि।"));
     } finally {
       setLoadingAdvice(false);
     }
   };
 
-  const toggleCrop = (crop: string, field: 'active_crops' | 'past_crops') => {
-    setProfile(prev => ({
+  const toggleCrop = (crop: string, field: "active_crops" | "past_crops") => {
+    setProfile((prev) => ({
       ...prev,
       [field]: prev[field].includes(crop)
-        ? prev[field].filter(c => c !== crop)
-        : [...prev[field], crop]
+        ? prev[field].filter((c) => c !== crop)
+        : [...prev[field], crop],
     }));
   };
 
-  if (loading) return (
-    <div className="min-h-screen bg-eco-cream flex items-center justify-center">
-      <div className="text-eco-green-dark text-xl">⏳ {language === 'en' ? 'Loading profile...' : 'प्रोफाइल लोड हो रही है...'}</div>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="min-h-screen bg-eco-cream flex items-center justify-center">
+        <div className="text-eco-green-dark text-xl">
+          ⏳ {language === "en" ? "Loading profile..." : "प्रोफाइल लोड हो रही है..."}
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-eco-cream">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-20">
-
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-eco-green-dark mb-2">
-            🌾 {language === 'en' ? 'Farm Profile' : 'खेत की प्रोफाइल'}
+            🌾 {language === "en" ? "Farm Profile" : "खेत की प्रोफाइल"}
           </h1>
           <p className="text-gray-600">
-            {language === 'en'
-              ? 'Set up your farm details to get personalized crop, irrigation, and market recommendations'
-              : 'व्यक्तिगत फसल, सिंचाई और बाजार सिफारिशें पाने के लिए अपने खेत का विवरण भरें'}
+            {language === "en"
+              ? "Set up your farm details to get personalized crop, irrigation, and market recommendations"
+              : "व्यक्तिगत फसल, सिंचाई और बाजार सिफारिशें पाने के लिए अपने खेत का विवरण भरें"}
           </p>
-          <button onClick={() => setLanguage(l => l === 'en' ? 'hi' : 'en')}
-            className="mt-2 text-sm text-eco-green border border-eco-green rounded px-3 py-1">
-            {language === 'en' ? 'हिंदी' : 'English'}
+          <button
+            onClick={() => setLanguage((l) => (l === "en" ? "hi" : "en"))}
+            className="mt-2 text-sm text-eco-green border border-eco-green rounded px-3 py-1"
+          >
+            {language === "en" ? "हिंदी" : "English"}
           </button>
         </div>
 
         {loadError && (
           <div className="bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 mb-6 flex items-center gap-2">
             <span>❌</span> {loadError}
-            <button onClick={fetchProfile} className="ml-auto text-sm underline">{t('Retry', 'पुनः प्रयास')}</button>
+            <button onClick={fetchProfile} className="ml-auto text-sm underline">
+              {t("Retry", "पुनः प्रयास")}
+            </button>
           </div>
         )}
 
         {saved && (
           <div className="bg-green-100 border border-green-400 text-green-800 rounded-lg p-3 mb-6 text-center font-medium">
-            ✅ {t('Farm profile saved successfully!', 'खेत की प्रोफाइल सफलतापूर्वक सहेजी गई!')}
+            ✅ {t("Farm profile saved successfully!", "खेत की प्रोफाइल सफलतापूर्वक सहेजी गई!")}
           </div>
         )}
 
@@ -183,50 +255,74 @@ export default function FarmProfilePage() {
         )}
 
         <form onSubmit={handleSave} className="space-y-6">
-
           {/* Basic Info */}
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-lg font-bold text-eco-green-dark mb-4">
-              📋 {language === 'en' ? 'Basic Information' : 'मूल जानकारी'}
+              📋 {language === "en" ? "Basic Information" : "मूल जानकारी"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'en' ? 'Farm Name' : 'खेत का नाम'}
+                  {language === "en" ? "Farm Name" : "खेत का नाम"}
                 </label>
-                <input type="text" value={profile.farm_name}
-                  onChange={e => setProfile(p => ({ ...p, farm_name: e.target.value }))}
-                  placeholder={language === 'en' ? 'e.g. Green Valley Farm' : 'जैसे: हरी घाटी खेत'}
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none" />
+                <input
+                  type="text"
+                  value={profile.farm_name}
+                  onChange={(e) => setProfile((p) => ({ ...p, farm_name: e.target.value }))}
+                  placeholder={language === "en" ? "e.g. Green Valley Farm" : "जैसे: हरी घाटी खेत"}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'en' ? 'Land Size (Acres)' : 'भूमि का क्षेत्र (एकड़)'}
+                  {language === "en" ? "Land Size (Acres)" : "भूमि का क्षेत्र (एकड़)"}
                 </label>
-                <input type="number" min="0" step="0.1" value={profile.land_size_acres}
-                  onChange={e => setProfile(p => ({ ...p, land_size_acres: e.target.value }))}
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={profile.land_size_acres}
+                  onChange={(e) => setProfile((p) => ({ ...p, land_size_acres: e.target.value }))}
                   placeholder="e.g. 5.5"
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none" />
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'en' ? 'State' : 'राज्य'}
+                  {language === "en" ? "State" : "राज्य"}
                 </label>
-                <select value={profile.state}
-                  onChange={e => setProfile(p => ({ ...p, state: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none">
-                  <option value="">{language === 'en' ? 'Select state...' : 'राज्य चुनें...'}</option>
-                  {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                <select
+                  value={profile.state}
+                  onChange={(e) => setProfile((p) => ({ ...p, state: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none"
+                >
+                  <option value="">
+                    {language === "en" ? "Select state..." : "राज्य चुनें..."}
+                  </option>
+                  {STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'en' ? 'District / Location' : 'जिला / स्थान'}
+                  {language === "en" ? "District / Location" : "जिला / स्थान"}
                 </label>
-                <input type="text" value={profile.location}
-                  onChange={e => setProfile(p => ({ ...p, location: e.target.value, district: e.target.value }))}
-                  placeholder={language === 'en' ? 'e.g. Jaipur' : 'जैसे: जयपुर'}
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none" />
+                <input
+                  type="text"
+                  value={profile.location}
+                  onChange={(e) =>
+                    setProfile((p) => ({
+                      ...p,
+                      location: e.target.value,
+                      district: e.target.value,
+                    }))
+                  }
+                  placeholder={language === "en" ? "e.g. Jaipur" : "जैसे: जयपुर"}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none"
+                />
               </div>
             </div>
           </div>
@@ -234,40 +330,58 @@ export default function FarmProfilePage() {
           {/* Soil & Water */}
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-lg font-bold text-eco-green-dark mb-4">
-              🌱 {language === 'en' ? 'Soil & Water Details' : 'मिट्टी और पानी की जानकारी'}
+              🌱 {language === "en" ? "Soil & Water Details" : "मिट्टी और पानी की जानकारी"}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'en' ? 'Soil Type' : 'मिट्टी का प्रकार'}
+                  {language === "en" ? "Soil Type" : "मिट्टी का प्रकार"}
                 </label>
-                <select value={profile.soil_type}
-                  onChange={e => setProfile(p => ({ ...p, soil_type: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none">
-                  <option value="">{language === 'en' ? 'Select...' : 'चुनें...'}</option>
-                  {SOIL_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                <select
+                  value={profile.soil_type}
+                  onChange={(e) => setProfile((p) => ({ ...p, soil_type: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none"
+                >
+                  <option value="">{language === "en" ? "Select..." : "चुनें..."}</option>
+                  {SOIL_TYPES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'en' ? 'Water Source' : 'पानी का स्रोत'}
+                  {language === "en" ? "Water Source" : "पानी का स्रोत"}
                 </label>
-                <select value={profile.water_source}
-                  onChange={e => setProfile(p => ({ ...p, water_source: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none">
-                  <option value="">{language === 'en' ? 'Select...' : 'चुनें...'}</option>
-                  {WATER_SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+                <select
+                  value={profile.water_source}
+                  onChange={(e) => setProfile((p) => ({ ...p, water_source: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none"
+                >
+                  <option value="">{language === "en" ? "Select..." : "चुनें..."}</option>
+                  {WATER_SOURCES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === 'en' ? 'Irrigation Type' : 'सिंचाई का प्रकार'}
+                  {language === "en" ? "Irrigation Type" : "सिंचाई का प्रकार"}
                 </label>
-                <select value={profile.irrigation_type}
-                  onChange={e => setProfile(p => ({ ...p, irrigation_type: e.target.value }))}
-                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none">
-                  <option value="">{language === 'en' ? 'Select...' : 'चुनें...'}</option>
-                  {IRRIGATION_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                <select
+                  value={profile.irrigation_type}
+                  onChange={(e) => setProfile((p) => ({ ...p, irrigation_type: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-eco-green focus:outline-none"
+                >
+                  <option value="">{language === "en" ? "Select..." : "चुनें..."}</option>
+                  {IRRIGATION_TYPES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -276,24 +390,30 @@ export default function FarmProfilePage() {
           {/* Active Crops */}
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-lg font-bold text-eco-green-dark mb-4">
-              🌾 {language === 'en' ? 'Active Crops (Currently Growing)' : 'सक्रिय फसलें (अभी उगा रहे हैं)'}
+              🌾{" "}
+              {language === "en"
+                ? "Active Crops (Currently Growing)"
+                : "सक्रिय फसलें (अभी उगा रहे हैं)"}
             </h2>
             <div className="flex flex-wrap gap-2">
-              {COMMON_CROPS.map(crop => (
-                <button key={crop} type="button"
-                  onClick={() => toggleCrop(crop, 'active_crops')}
+              {COMMON_CROPS.map((crop) => (
+                <button
+                  key={crop}
+                  type="button"
+                  onClick={() => toggleCrop(crop, "active_crops")}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
                     profile.active_crops.includes(crop)
-                      ? 'bg-eco-green text-white border-eco-green'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-eco-green'
-                  }`}>
+                      ? "bg-eco-green text-white border-eco-green"
+                      : "bg-white text-gray-600 border-gray-300 hover:border-eco-green"
+                  }`}
+                >
                   {crop}
                 </button>
               ))}
             </div>
             {profile.active_crops.length > 0 && (
               <p className="mt-2 text-sm text-eco-green">
-                ✅ {language === 'en' ? 'Selected:' : 'चुनी हुई:'} {profile.active_crops.join(', ')}
+                ✅ {language === "en" ? "Selected:" : "चुनी हुई:"} {profile.active_crops.join(", ")}
               </p>
             )}
           </div>
@@ -301,17 +421,21 @@ export default function FarmProfilePage() {
           {/* Past Crops */}
           <div className="bg-white rounded-xl shadow p-6">
             <h2 className="text-lg font-bold text-eco-green-dark mb-4">
-              📅 {language === 'en' ? 'Past Crops (Previous Season)' : 'पिछली फसलें (पिछले मौसम में)'}
+              📅{" "}
+              {language === "en" ? "Past Crops (Previous Season)" : "पिछली फसलें (पिछले मौसम में)"}
             </h2>
             <div className="flex flex-wrap gap-2">
-              {COMMON_CROPS.map(crop => (
-                <button key={crop} type="button"
-                  onClick={() => toggleCrop(crop, 'past_crops')}
+              {COMMON_CROPS.map((crop) => (
+                <button
+                  key={crop}
+                  type="button"
+                  onClick={() => toggleCrop(crop, "past_crops")}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
                     profile.past_crops.includes(crop)
-                      ? 'bg-blue-500 text-white border-blue-500'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
-                  }`}>
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white text-gray-600 border-gray-300 hover:border-blue-400"
+                  }`}
+                >
                   {crop}
                 </button>
               ))}
@@ -319,9 +443,14 @@ export default function FarmProfilePage() {
           </div>
 
           {/* Save Button */}
-          <button type="submit" disabled={saving}
-            className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-bold py-3 rounded-xl text-lg transition-colors disabled:opacity-60">
-            {saving ? '⏳ Saving...' : `💾 ${language === 'en' ? 'Save Farm Profile' : 'खेत प्रोफाइल सहेजें'}`}
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full bg-eco-green hover:bg-eco-green-dark text-white font-bold py-3 rounded-xl text-lg transition-colors disabled:opacity-60"
+          >
+            {saving
+              ? "⏳ Saving..."
+              : `💾 ${language === "en" ? "Save Farm Profile" : "खेत प्रोफाइल सहेजें"}`}
           </button>
         </form>
 
@@ -329,11 +458,14 @@ export default function FarmProfilePage() {
         <div className="mt-8 bg-white rounded-xl shadow p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-eco-green-dark">
-              💧 {language === 'en' ? 'Farm-Specific Irrigation Advice' : 'खेत-विशिष्ट सिंचाई सलाह'}
+              💧 {language === "en" ? "Farm-Specific Irrigation Advice" : "खेत-विशिष्ट सिंचाई सलाह"}
             </h2>
-            <button onClick={fetchIrrigationAdvice} disabled={loadingAdvice}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-60">
-              {loadingAdvice ? '⏳...' : `🔄 ${language === 'en' ? 'Get Advice' : 'सलाह पाएं'}`}
+            <button
+              onClick={fetchIrrigationAdvice}
+              disabled={loadingAdvice}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-60"
+            >
+              {loadingAdvice ? "⏳..." : `🔄 ${language === "en" ? "Get Advice" : "सलाह पाएं"}`}
             </button>
           </div>
 
@@ -345,7 +477,9 @@ export default function FarmProfilePage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="bg-blue-50 rounded-lg p-3 text-center">
                   <p className="text-xs text-gray-500">Temperature</p>
-                  <p className="font-bold text-blue-700">{irrigationAdvice.weather?.temperature}°C</p>
+                  <p className="font-bold text-blue-700">
+                    {irrigationAdvice.weather?.temperature}°C
+                  </p>
                 </div>
                 <div className="bg-green-50 rounded-lg p-3 text-center">
                   <p className="text-xs text-gray-500">Humidity</p>
@@ -353,7 +487,9 @@ export default function FarmProfilePage() {
                 </div>
                 <div className="bg-purple-50 rounded-lg p-3 text-center">
                   <p className="text-xs text-gray-500">Irrigation Need</p>
-                  <p className="font-bold text-purple-700">{irrigationAdvice.irrigation_need_mm_per_day} mm/day</p>
+                  <p className="font-bold text-purple-700">
+                    {irrigationAdvice.irrigation_need_mm_per_day} mm/day
+                  </p>
                 </div>
                 <div className="bg-yellow-50 rounded-lg p-3 text-center">
                   <p className="text-xs text-gray-500">Soil Type</p>
@@ -364,17 +500,25 @@ export default function FarmProfilePage() {
                 <p className="font-medium text-green-800 mb-2">📋 Recommendations:</p>
                 <ul className="space-y-1">
                   {irrigationAdvice.schedule?.map((s: string, i: number) => (
-                    <li key={i} className="text-sm text-green-700">• {s}</li>
+                    <li key={i} className="text-sm text-green-700">
+                      • {s}
+                    </li>
                   ))}
                 </ul>
               </div>
             </div>
           )}
           {irrigationAdvice && !irrigationAdvice.success && (
-            <p className="text-orange-600 text-sm">⚠️ {irrigationAdvice.error || t('Save your farm profile first to get irrigation advice.', 'पहले खेत प्रोफाइल सहेजें।')}</p>
+            <p className="text-orange-600 text-sm">
+              ⚠️{" "}
+              {irrigationAdvice.error ||
+                t(
+                  "Save your farm profile first to get irrigation advice.",
+                  "पहले खेत प्रोफाइल सहेजें।"
+                )}
+            </p>
           )}
         </div>
-
       </div>
       <Footer />
     </div>

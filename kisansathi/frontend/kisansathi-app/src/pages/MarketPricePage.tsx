@@ -35,7 +35,10 @@ export default function MarketPricePage() {
   useEffect(() => {
     const ctrl = new AbortController();
     fetch(`${getAPIBaseURL()}/market/prices`, { signal: ctrl.signal })
-      .then((r) => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
+      .then((r) => {
+        if (!r.ok) throw new Error(`${r.status}`);
+        return r.json();
+      })
       .then((d) => {
         if (d.success) {
           setPrices(d.prices);
@@ -43,7 +46,9 @@ export default function MarketPricePage() {
           setLastUpdated(new Date(d.timestamp).toLocaleString("en-IN"));
         } else setError("Could not load prices.");
       })
-      .catch((e) => { if (e.name !== "AbortError") setError("Network error."); })
+      .catch((e) => {
+        if (e.name !== "AbortError") setError("Network error.");
+      })
       .finally(() => setLoading(false));
     return () => ctrl.abort();
   }, []);
@@ -54,9 +59,12 @@ export default function MarketPricePage() {
   }, [search, prices]);
 
   const advice = (p: Price) => {
-    if (p.msp && p.modal_price < p.msp) return { text: "Below MSP", cls: "bg-red-100 text-red-700" };
-    if (p.modal_price >= p.max_price * 0.9) return { text: "Sell Now ✅", cls: "bg-green-100 text-green-700" };
-    if (p.modal_price >= p.max_price * 0.75) return { text: "Good Price", cls: "bg-blue-100 text-blue-700" };
+    if (p.msp && p.modal_price < p.msp)
+      return { text: "Below MSP", cls: "bg-red-100 text-red-700" };
+    if (p.modal_price >= p.max_price * 0.9)
+      return { text: "Sell Now ✅", cls: "bg-green-100 text-green-700" };
+    if (p.modal_price >= p.max_price * 0.75)
+      return { text: "Good Price", cls: "bg-blue-100 text-blue-700" };
     return { text: "Hold 🕐", cls: "bg-yellow-100 text-yellow-700" };
   };
 
@@ -64,7 +72,6 @@ export default function MarketPricePage() {
     <div className="min-h-screen bg-eco-cream">
       <Navbar />
       <div className="max-w-5xl mx-auto px-4 py-20">
-
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-eco-green-dark mb-2">
             📊 Live Mandi Market Prices
@@ -72,9 +79,7 @@ export default function MarketPricePage() {
           <p className="text-gray-600">
             Real-time commodity prices from AGMARKNET (data.gov.in) · MSP Reference: GoI 2025-26
           </p>
-          {lastUpdated && (
-            <p className="text-xs text-gray-400 mt-1">Last updated: {lastUpdated}</p>
-          )}
+          {lastUpdated && <p className="text-xs text-gray-400 mt-1">Last updated: {lastUpdated}</p>}
         </div>
 
         {/* Search */}
@@ -120,15 +125,29 @@ export default function MarketPricePage() {
                   return (
                     <tr key={p.commodity_key} className="hover:bg-gray-50">
                       <td className="py-3 px-4 font-semibold text-gray-800">{p.commodity}</td>
-                      <td className="py-3 px-4 text-right text-gray-500">{p.min_price.toLocaleString("en-IN")}</td>
-                      <td className="py-3 px-4 text-right font-bold text-gray-900">{p.modal_price.toLocaleString("en-IN")}</td>
-                      <td className="py-3 px-4 text-right text-gray-500">{p.max_price.toLocaleString("en-IN")}</td>
-                      <td className="py-3 px-4 text-right text-gray-400 text-xs">{p.msp ? p.msp.toLocaleString("en-IN") : "—"}</td>
+                      <td className="py-3 px-4 text-right text-gray-500">
+                        {p.min_price.toLocaleString("en-IN")}
+                      </td>
+                      <td className="py-3 px-4 text-right font-bold text-gray-900">
+                        {p.modal_price.toLocaleString("en-IN")}
+                      </td>
+                      <td className="py-3 px-4 text-right text-gray-500">
+                        {p.max_price.toLocaleString("en-IN")}
+                      </td>
+                      <td className="py-3 px-4 text-right text-gray-400 text-xs">
+                        {p.msp ? p.msp.toLocaleString("en-IN") : "—"}
+                      </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${adv.cls}`}>{adv.text}</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${adv.cls}`}>
+                          {adv.text}
+                        </span>
                       </td>
                       <td className="py-3 px-4 text-center text-xs">
-                        {p.live ? <span className="text-green-600 font-medium">🟢 Live</span> : <span className="text-yellow-600">🟡 MSP</span>}
+                        {p.live ? (
+                          <span className="text-green-600 font-medium">🟢 Live</span>
+                        ) : (
+                          <span className="text-yellow-600">🟡 MSP</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -143,8 +162,12 @@ export default function MarketPricePage() {
 
         <div className="mt-6 bg-blue-50 rounded-xl p-4 text-sm text-blue-700">
           <strong>Data Sources:</strong> Live prices from{" "}
-          <a href="https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
-            target="_blank" rel="noopener noreferrer" className="underline">
+          <a
+            href="https://data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
             AGMARKNET (data.gov.in)
           </a>{" "}
           · MSP reference from Government of India Kharif/Rabi 2025-26 notification.

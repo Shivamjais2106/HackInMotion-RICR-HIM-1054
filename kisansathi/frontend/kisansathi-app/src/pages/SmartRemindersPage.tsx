@@ -1,5 +1,5 @@
-import React from 'react';
-import SmartReminders from '../components/SmartReminders';
+import React from "react";
+import SmartReminders from "../components/SmartReminders";
 
 const SmartRemindersPage: React.FC = () => {
   return (

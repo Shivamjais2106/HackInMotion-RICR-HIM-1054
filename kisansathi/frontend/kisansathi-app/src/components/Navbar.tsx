@@ -51,10 +51,10 @@ const Navbar = () => {
   };
 
   const essentialPages = [
-    { label: t('nav.gallery'), href: "/gallery", protected: false },
-    { label: t('nav.schemes'), href: "/schemes", protected: false },
-    { label: t('nav.faq'), href: "/faq", protected: false },
-    { label: t('nav.resources'), href: "/resources", protected: false },
+    { label: t("nav.gallery"), href: "/gallery", protected: false },
+    { label: t("nav.schemes"), href: "/schemes", protected: false },
+    { label: t("nav.faq"), href: "/faq", protected: false },
+    { label: t("nav.resources"), href: "/resources", protected: false },
     { label: "👥 Community", href: "/community", protected: true },
     { label: "🏥 Livestock Disease", href: "/livestock", protected: true },
     { label: "🌾 Farm Profile", href: "/farm-profile", protected: true },
@@ -71,22 +71,36 @@ const Navbar = () => {
             className="h-8 sm:h-10 w-8 sm:w-10"
           />
           <div className="flex flex-col">
-            <span className="text-primary-foreground font-heading text-lg sm:text-2xl font-bold">KisanSathi</span>
-            <span className="text-eco-yellow text-xs font-semibold hidden sm:block">AI Assistant</span>
+            <span className="text-primary-foreground font-heading text-lg sm:text-2xl font-bold">
+              KisanSathi
+            </span>
+            <span className="text-eco-yellow text-xs font-semibold hidden sm:block">
+              AI Assistant
+            </span>
           </div>
         </a>
 
         {/* Desktop Nav */}
         <div className="hidden lg:flex items-center gap-10">
-          <a href="/" className="text-eco-yellow font-semibold text-sm tracking-wide">{t('nav.home')}</a>
-          <a href="/about" className="text-primary-foreground/80 hover:text-primary-foreground text-sm font-medium transition-colors">{t('nav.chatbot')}</a>
+          <a href="/" className="text-eco-yellow font-semibold text-sm tracking-wide">
+            {t("nav.home")}
+          </a>
+          <a
+            href="/about"
+            className="text-primary-foreground/80 hover:text-primary-foreground text-sm font-medium transition-colors"
+          >
+            {t("nav.chatbot")}
+          </a>
           <div
             className="relative group"
             onMouseEnter={() => setDropdownOpen(true)}
             onMouseLeave={() => setDropdownOpen(false)}
           >
             <button className="flex items-center gap-1 text-primary-foreground/80 hover:text-primary-foreground text-sm font-medium transition-colors">
-              {t('nav.essentialPages')} <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+              {t("nav.essentialPages")}{" "}
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+              />
             </button>
             {dropdownOpen && (
               <div className="absolute top-full left-0 mt-2 bg-eco-green-dark/95 backdrop-blur-md rounded-xl py-3 min-w-[200px] shadow-xl border border-primary-foreground/10">
@@ -109,7 +123,12 @@ const Navbar = () => {
               </div>
             )}
           </div>
-          <a href="/shop" className="text-primary-foreground/80 hover:text-primary-foreground text-sm font-medium transition-colors">{t('nav.shop')}</a>
+          <a
+            href="/shop"
+            className="text-primary-foreground/80 hover:text-primary-foreground text-sm font-medium transition-colors"
+          >
+            {t("nav.shop")}
+          </a>
         </div>
 
         {/* CTA / User Profile */}
@@ -125,7 +144,9 @@ const Navbar = () => {
               <button className="flex items-center gap-2 bg-eco-green text-white font-semibold px-6 py-3 rounded-full text-sm hover:brightness-110 transition-all">
                 <User className="w-4 h-4" />
                 {userName}
-                <ChevronDown className={`w-4 h-4 transition-transform ${userDropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${userDropdownOpen ? "rotate-180" : ""}`}
+                />
               </button>
               {userDropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 bg-eco-green-dark/95 backdrop-blur-md rounded-xl py-3 min-w-[200px] shadow-xl border border-primary-foreground/10">
@@ -163,8 +184,10 @@ const Navbar = () => {
             href="/auth"
             className="hidden lg:flex items-center gap-2 bg-eco-yellow text-eco-green-dark font-semibold px-6 py-3 rounded-full text-sm hover:brightness-110 transition-all"
           >
-            {t('nav.getStarted')}
-            <span className="bg-eco-green-dark text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs">→</span>
+            {t("nav.getStarted")}
+            <span className="bg-eco-green-dark text-primary-foreground rounded-full w-6 h-6 flex items-center justify-center text-xs">
+              →
+            </span>
           </a>
         )}
 
@@ -173,7 +196,11 @@ const Navbar = () => {
           onClick={() => setMobileOpen(!mobileOpen)}
           className="lg:hidden text-primary-foreground"
         >
-          {mobileOpen ? <X className="w-5 sm:w-6 h-5 sm:h-6" /> : <Menu className="w-5 sm:w-6 h-5 sm:h-6" />}
+          {mobileOpen ? (
+            <X className="w-5 sm:w-6 h-5 sm:h-6" />
+          ) : (
+            <Menu className="w-5 sm:w-6 h-5 sm:h-6" />
+          )}
         </button>
       </div>
 
@@ -183,26 +210,98 @@ const Navbar = () => {
           <div className="flex justify-center mb-2">
             <TTSToggle />
           </div>
-          <button onClick={() => { navigate("/"); setMobileOpen(false); }} className="text-eco-yellow font-semibold text-left text-sm sm:text-base py-2">{t('nav.home')}</button>
-          <button onClick={() => { navigate("/about"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">{t('nav.chatbot')}</button>
-          <button onClick={() => { navigate("/gallery"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">{t('nav.gallery')}</button>
-          <button onClick={() => { navigate("/schemes"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">{t('nav.schemes')}</button>
-          <button onClick={() => { navigate("/faq"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">{t('nav.faq')}</button>
-          <button 
-            onClick={() => { 
-              handleProtectedNavigation("/livestock"); 
-              setMobileOpen(false); 
-            }} 
+          <button
+            onClick={() => {
+              navigate("/");
+              setMobileOpen(false);
+            }}
+            className="text-eco-yellow font-semibold text-left text-sm sm:text-base py-2"
+          >
+            {t("nav.home")}
+          </button>
+          <button
+            onClick={() => {
+              navigate("/about");
+              setMobileOpen(false);
+            }}
+            className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+          >
+            {t("nav.chatbot")}
+          </button>
+          <button
+            onClick={() => {
+              navigate("/gallery");
+              setMobileOpen(false);
+            }}
+            className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+          >
+            {t("nav.gallery")}
+          </button>
+          <button
+            onClick={() => {
+              navigate("/schemes");
+              setMobileOpen(false);
+            }}
+            className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+          >
+            {t("nav.schemes")}
+          </button>
+          <button
+            onClick={() => {
+              navigate("/faq");
+              setMobileOpen(false);
+            }}
+            className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+          >
+            {t("nav.faq")}
+          </button>
+          <button
+            onClick={() => {
+              handleProtectedNavigation("/livestock");
+              setMobileOpen(false);
+            }}
             className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
           >
             🏥 Livestock Disease
           </button>
-          <button onClick={() => { navigate("/shop"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">{t('nav.shop')}</button>
+          <button
+            onClick={() => {
+              navigate("/shop");
+              setMobileOpen(false);
+            }}
+            className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+          >
+            {t("nav.shop")}
+          </button>
           {isLoggedIn ? (
             <>
-              <button onClick={() => { navigate("/dashboard"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">📊 Dashboard</button>
-              <button onClick={() => { navigate("/profile"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">👤 Profile</button>
-              <button onClick={() => { navigate("/community"); setMobileOpen(false); }} className="text-primary-foreground/80 text-left text-sm sm:text-base py-2">👥 Community</button>
+              <button
+                onClick={() => {
+                  navigate("/dashboard");
+                  setMobileOpen(false);
+                }}
+                className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+              >
+                📊 Dashboard
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/profile");
+                  setMobileOpen(false);
+                }}
+                className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+              >
+                👤 Profile
+              </button>
+              <button
+                onClick={() => {
+                  navigate("/community");
+                  setMobileOpen(false);
+                }}
+                className="text-primary-foreground/80 text-left text-sm sm:text-base py-2"
+              >
+                👥 Community
+              </button>
               <button
                 onClick={handleLogout}
                 className="bg-red-500 text-white font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm text-center flex items-center justify-center gap-2 mt-2"
@@ -212,8 +311,14 @@ const Navbar = () => {
               </button>
             </>
           ) : (
-            <button onClick={() => { navigate("/auth"); setMobileOpen(false); }} className="bg-eco-yellow text-eco-green-dark font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm text-center mt-2">
-              {t('nav.getStarted')}
+            <button
+              onClick={() => {
+                navigate("/auth");
+                setMobileOpen(false);
+              }}
+              className="bg-eco-yellow text-eco-green-dark font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm text-center mt-2"
+            >
+              {t("nav.getStarted")}
             </button>
           )}
         </div>

@@ -41,7 +41,9 @@ const Blog = () => {
     <section id="blog" className="py-20 bg-eco-cream">
       <div className="max-w-7xl mx-auto px-6 lg:px-16">
         <div className="text-center mb-14">
-          <span className="text-eco-green font-semibold text-sm uppercase tracking-widest">Agriculture Updates</span>
+          <span className="text-eco-green font-semibold text-sm uppercase tracking-widest">
+            Agriculture Updates
+          </span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mt-3">
             Our Blog & Articles
           </h2>
@@ -49,7 +51,10 @@ const Blog = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {blogs.slice(0, 3).map((blog, i) => (
-            <div key={i} className="group cursor-pointer relative h-[400px] rounded-2xl overflow-hidden">
+            <div
+              key={i}
+              className="group cursor-pointer relative h-[400px] rounded-2xl overflow-hidden"
+            >
               <img
                 src={blog.img}
                 alt={blog.title}
@@ -58,10 +63,14 @@ const Blog = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-eco-green-dark/90 via-eco-green-dark/30 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="bg-eco-yellow text-eco-green-dark text-xs font-semibold px-3 py-1 rounded-full">{blog.tag}</span>
+                  <span className="bg-eco-yellow text-eco-green-dark text-xs font-semibold px-3 py-1 rounded-full">
+                    {blog.tag}
+                  </span>
                   <span className="text-primary-foreground/60 text-xs">{blog.date}</span>
                 </div>
-                <h4 className="font-heading text-xl font-bold text-primary-foreground leading-snug">{blog.title}</h4>
+                <h4 className="font-heading text-xl font-bold text-primary-foreground leading-snug">
+                  {blog.title}
+                </h4>
               </div>
             </div>
           ))}
@@ -69,7 +78,10 @@ const Blog = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {blogs.slice(3).map((blog, i) => (
-            <div key={i} className="group cursor-pointer relative h-[300px] rounded-2xl overflow-hidden">
+            <div
+              key={i}
+              className="group cursor-pointer relative h-[300px] rounded-2xl overflow-hidden"
+            >
               <img
                 src={blog.img}
                 alt={blog.title}
@@ -78,10 +90,14 @@ const Blog = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-eco-green-dark/90 via-eco-green-dark/30 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="bg-eco-yellow text-eco-green-dark text-xs font-semibold px-3 py-1 rounded-full">{blog.tag}</span>
+                  <span className="bg-eco-yellow text-eco-green-dark text-xs font-semibold px-3 py-1 rounded-full">
+                    {blog.tag}
+                  </span>
                   <span className="text-primary-foreground/60 text-xs">{blog.date}</span>
                 </div>
-                <h4 className="font-heading text-xl font-bold text-primary-foreground leading-snug">{blog.title}</h4>
+                <h4 className="font-heading text-xl font-bold text-primary-foreground leading-snug">
+                  {blog.title}
+                </h4>
               </div>
             </div>
           ))}

@@ -26,11 +26,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def client():
     """Create a Flask test client from app_enhanced."""
     try:
         from app_enhanced import app
+
         app.config["TESTING"] = True
         app.config["JWT_SECRET_KEY"] = "test-secret"
         with app.test_client() as c:
@@ -42,12 +44,14 @@ def client():
 @pytest.fixture
 def test_mobile():
     import time
+
     return f"99{int(time.time()) % 100000000:08d}"
 
 
 # ---------------------------------------------------------------------------
 # Health
 # ---------------------------------------------------------------------------
+
 
 def test_health(client):
     r = client.get("/api/health")
@@ -65,6 +69,7 @@ def test_status(client):
 # Auth
 # ---------------------------------------------------------------------------
 
+
 def test_register_and_login(client, test_mobile):
     # Register
     payload = {
@@ -74,28 +79,27 @@ def test_register_and_login(client, test_mobile):
         "password": "Test@1234",
         "agriculture_type": "crops",
     }
-    r = client.post("/api/auth/register",
-                    data=json.dumps(payload),
-                    content_type="application/json")
+    r = client.post("/api/auth/register", data=json.dumps(payload), content_type="application/json")
     assert r.status_code in (201, 503)  # 503 if DB unavailable in CI
 
     # Login
-    r = client.post("/api/auth/login",
-                    data=json.dumps({"mobile": test_mobile, "password": "Test@1234"}),
-                    content_type="application/json")
+    r = client.post(
+        "/api/auth/login",
+        data=json.dumps({"mobile": test_mobile, "password": "Test@1234"}),
+        content_type="application/json",
+    )
     assert r.status_code in (200, 401, 503)
 
 
 def test_register_missing_fields(client):
-    r = client.post("/api/auth/register",
-                    data=json.dumps({"email": "x@x.com"}),
-                    content_type="application/json")
+    r = client.post("/api/auth/register", data=json.dumps({"email": "x@x.com"}), content_type="application/json")
     assert r.status_code == 400
 
 
 # ---------------------------------------------------------------------------
 # Market Prices
 # ---------------------------------------------------------------------------
+
 
 def test_market_prices_endpoint(client):
     r = client.get("/api/market/prices")
@@ -118,28 +122,30 @@ def test_single_commodity_price(client):
 # Crop Recommendation
 # ---------------------------------------------------------------------------
 
+
 def test_crop_recommendation(client):
     payload = {
-        "N": 90, "P": 42, "K": 43,
-        "temperature": 25, "humidity": 80,
-        "ph": 6.5, "rainfall": 200,
+        "N": 90,
+        "P": 42,
+        "K": 43,
+        "temperature": 25,
+        "humidity": 80,
+        "ph": 6.5,
+        "rainfall": 200,
     }
-    r = client.post("/api/recommendations/crop",
-                    data=json.dumps(payload),
-                    content_type="application/json")
+    r = client.post("/api/recommendations/crop", data=json.dumps(payload), content_type="application/json")
     assert r.status_code in (200, 400, 500)
 
 
 def test_crop_recommendation_missing_fields(client):
-    r = client.post("/api/recommendations/crop",
-                    data=json.dumps({"N": 90}),
-                    content_type="application/json")
+    r = client.post("/api/recommendations/crop", data=json.dumps({"N": 90}), content_type="application/json")
     assert r.status_code == 400
 
 
 # ---------------------------------------------------------------------------
 # Weather
 # ---------------------------------------------------------------------------
+
 
 def test_weather_endpoint(client):
     r = client.get("/api/weather/Delhi")

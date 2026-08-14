@@ -27,7 +27,9 @@ const Testimonials = () => {
     <section className="py-20 bg-eco-green-dark">
       <div className="max-w-7xl mx-auto px-6 lg:px-16">
         <div className="text-center mb-14">
-          <span className="text-eco-yellow font-semibold text-sm uppercase tracking-widest">Happy Customers</span>
+          <span className="text-eco-yellow font-semibold text-sm uppercase tracking-widest">
+            Happy Customers
+          </span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold text-primary-foreground mt-3">
             Trusted by 100k+ customers
           </h2>
@@ -42,12 +44,17 @@ const Testimonials = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <div key={i} className="bg-eco-green/30 border border-eco-green-light/20 rounded-2xl p-6">
+            <div
+              key={i}
+              className="bg-eco-green/30 border border-eco-green-light/20 rounded-2xl p-6"
+            >
               <p className="text-primary-foreground/80 text-sm leading-relaxed mb-6">"{t.text}"</p>
               <div className="flex items-center gap-3">
                 <img src={t.img} alt={t.name} className="w-12 h-12 rounded-full object-cover" />
                 <div>
-                  <h4 className="font-heading text-base font-bold text-primary-foreground">{t.name}</h4>
+                  <h4 className="font-heading text-base font-bold text-primary-foreground">
+                    {t.name}
+                  </h4>
                   <p className="text-primary-foreground/50 text-xs">{t.role}</p>
                 </div>
               </div>

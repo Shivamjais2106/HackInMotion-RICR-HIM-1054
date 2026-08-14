@@ -1,4 +1,4 @@
-import KisanSathiServicesSection from '@/components/KisanSathiServicesSection';
+import KisanSathiServicesSection from "@/components/KisanSathiServicesSection";
 
 export default function ServicesPage() {
   return (

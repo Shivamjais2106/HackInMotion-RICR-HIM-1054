@@ -44,7 +44,7 @@ const CropRecommendationMain = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           N: parseFloat(formData.nitrogen),
@@ -54,7 +54,7 @@ const CropRecommendationMain = () => {
           humidity: parseFloat(formData.humidity) || 70,
           ph: parseFloat(formData.ph),
           rainfall: parseFloat(formData.rainfall),
-          top_n: 2
+          top_n: 2,
         }),
       });
 
@@ -64,7 +64,7 @@ const CropRecommendationMain = () => {
         const transformed = data.recommendations.map((rec: any) => ({
           crop: rec.crop,
           suitability: parseFloat(rec.confidence_value || rec.confidence),
-          reason: rec.reason
+          reason: rec.reason,
         }));
         setRecommendations(transformed);
       } else {
@@ -210,10 +210,14 @@ const CropRecommendationMain = () => {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {language === "en" ? "Getting Recommendations..." : "सिफारिशें प्राप्त हो रही हैं..."}
+                    {language === "en"
+                      ? "Getting Recommendations..."
+                      : "सिफारिशें प्राप्त हो रही हैं..."}
                   </>
+                ) : language === "en" ? (
+                  "Get Recommendations"
                 ) : (
-                  language === "en" ? "Get Recommendations" : "सिफारिशें प्राप्त करें"
+                  "सिफारिशें प्राप्त करें"
                 )}
               </Button>
             </form>

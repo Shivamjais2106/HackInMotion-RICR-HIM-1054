@@ -20,10 +20,13 @@ const Footer = () => {
             <div>
               <a href="/" className="flex items-center gap-2 mb-4">
                 <span className="text-eco-yellow font-heading text-2xl font-bold">🌾</span>
-                <span className="text-primary-foreground font-heading text-2xl font-bold">KisanSathi</span>
+                <span className="text-primary-foreground font-heading text-2xl font-bold">
+                  KisanSathi
+                </span>
               </a>
               <p className="text-primary-foreground/60 text-sm leading-relaxed mb-6">
-                Smart farming assistant providing AI-powered guidance for crop recommendations, disease detection, and fertilizer suggestions.
+                Smart farming assistant providing AI-powered guidance for crop recommendations,
+                disease detection, and fertilizer suggestions.
               </p>
               <div className="flex gap-3">
                 {["facebook", "twitter", "instagram", "linkedin"].map((social) => (
@@ -40,11 +43,23 @@ const Footer = () => {
 
             {/* Features */}
             <div>
-              <h4 className="font-heading text-lg font-bold text-primary-foreground mb-6">{t('footer.features')}</h4>
+              <h4 className="font-heading text-lg font-bold text-primary-foreground mb-6">
+                {t("footer.features")}
+              </h4>
               <ul className="space-y-3">
-                {[t('nav.chatbot'), t('services.crop'), t('services.disease'), t('services.fertilizer')].map((item) => (
+                {[
+                  t("nav.chatbot"),
+                  t("services.crop"),
+                  t("services.disease"),
+                  t("services.fertilizer"),
+                ].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors">{item}</a>
+                    <a
+                      href="#"
+                      className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors"
+                    >
+                      {item}
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -52,47 +67,85 @@ const Footer = () => {
 
             {/* Quick Links */}
             <div>
-              <h4 className="font-heading text-lg font-bold text-primary-foreground mb-6">{t('footer.quickLinks')}</h4>
+              <h4 className="font-heading text-lg font-bold text-primary-foreground mb-6">
+                {t("footer.quickLinks")}
+              </h4>
               <ul className="space-y-3">
                 <li>
-                  <button onClick={() => navigate("/shop")} className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors">{t('footer.shop')}</button>
+                  <button
+                    onClick={() => navigate("/shop")}
+                    className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors"
+                  >
+                    {t("footer.shop")}
+                  </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate("/schemes")} className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors">{t('nav.schemes')}</button>
+                  <button
+                    onClick={() => navigate("/schemes")}
+                    className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors"
+                  >
+                    {t("nav.schemes")}
+                  </button>
                 </li>
                 <li>
-                  <button onClick={() => navigate("/resources")} className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors">{t('nav.resources')}</button>
+                  <button
+                    onClick={() => navigate("/resources")}
+                    className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors"
+                  >
+                    {t("nav.resources")}
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors">{t('footer.contact')}</a>
+                  <a
+                    href="#"
+                    className="text-primary-foreground/60 text-sm hover:text-eco-yellow transition-colors"
+                  >
+                    {t("footer.contact")}
+                  </a>
                 </li>
               </ul>
             </div>
 
             {/* Subscribe Newsletter */}
             <div>
-              <h4 className="font-heading text-lg font-bold text-primary-foreground mb-6">{t('footer.subscribe')}</h4>
-              <p className="text-primary-foreground/60 text-sm mb-4">{t('footer.subscribe_desc')}</p>
+              <h4 className="font-heading text-lg font-bold text-primary-foreground mb-6">
+                {t("footer.subscribe")}
+              </h4>
+              <p className="text-primary-foreground/60 text-sm mb-4">
+                {t("footer.subscribe_desc")}
+              </p>
               <div className="mb-4">
                 <input
                   type="email"
-                  placeholder={t('footer.email')}
+                  placeholder={t("footer.email")}
                   className="w-full bg-primary-foreground/5 border border-primary-foreground/10 rounded-xl px-4 py-3 text-primary-foreground text-sm placeholder:text-primary-foreground/30 focus:outline-none focus:border-eco-yellow"
                 />
               </div>
               <button className="w-full flex items-center justify-center gap-2 bg-eco-yellow text-eco-green-dark font-semibold px-6 py-3 rounded-full text-sm hover:brightness-110 transition-all">
-                {t('footer.subscribeBtn')}
-                <span className="bg-eco-green-dark text-eco-yellow rounded-full w-5 h-5 flex items-center justify-center text-xs">→</span>
+                {t("footer.subscribeBtn")}
+                <span className="bg-eco-green-dark text-eco-yellow rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                  →
+                </span>
               </button>
             </div>
           </div>
 
           <div className="border-t border-eco-green-light/20 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-primary-foreground/40 text-sm">{t('footer.copyright')}</p>
+            <p className="text-primary-foreground/40 text-sm">{t("footer.copyright")}</p>
             <div className="flex gap-6">
-              <a href="#" className="text-primary-foreground/40 text-sm hover:text-eco-yellow transition-colors">{t('footer.privacy')}</a>
+              <a
+                href="#"
+                className="text-primary-foreground/40 text-sm hover:text-eco-yellow transition-colors"
+              >
+                {t("footer.privacy")}
+              </a>
               <span className="text-primary-foreground/20">|</span>
-              <a href="#" className="text-primary-foreground/40 text-sm hover:text-eco-yellow transition-colors">{t('footer.terms')}</a>
+              <a
+                href="#"
+                className="text-primary-foreground/40 text-sm hover:text-eco-yellow transition-colors"
+              >
+                {t("footer.terms")}
+              </a>
             </div>
           </div>
         </div>

@@ -66,7 +66,7 @@ const SeasonalCropRecommendation = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           N: parseFloat(formData.nitrogen),
@@ -77,7 +77,7 @@ const SeasonalCropRecommendation = () => {
           ph: parseFloat(formData.ph),
           rainfall: parseFloat(formData.rainfall),
           season: formData.season,
-          top_n: 2
+          top_n: 2,
         }),
       });
 
@@ -296,10 +296,14 @@ const SeasonalCropRecommendation = () => {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {language === "en" ? "Getting Recommendations..." : "सिफारिशें प्राप्त हो रही हैं..."}
+                    {language === "en"
+                      ? "Getting Recommendations..."
+                      : "सिफारिशें प्राप्त हो रही हैं..."}
                   </>
+                ) : language === "en" ? (
+                  "Get Recommendations"
                 ) : (
-                  language === "en" ? "Get Recommendations" : "सिफारिशें प्राप्त करें"
+                  "सिफारिशें प्राप्त करें"
                 )}
               </Button>
             </form>
@@ -343,7 +347,8 @@ const SeasonalCropRecommendation = () => {
                     ></div>
                   </div>
                   <p className="text-sm text-gray-600 mt-3">
-                    {language === "en" ? "Suitability Score" : "उपयुक्तता स्कोर"}: {rec.confidence_value.toFixed(2)}%
+                    {language === "en" ? "Suitability Score" : "उपयुक्तता स्कोर"}:{" "}
+                    {rec.confidence_value.toFixed(2)}%
                   </p>
                 </CardContent>
               </Card>

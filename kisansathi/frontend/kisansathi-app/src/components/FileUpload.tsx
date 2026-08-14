@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { getAPIBaseURL } from '../utils/api';
-import '../styles/FileUpload.css';
+import React, { useState } from "react";
+import { getAPIBaseURL } from "../utils/api";
+import "../styles/FileUpload.css";
 
 interface FileUploadProps {
   onUploadSuccess?: (data: any) => void;
-  fileType?: 'image' | 'video' | 'document';
+  fileType?: "image" | "video" | "document";
   folder?: string;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ 
-  onUploadSuccess, 
-  fileType = 'image',
-  folder = 'kisansathi'
+const FileUpload: React.FC<FileUploadProps> = ({
+  onUploadSuccess,
+  fileType = "image",
+  folder = "kisansathi",
 }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -29,7 +29,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   const handleUpload = async () => {
     if (!file) {
-      setError('Please select a file');
+      setError("Please select a file");
       return;
     }
 
@@ -37,23 +37,23 @@ const FileUpload: React.FC<FileUploadProps> = ({
     setUploadProgress(0);
 
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', folder);
+    formData.append("file", file);
+    formData.append("folder", folder);
 
     try {
       const baseURL = getAPIBaseURL();
       const endpoint = `/files/upload/${fileType}`;
-      
+
       const xhr = new XMLHttpRequest();
-      
-      xhr.upload.addEventListener('progress', (e) => {
+
+      xhr.upload.addEventListener("progress", (e) => {
         if (e.lengthComputable) {
           const percentComplete = (e.loaded / e.total) * 100;
           setUploadProgress(percentComplete);
         }
       });
 
-      xhr.addEventListener('load', () => {
+      xhr.addEventListener("load", () => {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
           setUploadedFile(response.data);
@@ -64,20 +64,20 @@ const FileUpload: React.FC<FileUploadProps> = ({
           }
         } else {
           const response = JSON.parse(xhr.responseText);
-          setError(response.error || 'Upload failed');
+          setError(response.error || "Upload failed");
         }
         setUploading(false);
       });
 
-      xhr.addEventListener('error', () => {
-        setError('Upload failed');
+      xhr.addEventListener("error", () => {
+        setError("Upload failed");
         setUploading(false);
       });
 
-      xhr.open('POST', `${baseURL}${endpoint}`);
+      xhr.open("POST", `${baseURL}${endpoint}`);
       xhr.send(formData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setError(err instanceof Error ? err.message : "Upload failed");
       setUploading(false);
     }
   };
@@ -89,7 +89,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       const baseURL = getAPIBaseURL();
       const response = await fetch(
         `${baseURL}/files/delete/${uploadedFile.public_id}?type=${fileType}`,
-        { method: 'DELETE' }
+        { method: "DELETE" }
       );
 
       if (response.ok) {
@@ -97,10 +97,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
         setError(null);
       } else {
         const data = await response.json();
-        setError(data.error || 'Delete failed');
+        setError(data.error || "Delete failed");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Delete failed');
+      setError(err instanceof Error ? err.message : "Delete failed");
     }
   };
 
@@ -108,7 +108,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     <div className="file-upload-container">
       <div className="upload-box">
         <h3>Upload {fileType.charAt(0).toUpperCase() + fileType.slice(1)}</h3>
-        
+
         {!uploadedFile ? (
           <>
             <div className="file-input-wrapper">
@@ -117,23 +117,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 onChange={handleFileChange}
                 disabled={uploading}
                 accept={
-                  fileType === 'image' ? 'image/*' :
-                  fileType === 'video' ? 'video/*' :
-                  '.pdf,.doc,.docx,.txt,.xls,.xlsx'
+                  fileType === "image"
+                    ? "image/*"
+                    : fileType === "video"
+                      ? "video/*"
+                      : ".pdf,.doc,.docx,.txt,.xls,.xlsx"
                 }
               />
               <span className="file-label">
-                {file ? file.name : 'Choose file or drag and drop'}
+                {file ? file.name : "Choose file or drag and drop"}
               </span>
             </div>
 
             {uploading && (
               <div className="progress-container">
                 <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${uploadProgress}%` }}
-                  ></div>
+                  <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
                 </div>
                 <p>{Math.round(uploadProgress)}%</p>
               </div>
@@ -141,27 +140,36 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
             {error && <p className="error-message">{error}</p>}
 
-            <button
-              onClick={handleUpload}
-              disabled={!file || uploading}
-              className="upload-button"
-            >
-              {uploading ? 'Uploading...' : 'Upload'}
+            <button onClick={handleUpload} disabled={!file || uploading} className="upload-button">
+              {uploading ? "Uploading..." : "Upload"}
             </button>
           </>
         ) : (
           <div className="uploaded-file">
             <h4>File Uploaded Successfully!</h4>
-            
-            {fileType === 'image' && (
+
+            {fileType === "image" && (
               <img src={uploadedFile.url} alt="Uploaded" className="preview-image" />
             )}
-            
+
             <div className="file-info">
-              <p><strong>URL:</strong> <a href={uploadedFile.url} target="_blank" rel="noopener noreferrer">{uploadedFile.url}</a></p>
-              <p><strong>Size:</strong> {(uploadedFile.size / 1024).toFixed(2)} KB</p>
-              <p><strong>Format:</strong> {uploadedFile.format}</p>
-              {uploadedFile.width && <p><strong>Dimensions:</strong> {uploadedFile.width}x{uploadedFile.height}</p>}
+              <p>
+                <strong>URL:</strong>{" "}
+                <a href={uploadedFile.url} target="_blank" rel="noopener noreferrer">
+                  {uploadedFile.url}
+                </a>
+              </p>
+              <p>
+                <strong>Size:</strong> {(uploadedFile.size / 1024).toFixed(2)} KB
+              </p>
+              <p>
+                <strong>Format:</strong> {uploadedFile.format}
+              </p>
+              {uploadedFile.width && (
+                <p>
+                  <strong>Dimensions:</strong> {uploadedFile.width}x{uploadedFile.height}
+                </p>
+              )}
             </div>
 
             <button onClick={handleDelete} className="delete-button">

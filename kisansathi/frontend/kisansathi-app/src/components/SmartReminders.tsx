@@ -1,8 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, CheckCircle, AlertCircle, Upload, Plus, Trash2, Camera, Clock, Bell } from 'lucide-react';
-import { getAPIBaseURL } from '@/utils/api';
-import AlertBanner from './AlertBanner';
-import NotificationCenter from './NotificationCenter';
+import React, { useState, useEffect } from "react";
+import {
+  Calendar,
+  CheckCircle,
+  AlertCircle,
+  Upload,
+  Plus,
+  Trash2,
+  Camera,
+  Clock,
+  Bell,
+} from "lucide-react";
+import { getAPIBaseURL } from "@/utils/api";
+import AlertBanner from "./AlertBanner";
+import NotificationCenter from "./NotificationCenter";
 
 interface Crop {
   id: string;
@@ -46,24 +56,24 @@ interface Photo {
 }
 
 const SmartReminders: React.FC = () => {
-  const [farmerId] = useState('default_farmer');
-  const [farmerName, setFarmerName] = useState('Farmer');
+  const [farmerId] = useState("default_farmer");
+  const [farmerName, setFarmerName] = useState("Farmer");
   const [crops, setCrops] = useState<Crop[]>([]);
   const [selectedCrop, setSelectedCrop] = useState<Crop | null>(null);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'crops' | 'reminders' | 'photos'>('crops');
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<"crops" | "reminders" | "photos">("crops");
   const [showAddCrop, setShowAddCrop] = useState(false);
   const [availableCrops, setAvailableCrops] = useState<any[]>([]);
   const [showNameInput, setShowNameInput] = useState(false);
 
   // Form states
   const [newCrop, setNewCrop] = useState({
-    crop_name: 'moong',
-    planting_date: new Date().toISOString().split('T')[0],
-    field_name: 'Field 1',
+    crop_name: "moong",
+    planting_date: new Date().toISOString().split("T")[0],
+    field_name: "Field 1",
     area_acres: 1,
   });
 
@@ -87,7 +97,7 @@ const SmartReminders: React.FC = () => {
         }
       }
     } catch (err) {
-      setError('Error fetching crops');
+      setError("Error fetching crops");
       console.error(err);
     } finally {
       setLoading(false);
@@ -138,8 +148,8 @@ const SmartReminders: React.FC = () => {
     try {
       const baseURL = getAPIBaseURL();
       const response = await fetch(`${baseURL}/reminders/add-crop`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           farmer_id: farmerId,
           ...newCrop,
@@ -150,9 +160,9 @@ const SmartReminders: React.FC = () => {
       if (data.success) {
         setShowAddCrop(false);
         setNewCrop({
-          crop_name: 'moong',
-          planting_date: new Date().toISOString().split('T')[0],
-          field_name: 'Field 1',
+          crop_name: "moong",
+          planting_date: new Date().toISOString().split("T")[0],
+          field_name: "Field 1",
           area_acres: 1,
         });
         fetchCrops();
@@ -160,7 +170,7 @@ const SmartReminders: React.FC = () => {
         setError(data.error);
       }
     } catch (err) {
-      setError('Error adding crop');
+      setError("Error adding crop");
       console.error(err);
     } finally {
       setLoading(false);
@@ -171,8 +181,8 @@ const SmartReminders: React.FC = () => {
     try {
       const baseURL = getAPIBaseURL();
       const response = await fetch(`${baseURL}/reminders/complete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reminder_id: reminderId, notes }),
       });
 
@@ -191,21 +201,18 @@ const SmartReminders: React.FC = () => {
     if (!selectedCrop || !e.target.files) return;
 
     const file = e.target.files[0];
-    const notes = prompt('Add notes about this photo (optional):') || '';
+    const notes = prompt("Add notes about this photo (optional):") || "";
 
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('notes', notes);
+    formData.append("file", file);
+    formData.append("notes", notes);
 
     try {
       const baseURL = getAPIBaseURL();
-      const response = await fetch(
-        `${baseURL}/reminders/upload-photo/${selectedCrop.id}`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
+      const response = await fetch(`${baseURL}/reminders/upload-photo/${selectedCrop.id}`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
       if (data.success) {
@@ -214,85 +221,92 @@ const SmartReminders: React.FC = () => {
         setError(data.error);
       }
     } catch (err) {
-      setError('Error uploading photo');
+      setError("Error uploading photo");
       console.error(err);
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'bg-red-100 border-red-300 text-red-800';
-      case 'medium':
-        return 'bg-yellow-100 border-yellow-300 text-yellow-800';
-      case 'low':
-        return 'bg-blue-100 border-blue-300 text-blue-800';
+      case "high":
+        return "bg-red-100 border-red-300 text-red-800";
+      case "medium":
+        return "bg-yellow-100 border-yellow-300 text-yellow-800";
+      case "low":
+        return "bg-blue-100 border-blue-300 text-blue-800";
       default:
-        return 'bg-gray-100 border-gray-300 text-gray-800';
+        return "bg-gray-100 border-gray-300 text-gray-800";
     }
   };
 
   const getTaskTypeIcon = (taskType: string) => {
     const icons: { [key: string]: string } = {
-      preparation: '🌱',
-      irrigation: '💧',
-      maintenance: '🔧',
-      fertilizer: '🧪',
-      monitoring: '👁️',
-      pest_control: '🐛',
-      harvest: '🌾',
+      preparation: "🌱",
+      irrigation: "💧",
+      maintenance: "🔧",
+      fertilizer: "🧪",
+      monitoring: "👁️",
+      pest_control: "🐛",
+      harvest: "🌾",
     };
-    return icons[taskType] || '📋';
+    return icons[taskType] || "📋";
   };
 
   const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
+    if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-IN';
+      utterance.lang = "en-IN";
       window.speechSynthesis.speak(utterance);
     }
   };
 
   const getPersonalizedMessage = (reminder: Reminder) => {
-    const daysElapsed = selectedCrop ? Math.floor((new Date().getTime() - new Date(selectedCrop.planting_date).getTime()) / (1000 * 60 * 60 * 24)) : 0;
-    
+    const daysElapsed = selectedCrop
+      ? Math.floor(
+          (new Date().getTime() - new Date(selectedCrop.planting_date).getTime()) /
+            (1000 * 60 * 60 * 24)
+        )
+      : 0;
+
     const cropHindi: { [key: string]: string } = {
-      'moong': 'moong',
-      'rice': 'chawal',
-      'wheat': 'gehun',
-      'maize': 'makka',
-      'cotton': 'kapas',
-      'potato': 'aloo',
-      'tomato': 'tamatar'
+      moong: "moong",
+      rice: "chawal",
+      wheat: "gehun",
+      maize: "makka",
+      cotton: "kapas",
+      potato: "aloo",
+      tomato: "tamatar",
     };
-    
-    const cropName = selectedCrop ? cropHindi[selectedCrop.crop_name.toLowerCase()] || selectedCrop.crop_name : 'crop';
-    
+
+    const cropName = selectedCrop
+      ? cropHindi[selectedCrop.crop_name.toLowerCase()] || selectedCrop.crop_name
+      : "crop";
+
     const getDayDesc = (days: number) => {
-      if (days === 0) return 'aaj';
-      if (days === 1) return 'kal';
-      if (days === 2) return 'parson';
-      if (days === 3) return '3 din pehle';
+      if (days === 0) return "aaj";
+      if (days === 1) return "kal";
+      if (days === 2) return "parson";
+      if (days === 3) return "3 din pehle";
       if (days <= 7) return `${days} din pehle`;
       return `${Math.floor(days / 7)} hafte pehle`;
     };
-    
+
     const dayDesc = getDayDesc(daysElapsed);
-    
-    if (reminder.task_type === 'irrigation') {
+
+    if (reminder.task_type === "irrigation") {
       return `${farmerName} ji, aapne ${dayDesc} ${cropName} lagayi thi. Aaj halka paani dena zaroori hai.`;
-    } else if (reminder.task_type === 'weeding') {
+    } else if (reminder.task_type === "weeding") {
       return `${farmerName} ji, ${cropName} ab thik se badh gayi hogi. Aaj nindai (weeding) kar dena zaroori hai.`;
-    } else if (reminder.task_type === 'fertilizer') {
+    } else if (reminder.task_type === "fertilizer") {
       return `${farmerName} ji, ${cropName} ko ab khad ki zaroorat hai. Aaj nitrogen khad daal dena.`;
-    } else if (reminder.task_type === 'monitoring') {
+    } else if (reminder.task_type === "monitoring") {
       return `${farmerName} ji, ${cropName} ko dhyan se dekh lena. Koi bimari toh nahi hai?`;
-    } else if (reminder.task_type === 'pest_control') {
+    } else if (reminder.task_type === "pest_control") {
       return `${farmerName} ji, ${cropName} mein keede aa sakte hain. Aaj spray kar dena zaroori hai.`;
-    } else if (reminder.task_type === 'harvest') {
+    } else if (reminder.task_type === "harvest") {
       return `${farmerName} ji, ${cropName} kaatne ka samay aa gaya! Badhai ho!`;
     }
-    
+
     return `${farmerName} ji, ${reminder.task} karna zaroori hai.`;
   };
 
@@ -306,7 +320,7 @@ const SmartReminders: React.FC = () => {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">📅 Smart Reminders</h1>
           <p className="text-gray-600">Track your crops and never miss important tasks</p>
-          
+
           {/* Farmer Name Input */}
           <div className="mt-4 flex justify-center gap-2">
             {!showNameInput ? (
@@ -367,14 +381,13 @@ const SmartReminders: React.FC = () => {
                   </label>
                   <select
                     value={newCrop.crop_name}
-                    onChange={(e) =>
-                      setNewCrop({ ...newCrop, crop_name: e.target.value })
-                    }
+                    onChange={(e) => setNewCrop({ ...newCrop, crop_name: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                   >
                     {availableCrops.map((crop) => (
                       <option key={crop.name} value={crop.name}>
-                        {crop.name.charAt(0).toUpperCase() + crop.name.slice(1)} ({crop.duration_days} days)
+                        {crop.name.charAt(0).toUpperCase() + crop.name.slice(1)} (
+                        {crop.duration_days} days)
                       </option>
                     ))}
                   </select>
@@ -387,23 +400,17 @@ const SmartReminders: React.FC = () => {
                   <input
                     type="date"
                     value={newCrop.planting_date}
-                    onChange={(e) =>
-                      setNewCrop({ ...newCrop, planting_date: e.target.value })
-                    }
+                    onChange={(e) => setNewCrop({ ...newCrop, planting_date: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Field Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Field Name</label>
                   <input
                     type="text"
                     value={newCrop.field_name}
-                    onChange={(e) =>
-                      setNewCrop({ ...newCrop, field_name: e.target.value })
-                    }
+                    onChange={(e) => setNewCrop({ ...newCrop, field_name: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                   />
                 </div>
@@ -428,7 +435,7 @@ const SmartReminders: React.FC = () => {
                 disabled={loading}
                 className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition"
               >
-                {loading ? 'Adding...' : 'Add Crop & Create Schedule'}
+                {loading ? "Adding..." : "Add Crop & Create Schedule"}
               </button>
             </div>
           )}
@@ -442,12 +449,12 @@ const SmartReminders: React.FC = () => {
                   setSelectedCrop(crop);
                   fetchReminders(crop.id);
                   fetchPhotos(crop.id);
-                  setActiveTab('reminders');
+                  setActiveTab("reminders");
                 }}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition ${
                   selectedCrop?.id === crop.id
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-200 bg-white hover:border-green-300'
+                    ? "border-green-500 bg-green-50"
+                    : "border-gray-200 bg-white hover:border-green-300"
                 }`}
               >
                 <h3 className="font-bold text-lg text-gray-800 mb-2">
@@ -480,9 +487,7 @@ const SmartReminders: React.FC = () => {
                   </p>
                 </div>
 
-                <p className="text-xs text-gray-600">
-                  📸 {crop.statistics.photos_count} photos
-                </p>
+                <p className="text-xs text-gray-600">📸 {crop.statistics.photos_count} photos</p>
               </div>
             ))}
           </div>
@@ -505,21 +510,21 @@ const SmartReminders: React.FC = () => {
           <>
             <div className="flex gap-4 mb-6">
               <button
-                onClick={() => setActiveTab('reminders')}
+                onClick={() => setActiveTab("reminders")}
                 className={`px-6 py-2 rounded-lg font-semibold transition ${
-                  activeTab === 'reminders'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  activeTab === "reminders"
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 📋 Reminders
               </button>
               <button
-                onClick={() => setActiveTab('photos')}
+                onClick={() => setActiveTab("photos")}
                 className={`px-6 py-2 rounded-lg font-semibold transition ${
-                  activeTab === 'photos'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                  activeTab === "photos"
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 📸 Photos
@@ -527,7 +532,7 @@ const SmartReminders: React.FC = () => {
             </div>
 
             {/* Reminders Tab */}
-            {activeTab === 'reminders' && (
+            {activeTab === "reminders" && (
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">📅 Task Schedule</h2>
 
@@ -540,7 +545,7 @@ const SmartReminders: React.FC = () => {
                         key={reminder.id}
                         className={`p-4 rounded-lg border-l-4 ${getPriorityColor(
                           reminder.priority
-                        )} ${reminder.completed ? 'opacity-60' : ''}`}
+                        )} ${reminder.completed ? "opacity-60" : ""}`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
@@ -558,14 +563,14 @@ const SmartReminders: React.FC = () => {
                             <p className="text-sm text-gray-600 mb-2">
                               📅 {new Date(reminder.scheduled_date).toLocaleDateString()}
                             </p>
-                            
+
                             {/* Personalized Hindi Message */}
                             <div className="bg-green-50 border border-green-200 rounded p-3 mb-2">
                               <p className="text-sm font-semibold text-green-800">
                                 💬 {getPersonalizedMessage(reminder)}
                               </p>
                             </div>
-                            
+
                             {reminder.notes && (
                               <p className="text-sm text-gray-700 italic">
                                 Notes: {reminder.notes}
@@ -577,7 +582,7 @@ const SmartReminders: React.FC = () => {
                             <div className="flex gap-2 ml-4">
                               <button
                                 onClick={() => {
-                                  const notes = prompt('Add notes (optional):') || '';
+                                  const notes = prompt("Add notes (optional):") || "";
                                   handleCompleteReminder(reminder.id, notes);
                                 }}
                                 className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition"
@@ -601,7 +606,7 @@ const SmartReminders: React.FC = () => {
             )}
 
             {/* Photos Tab */}
-            {activeTab === 'photos' && (
+            {activeTab === "photos" && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold text-gray-800">📸 Crop Photos</h2>
@@ -626,7 +631,10 @@ const SmartReminders: React.FC = () => {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {photos.map((photo) => (
-                      <div key={photo.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <div
+                        key={photo.id}
+                        className="border border-gray-200 rounded-lg overflow-hidden"
+                      >
                         <div className="bg-gray-200 h-48 flex items-center justify-center">
                           <Camera className="w-12 h-12 text-gray-400" />
                         </div>
@@ -635,19 +643,19 @@ const SmartReminders: React.FC = () => {
                             📅 {new Date(photo.uploaded_at).toLocaleDateString()}
                           </p>
                           {photo.notes && (
-                            <p className="text-sm text-gray-700 mb-2">
-                              📝 {photo.notes}
-                            </p>
+                            <p className="text-sm text-gray-700 mb-2">📝 {photo.notes}</p>
                           )}
                           {photo.analysis && (
                             <div
                               className={`p-2 rounded text-sm ${
                                 photo.analysis.healthy
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-red-100 text-red-800'
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
                               }`}
                             >
-                              {photo.analysis.healthy ? '✅ Healthy' : '⚠️ ' + photo.analysis.disease}
+                              {photo.analysis.healthy
+                                ? "✅ Healthy"
+                                : "⚠️ " + photo.analysis.disease}
                             </div>
                           )}
                         </div>

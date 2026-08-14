@@ -107,7 +107,7 @@ const books = [
 const ResourcesPage = () => {
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("सभी");
-  const [selectedBook, setSelectedBook] = useState<typeof books[0] | null>(null);
+  const [selectedBook, setSelectedBook] = useState<(typeof books)[0] | null>(null);
 
   const filtered = books.filter((b) => {
     const matchCat = activeCat === "सभी" || b.category === activeCat;
@@ -120,13 +120,13 @@ const ResourcesPage = () => {
     return matchCat && matchQ;
   });
 
-  const downloadPDF = (book: typeof books[0]) => {
+  const downloadPDF = (book: (typeof books)[0]) => {
     if (book.pdfFile) {
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       const encodedFileName = encodeURIComponent(book.pdfFile);
       link.href = `/pdfs/${encodedFileName}`;
       link.download = book.pdfFile;
-      link.target = '_blank';
+      link.target = "_blank";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -240,9 +240,7 @@ const ResourcesPage = () => {
         </section>
 
         {filtered.length === 0 && (
-          <p className="mt-12 text-center text-muted-foreground">
-            कोई किताब नहीं मिली।
-          </p>
+          <p className="mt-12 text-center text-muted-foreground">कोई किताब नहीं मिली।</p>
         )}
       </main>
 
@@ -254,7 +252,9 @@ const ResourcesPage = () => {
             <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 flex justify-between items-start">
               <div>
                 <h2 className="text-2xl font-bold">{selectedBook.title}</h2>
-                <p className="text-primary-foreground/80 text-sm mt-1">{selectedBook.category} • {selectedBook.pages} pages</p>
+                <p className="text-primary-foreground/80 text-sm mt-1">
+                  {selectedBook.category} • {selectedBook.pages} pages
+                </p>
               </div>
               <button
                 onClick={() => setSelectedBook(null)}
@@ -271,13 +271,11 @@ const ResourcesPage = () => {
                   <iframe
                     src={`/pdfs/${encodeURIComponent(selectedBook.pdfFile)}`}
                     className="w-full h-full"
-                    style={{ minHeight: '500px' }}
+                    style={{ minHeight: "500px" }}
                     title={selectedBook.title}
                   />
                 ) : (
-                  <div className="p-6 text-center text-gray-500">
-                    No PDF available
-                  </div>
+                  <div className="p-6 text-center text-gray-500">No PDF available</div>
                 )}
               </div>
             </div>
@@ -290,7 +288,7 @@ const ResourcesPage = () => {
               >
                 Close
               </button>
-              <button 
+              <button
                 onClick={() => downloadPDF(selectedBook)}
                 className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-all"
               >

@@ -14,35 +14,34 @@ logger = logging.getLogger(__name__)
 
 # Crop coefficients (Kc) by growth stage — FAO-56 standard values
 CROP_KC: dict[str, dict[str, float]] = {
-    "wheat":     {"initial": 0.30, "mid": 1.15, "late": 0.40},
-    "rice":      {"initial": 1.05, "mid": 1.20, "late": 0.90},
-    "maize":     {"initial": 0.30, "mid": 1.20, "late": 0.60},
-    "cotton":    {"initial": 0.35, "mid": 1.20, "late": 0.70},
-    "soybean":   {"initial": 0.40, "mid": 1.15, "late": 0.50},
-    "potato":    {"initial": 0.45, "mid": 1.10, "late": 0.75},
-    "tomato":    {"initial": 0.60, "mid": 1.15, "late": 0.80},
-    "onion":     {"initial": 0.50, "mid": 1.00, "late": 0.75},
+    "wheat": {"initial": 0.30, "mid": 1.15, "late": 0.40},
+    "rice": {"initial": 1.05, "mid": 1.20, "late": 0.90},
+    "maize": {"initial": 0.30, "mid": 1.20, "late": 0.60},
+    "cotton": {"initial": 0.35, "mid": 1.20, "late": 0.70},
+    "soybean": {"initial": 0.40, "mid": 1.15, "late": 0.50},
+    "potato": {"initial": 0.45, "mid": 1.10, "late": 0.75},
+    "tomato": {"initial": 0.60, "mid": 1.15, "late": 0.80},
+    "onion": {"initial": 0.50, "mid": 1.00, "late": 0.75},
     "sugarcane": {"initial": 0.40, "mid": 1.25, "late": 0.75},
-    "chickpea":  {"initial": 0.40, "mid": 1.00, "late": 0.35},
-    "mustard":   {"initial": 0.35, "mid": 1.10, "late": 0.40},
+    "chickpea": {"initial": 0.40, "mid": 1.00, "late": 0.35},
+    "mustard": {"initial": 0.35, "mid": 1.10, "late": 0.40},
     "groundnut": {"initial": 0.40, "mid": 1.15, "late": 0.60},
-    "default":   {"initial": 0.40, "mid": 1.10, "late": 0.60},
+    "default": {"initial": 0.40, "mid": 1.10, "late": 0.60},
 }
 
 # Soil water-retention factor (0–1)
 SOIL_RETENTION: dict[str, float] = {
-    "Sandy":   0.30,
-    "Red":     0.45,
-    "Loamy":   0.60,
-    "Alluvial":0.62,
-    "Black":   0.75,
-    "Clay":    0.80,
-    "Clayey":  0.80,
+    "Sandy": 0.30,
+    "Red": 0.45,
+    "Loamy": 0.60,
+    "Alluvial": 0.62,
+    "Black": 0.75,
+    "Clay": 0.80,
+    "Clayey": 0.80,
 }
 
 
-def hargreaves_et0(t_mean: float, t_max: float, t_min: float,
-                   ra: float = 15.0) -> float:
+def hargreaves_et0(t_mean: float, t_max: float, t_min: float, ra: float = 15.0) -> float:
     """
     Hargreaves (1985) reference evapotranspiration.
     ET0 in mm/day.
@@ -55,7 +54,7 @@ def hargreaves_et0(t_mean: float, t_max: float, t_min: float,
     ra      : extra-terrestrial radiation (MJ/m²/day) — default 15 (India avg)
     """
     td = max(t_max - t_min, 0.0)
-    et0 = 0.0023 * (t_mean + 17.8) * (td ** 0.5) * ra * 0.408
+    et0 = 0.0023 * (t_mean + 17.8) * (td**0.5) * ra * 0.408
     return max(round(et0, 2), 0.0)
 
 
@@ -128,8 +127,7 @@ def compute_irrigation_need(
     }
 
 
-def weather_risk_alerts(temp: float, humidity: float,
-                        wind_kph: float = 10.0) -> list[dict]:
+def weather_risk_alerts(temp: float, humidity: float, wind_kph: float = 10.0) -> list[dict]:
     """
     Generate weather-based risk alerts relevant to farming.
     Returns a list of alert dicts with type, severity, message.
@@ -137,49 +135,63 @@ def weather_risk_alerts(temp: float, humidity: float,
     alerts: list[dict] = []
 
     if temp <= 0:
-        alerts.append({
-            "type": "FROST",
-            "severity": "critical",
-            "message": "Frost risk — protect sensitive crops immediately.",
-        })
+        alerts.append(
+            {
+                "type": "FROST",
+                "severity": "critical",
+                "message": "Frost risk — protect sensitive crops immediately.",
+            }
+        )
     elif temp <= 4:
-        alerts.append({
-            "type": "COLD_STRESS",
-            "severity": "high",
-            "message": "Cold stress likely — cover seedlings and nurseries.",
-        })
+        alerts.append(
+            {
+                "type": "COLD_STRESS",
+                "severity": "high",
+                "message": "Cold stress likely — cover seedlings and nurseries.",
+            }
+        )
 
     if temp >= 42:
-        alerts.append({
-            "type": "EXTREME_HEAT",
-            "severity": "critical",
-            "message": "Extreme heat — irrigate early morning, provide shade if possible.",
-        })
+        alerts.append(
+            {
+                "type": "EXTREME_HEAT",
+                "severity": "critical",
+                "message": "Extreme heat — irrigate early morning, provide shade if possible.",
+            }
+        )
     elif temp >= 38:
-        alerts.append({
-            "type": "HEAT_STRESS",
-            "severity": "high",
-            "message": "Heat stress — increase irrigation frequency.",
-        })
+        alerts.append(
+            {
+                "type": "HEAT_STRESS",
+                "severity": "high",
+                "message": "Heat stress — increase irrigation frequency.",
+            }
+        )
 
     if humidity >= 90:
-        alerts.append({
-            "type": "FUNGAL_RISK",
-            "severity": "high",
-            "message": "High humidity — high risk of fungal diseases (late blight, rust). Apply preventive fungicide.",
-        })
+        alerts.append(
+            {
+                "type": "FUNGAL_RISK",
+                "severity": "high",
+                "message": "High humidity — high risk of fungal diseases (late blight, rust). Apply preventive fungicide.",
+            }
+        )
     elif humidity >= 80:
-        alerts.append({
-            "type": "FUNGAL_RISK",
-            "severity": "medium",
-            "message": "Elevated humidity — monitor crops for early fungal symptoms.",
-        })
+        alerts.append(
+            {
+                "type": "FUNGAL_RISK",
+                "severity": "medium",
+                "message": "Elevated humidity — monitor crops for early fungal symptoms.",
+            }
+        )
 
     if wind_kph >= 50:
-        alerts.append({
-            "type": "HIGH_WIND",
-            "severity": "high",
-            "message": "Strong winds — support tall crops, delay pesticide spraying.",
-        })
+        alerts.append(
+            {
+                "type": "HIGH_WIND",
+                "severity": "high",
+                "message": "Strong winds — support tall crops, delay pesticide spraying.",
+            }
+        )
 
     return alerts

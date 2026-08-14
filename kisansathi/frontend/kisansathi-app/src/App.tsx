@@ -48,40 +48,58 @@ const App = () => (
           <Sonner />
           <LanguageToggle />
           <BrowserRouter future={{ v7_startTransition: true }}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/testimonial" element={<TestimonialPage />} />
-            <Route path="/schemes" element={<GovernmentSchemesPage />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/crop" element={<CropCompletePage />} />
-            <Route path="/seasonal-crop" element={<ProtectedRoute element={<SeasonalCropRecommendation />} />} />
-            <Route path="/fertilizer" element={<ProtectedRoute element={<FertilizerPage />} />} />
-            <Route path="/disease" element={<ProtectedRoute element={<DiseasePage />} />} />
-            <Route path="/weather" element={<ProtectedRoute element={<WeatherPage />} />} />
-            <Route path="/weather-test" element={<WeatherTestPage />} />
-            <Route path="/weather-debug" element={<WeatherDebugPage />} />
-            <Route path="/soil-analysis" element={<ProtectedRoute element={<SoilAnalysisPage />} />} />
-            <Route path="/reminders" element={<ProtectedRoute element={<SmartRemindersPage />} />} />
-            <Route path="/voice-assistant" element={<ProtectedRoute element={<VoiceAssistantPage />} />} />
-            <Route path="/resources" element={<ResourcesPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/dashboard" element={<ProtectedRoute element={<DashboardEnhanced />} />} />
-            <Route path="/profile" element={<ProtectedRoute element={<DashboardEnhanced />} />} />
-            <Route path="/farm-profile" element={<ProtectedRoute element={<FarmProfilePage />} />} />
-            <Route path="/livestock" element={<ProtectedRoute element={<LivestockPage />} />} />
-            <Route path="/community" element={<ProtectedRoute element={<CommunityPage />} />} />
-            <Route path="/monitoring" element={<ProtectedRoute element={<MonitoringPage />} />} />
-            <Route path="/files" element={<ProtectedRoute element={<FileUploadPage />} />} />
-            <Route path="/tts-test" element={<TTSTestPage />} />
-            <Route path="/market" element={<MarketPricePage />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/shop" element={<ShopPage />} />
+              <Route path="/gallery" element={<GalleryPage />} />
+              <Route path="/testimonial" element={<TestimonialPage />} />
+              <Route path="/schemes" element={<GovernmentSchemesPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/services" element={<ServicesPage />} />
+              <Route path="/crop" element={<CropCompletePage />} />
+              <Route
+                path="/seasonal-crop"
+                element={<ProtectedRoute element={<SeasonalCropRecommendation />} />}
+              />
+              <Route path="/fertilizer" element={<ProtectedRoute element={<FertilizerPage />} />} />
+              <Route path="/disease" element={<ProtectedRoute element={<DiseasePage />} />} />
+              <Route path="/weather" element={<ProtectedRoute element={<WeatherPage />} />} />
+              <Route path="/weather-test" element={<WeatherTestPage />} />
+              <Route path="/weather-debug" element={<WeatherDebugPage />} />
+              <Route
+                path="/soil-analysis"
+                element={<ProtectedRoute element={<SoilAnalysisPage />} />}
+              />
+              <Route
+                path="/reminders"
+                element={<ProtectedRoute element={<SmartRemindersPage />} />}
+              />
+              <Route
+                path="/voice-assistant"
+                element={<ProtectedRoute element={<VoiceAssistantPage />} />}
+              />
+              <Route path="/resources" element={<ResourcesPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route
+                path="/dashboard"
+                element={<ProtectedRoute element={<DashboardEnhanced />} />}
+              />
+              <Route path="/profile" element={<ProtectedRoute element={<DashboardEnhanced />} />} />
+              <Route
+                path="/farm-profile"
+                element={<ProtectedRoute element={<FarmProfilePage />} />}
+              />
+              <Route path="/livestock" element={<ProtectedRoute element={<LivestockPage />} />} />
+              <Route path="/community" element={<ProtectedRoute element={<CommunityPage />} />} />
+              <Route path="/monitoring" element={<ProtectedRoute element={<MonitoringPage />} />} />
+              <Route path="/files" element={<ProtectedRoute element={<FileUploadPage />} />} />
+              <Route path="/tts-test" element={<TTSTestPage />} />
+              <Route path="/market" element={<MarketPricePage />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
     </TextToSpeechProvider>

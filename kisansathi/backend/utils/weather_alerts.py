@@ -62,64 +62,77 @@ def get_farming_alerts(location: str) -> list[dict]:
 
     # --- Temperature alerts ---
     if temp <= 0:
-        alerts.append({
-            "type": "FROST",
-            "severity": "critical",
-            "message": "Frost warning — protect sensitive crops immediately with covers.",
-        })
+        alerts.append(
+            {
+                "type": "FROST",
+                "severity": "critical",
+                "message": "Frost warning — protect sensitive crops immediately with covers.",
+            }
+        )
     elif temp <= 4:
-        alerts.append({
-            "type": "COLD_STRESS",
-            "severity": "high",
-            "message": "Cold stress risk — cover seedlings and nurseries overnight.",
-        })
+        alerts.append(
+            {
+                "type": "COLD_STRESS",
+                "severity": "high",
+                "message": "Cold stress risk — cover seedlings and nurseries overnight.",
+            }
+        )
     elif temp >= 42:
-        alerts.append({
-            "type": "EXTREME_HEAT",
-            "severity": "critical",
-            "message": "Extreme heat — irrigate early morning, provide shade for vegetables.",
-        })
+        alerts.append(
+            {
+                "type": "EXTREME_HEAT",
+                "severity": "critical",
+                "message": "Extreme heat — irrigate early morning, provide shade for vegetables.",
+            }
+        )
     elif temp >= 38:
-        alerts.append({
-            "type": "HEAT_STRESS",
-            "severity": "high",
-            "message": "Heat stress expected — increase irrigation frequency today.",
-        })
+        alerts.append(
+            {
+                "type": "HEAT_STRESS",
+                "severity": "high",
+                "message": "Heat stress expected — increase irrigation frequency today.",
+            }
+        )
 
     # --- Humidity alerts (fungal risk) ---
     if humidity >= 90:
-        alerts.append({
-            "type": "FUNGAL_RISK",
-            "severity": "high",
-            "message": (
-                "Very high humidity — high risk of fungal diseases (late blight, rust, powdery mildew). "
-                "Apply preventive fungicide today."
-            ),
-        })
+        alerts.append(
+            {
+                "type": "FUNGAL_RISK",
+                "severity": "high",
+                "message": (
+                    "Very high humidity — high risk of fungal diseases (late blight, rust, powdery mildew). "
+                    "Apply preventive fungicide today."
+                ),
+            }
+        )
     elif humidity >= 80:
-        alerts.append({
-            "type": "FUNGAL_RISK",
-            "severity": "medium",
-            "message": "Elevated humidity — monitor crops for early fungal symptoms.",
-        })
+        alerts.append(
+            {
+                "type": "FUNGAL_RISK",
+                "severity": "medium",
+                "message": "Elevated humidity — monitor crops for early fungal symptoms.",
+            }
+        )
 
     # --- Wind alerts ---
     if wind_kph >= 50:
-        alerts.append({
-            "type": "HIGH_WIND",
-            "severity": "high",
-            "message": "Strong winds — support tall crops, delay pesticide spraying.",
-        })
+        alerts.append(
+            {
+                "type": "HIGH_WIND",
+                "severity": "high",
+                "message": "Strong winds — support tall crops, delay pesticide spraying.",
+            }
+        )
 
     # --- Heavy rain ---
     if precip_mm >= 20:
-        alerts.append({
-            "type": "HEAVY_RAIN",
-            "severity": "medium",
-            "message": (
-                f"Heavy rainfall ({precip_mm} mm) — check field drainage, "
-                "delay fertilizer application."
-            ),
-        })
+        alerts.append(
+            {
+                "type": "HEAVY_RAIN",
+                "severity": "medium",
+                "message": (f"Heavy rainfall ({precip_mm} mm) — check field drainage, delay fertilizer application."),
+            }
+        )
 
     return alerts

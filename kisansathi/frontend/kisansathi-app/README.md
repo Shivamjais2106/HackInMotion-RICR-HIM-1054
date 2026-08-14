@@ -31,22 +31,22 @@ VITE_API_URL=http://localhost:5000
 
 ## Pages
 
-| Route | Page | Description |
-|---|---|---|
-| `/` | Index | Landing page |
-| `/auth` | AuthPage | Login / Register |
-| `/dashboard` | DashboardEnhanced | Unified farm dashboard |
-| `/farm-profile` | FarmProfilePage | Farm setup and profile |
-| `/crop` | CropPage | ML crop recommendation |
-| `/disease` | DiseasePage | Plant disease detection |
-| `/fertilizer` | FertilizerPage | Fertilizer recommendation |
-| `/soil` | SoilAnalysisPage | Soil analysis |
-| `/weather` | WeatherPage | Weather + irrigation advice |
-| `/market` | ShopPage | Market prices |
-| `/community` | CommunityPage | Farmer groups |
-| `/livestock` | LivestockPage | Livestock health |
-| `/reminders` | SmartRemindersPage | Crop reminders |
-| `/chatbot` | ChatbotPage | AI assistant |
+| Route           | Page               | Description                 |
+| --------------- | ------------------ | --------------------------- |
+| `/`             | Index              | Landing page                |
+| `/auth`         | AuthPage           | Login / Register            |
+| `/dashboard`    | DashboardEnhanced  | Unified farm dashboard      |
+| `/farm-profile` | FarmProfilePage    | Farm setup and profile      |
+| `/crop`         | CropPage           | ML crop recommendation      |
+| `/disease`      | DiseasePage        | Plant disease detection     |
+| `/fertilizer`   | FertilizerPage     | Fertilizer recommendation   |
+| `/soil`         | SoilAnalysisPage   | Soil analysis               |
+| `/weather`      | WeatherPage        | Weather + irrigation advice |
+| `/market`       | ShopPage           | Market prices               |
+| `/community`    | CommunityPage      | Farmer groups               |
+| `/livestock`    | LivestockPage      | Livestock health            |
+| `/reminders`    | SmartRemindersPage | Crop reminders              |
+| `/chatbot`      | ChatbotPage        | AI assistant                |
 
 ## Build
 

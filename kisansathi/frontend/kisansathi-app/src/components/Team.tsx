@@ -30,7 +30,9 @@ const Team = () => {
     <section className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-6 lg:px-16">
         <div className="text-center mb-14">
-          <span className="text-eco-green font-semibold text-sm uppercase tracking-widest">Our Farmers</span>
+          <span className="text-eco-green font-semibold text-sm uppercase tracking-widest">
+            Our Farmers
+          </span>
           <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground mt-3">
             We Have Lot's Of Experience <br /> Team Members
           </h2>

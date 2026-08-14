@@ -1,6 +1,6 @@
-import React from 'react';
-import { Volume2, VolumeX } from 'lucide-react';
-import { useTextToSpeechContext } from '@/context/TextToSpeechContext';
+import React from "react";
+import { Volume2, VolumeX } from "lucide-react";
+import { useTextToSpeechContext } from "@/context/TextToSpeechContext";
 
 /**
  * Global TTS Toggle Button
@@ -15,7 +15,7 @@ export const TTSToggle: React.FC = () => {
       {isEnabled && (
         <select
           value={language}
-          onChange={(e) => setLanguage(e.target.value as 'auto' | 'en' | 'hi')}
+          onChange={(e) => setLanguage(e.target.value as "auto" | "en" | "hi")}
           className="px-2 py-1 text-sm border rounded bg-white dark:bg-gray-800"
           title="Select language for text-to-speech"
         >
@@ -30,17 +30,13 @@ export const TTSToggle: React.FC = () => {
         onClick={toggleTTS}
         className={`p-2 rounded-full transition-all ${
           isEnabled
-            ? 'bg-green-500 hover:bg-green-600 text-white'
-            : 'bg-gray-300 hover:bg-gray-400 text-gray-700'
+            ? "bg-green-500 hover:bg-green-600 text-white"
+            : "bg-gray-300 hover:bg-gray-400 text-gray-700"
         }`}
-        title={isEnabled ? 'Disable text-to-speech' : 'Enable text-to-speech'}
-        aria-label={isEnabled ? 'Disable text-to-speech' : 'Enable text-to-speech'}
+        title={isEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
+        aria-label={isEnabled ? "Disable text-to-speech" : "Enable text-to-speech"}
       >
-        {isEnabled ? (
-          <Volume2 size={20} />
-        ) : (
-          <VolumeX size={20} />
-        )}
+        {isEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
       </button>
     </div>
   );

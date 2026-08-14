@@ -11,8 +11,13 @@ const schemes = {
       ministry: "Ministry of Agriculture",
       launchDate: "June 2026",
       budget: "₹5,000 Crore",
-      description: "Enhanced crop insurance scheme with better coverage and lower premiums for farmers.",
-      benefits: ["Up to 90% crop loss coverage", "Reduced premium rates", "Faster claim settlement"],
+      description:
+        "Enhanced crop insurance scheme with better coverage and lower premiums for farmers.",
+      benefits: [
+        "Up to 90% crop loss coverage",
+        "Reduced premium rates",
+        "Faster claim settlement",
+      ],
       eligibility: "All farmers with valid land records",
       applyLink: "https://pmfby.gov.in",
       applyMethod: "Online Portal",
@@ -22,8 +27,13 @@ const schemes = {
       ministry: "Ministry of Agriculture",
       launchDate: "July 2026",
       budget: "₹2,500 Crore",
-      description: "Extended income support scheme with additional benefits for small and marginal farmers.",
-      benefits: ["₹8,000 per year (increased from ₹6,000)", "Free crop insurance", "Pension benefits"],
+      description:
+        "Extended income support scheme with additional benefits for small and marginal farmers.",
+      benefits: [
+        "₹8,000 per year (increased from ₹6,000)",
+        "Free crop insurance",
+        "Pension benefits",
+      ],
       eligibility: "Farmers with land holdings up to 2 hectares",
       applyLink: "https://pmkisan.gov.in/PmksanRegistration.aspx",
       applyMethod: "Online Portal",
@@ -34,7 +44,11 @@ const schemes = {
       launchDate: "August 2026",
       budget: "₹1,500 Crore",
       description: "Subsidy and support for farmers transitioning to organic farming practices.",
-      benefits: ["50% subsidy on organic inputs", "Free training programs", "Certification support"],
+      benefits: [
+        "50% subsidy on organic inputs",
+        "Free training programs",
+        "Certification support",
+      ],
       eligibility: "Farmers willing to adopt organic farming",
       applyLink: "https://www.nfsm.gov.in",
       applyMethod: "Online Portal",
@@ -46,8 +60,13 @@ const schemes = {
       ministry: "Ministry of Jal Shakti",
       startDate: "2015",
       budget: "₹50,000 Crore",
-      description: "Irrigation infrastructure development for efficient water management in agriculture.",
-      benefits: ["Drip irrigation subsidy (60%)", "Sprinkler systems support", "Water conservation"],
+      description:
+        "Irrigation infrastructure development for efficient water management in agriculture.",
+      benefits: [
+        "Drip irrigation subsidy (60%)",
+        "Sprinkler systems support",
+        "Water conservation",
+      ],
       eligibility: "All farmers with agricultural land",
       applicationStatus: "Open",
       applyLink: "https://pmksy.gov.in",
@@ -71,7 +90,11 @@ const schemes = {
       startDate: "1998",
       budget: "Ongoing",
       description: "Easy credit facility for farmers at reasonable interest rates.",
-      benefits: ["Low interest rates (4% for timely repayment)", "Flexible repayment", "No collateral needed"],
+      benefits: [
+        "Low interest rates (4% for timely repayment)",
+        "Flexible repayment",
+        "No collateral needed",
+      ],
       eligibility: "Farmers with valid land records",
       applicationStatus: "Open",
       applyLink: "https://www.nabard.org",
@@ -125,10 +148,10 @@ const GovernmentSchemesPage = () => {
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-16 w-full">
           <h1 className="font-heading text-5xl md:text-7xl font-bold text-primary-foreground mb-4">
-            {t('schemes.title')}
+            {t("schemes.title")}
           </h1>
           <p className="text-primary-foreground/80 text-lg md:text-xl max-w-lg">
-            {t('schemes.subtitle')}
+            {t("schemes.subtitle")}
           </p>
         </div>
       </section>
@@ -146,7 +169,7 @@ const GovernmentSchemesPage = () => {
               }`}
             >
               <CheckCircle className="w-5 h-5" />
-              {t('schemes.ongoing')} ({schemes.ongoing.length})
+              {t("schemes.ongoing")} ({schemes.ongoing.length})
             </button>
             <button
               onClick={() => setActiveTab("upcoming")}
@@ -157,7 +180,7 @@ const GovernmentSchemesPage = () => {
               }`}
             >
               <Clock className="w-5 h-5" />
-              {t('schemes.upcoming')} ({schemes.upcoming.length})
+              {t("schemes.upcoming")} ({schemes.upcoming.length})
             </button>
           </div>
         </div>
@@ -181,15 +204,17 @@ const GovernmentSchemesPage = () => {
                     <h3 className="text-xl font-bold text-eco-green-dark mb-2">{scheme.name}</h3>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                       <span className="flex items-center gap-1">
-                        <span className="font-semibold">{t('schemes.ministry')}:</span> {scheme.ministry}
+                        <span className="font-semibold">{t("schemes.ministry")}:</span>{" "}
+                        {scheme.ministry}
                       </span>
                       <span className="flex items-center gap-1">
-                        <span className="font-semibold">{t('schemes.budget')}:</span> {scheme.budget}
+                        <span className="font-semibold">{t("schemes.budget")}:</span>{" "}
+                        {scheme.budget}
                       </span>
                       {activeTab === "upcoming" && (
                         <span className="flex items-center gap-1 text-blue-600 font-semibold">
                           <Clock className="w-4 h-4" />
-                          {t('schemes.launchDate')}: {(scheme as any).launchDate}
+                          {t("schemes.launchDate")}: {(scheme as any).launchDate}
                         </span>
                       )}
                       {activeTab === "ongoing" && (
@@ -212,13 +237,15 @@ const GovernmentSchemesPage = () => {
                   <div className="border-t-2 border-gray-200 p-6 bg-gray-50">
                     {/* Description */}
                     <div className="mb-6">
-                      <h4 className="font-bold text-gray-800 mb-2">📋 {t('schemes.description')}</h4>
+                      <h4 className="font-bold text-gray-800 mb-2">
+                        📋 {t("schemes.description")}
+                      </h4>
                       <p className="text-gray-700">{scheme.description}</p>
                     </div>
 
                     {/* Benefits */}
                     <div className="mb-6">
-                      <h4 className="font-bold text-gray-800 mb-3">✅ {t('schemes.benefits')}</h4>
+                      <h4 className="font-bold text-gray-800 mb-3">✅ {t("schemes.benefits")}</h4>
                       <ul className="space-y-2">
                         {scheme.benefits.map((benefit, i) => (
                           <li key={i} className="flex items-start gap-3">
@@ -231,7 +258,9 @@ const GovernmentSchemesPage = () => {
 
                     {/* Eligibility */}
                     <div className="mb-6">
-                      <h4 className="font-bold text-gray-800 mb-2">👥 {t('schemes.eligibility')}</h4>
+                      <h4 className="font-bold text-gray-800 mb-2">
+                        👥 {t("schemes.eligibility")}
+                      </h4>
                       <p className="text-gray-700 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">
                         {scheme.eligibility}
                       </p>
@@ -239,7 +268,9 @@ const GovernmentSchemesPage = () => {
 
                     {/* Application Method */}
                     <div className="mb-6">
-                      <h4 className="font-bold text-gray-800 mb-2">📋 {t('schemes.applyMethod')}</h4>
+                      <h4 className="font-bold text-gray-800 mb-2">
+                        📋 {t("schemes.applyMethod")}
+                      </h4>
                       <p className="text-gray-700 bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
                         {(scheme as any).applyMethod}
                       </p>
@@ -254,7 +285,7 @@ const GovernmentSchemesPage = () => {
                         className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-md hover:shadow-lg"
                       >
                         <ExternalLink className="w-5 h-5" />
-                        {t('schemes.applyNow')}
+                        {t("schemes.applyNow")}
                       </a>
                     </div>
                   </div>
@@ -269,39 +300,44 @@ const GovernmentSchemesPage = () => {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-16">
           <h2 className="text-4xl font-bold text-eco-green-dark mb-12 text-center">
-            {t('schemes.howToApply')}
+            {t("schemes.howToApply")}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 step: "1",
-                title: t('schemes.checkEligibility'),
-                description: t('schemes.checkEligibilityDesc'),
+                title: t("schemes.checkEligibility"),
+                description: t("schemes.checkEligibilityDesc"),
                 icon: "✓",
               },
               {
                 step: "2",
-                title: t('schemes.gatherDocs'),
-                description: t('schemes.gatherDocsDesc'),
+                title: t("schemes.gatherDocs"),
+                description: t("schemes.gatherDocsDesc"),
                 icon: "📄",
               },
               {
                 step: "3",
-                title: t('schemes.applyOnline'),
-                description: t('schemes.applyOnlineDesc'),
+                title: t("schemes.applyOnline"),
+                description: t("schemes.applyOnlineDesc"),
                 icon: "💻",
               },
               {
                 step: "4",
-                title: t('schemes.trackStatus'),
-                description: t('schemes.trackStatusDesc'),
+                title: t("schemes.trackStatus"),
+                description: t("schemes.trackStatusDesc"),
                 icon: "📊",
               },
             ].map((item, index) => (
-              <div key={index} className="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-6 border-2 border-green-200">
+              <div
+                key={index}
+                className="bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-6 border-2 border-green-200"
+              >
                 <div className="text-4xl font-bold text-green-600 mb-3">{item.icon}</div>
-                <h3 className="text-xl font-bold text-eco-green-dark mb-2">{t('schemes.step')} {item.step}</h3>
+                <h3 className="text-xl font-bold text-eco-green-dark mb-2">
+                  {t("schemes.step")} {item.step}
+                </h3>
                 <h4 className="font-semibold text-gray-800 mb-2">{item.title}</h4>
                 <p className="text-gray-600 text-sm">{item.description}</p>
               </div>
@@ -312,16 +348,16 @@ const GovernmentSchemesPage = () => {
           <div className="mt-12 bg-blue-50 border-2 border-blue-200 rounded-2xl p-8">
             <h3 className="text-2xl font-bold text-eco-green-dark mb-6 flex items-center gap-2">
               <FileText className="w-6 h-6" />
-              {t('schemes.requiredDocs')}
+              {t("schemes.requiredDocs")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                t('schemes.doc1'),
-                t('schemes.doc2'),
-                t('schemes.doc3'),
-                t('schemes.doc4'),
-                t('schemes.doc5'),
-                t('schemes.doc6'),
+                t("schemes.doc1"),
+                t("schemes.doc2"),
+                t("schemes.doc3"),
+                t("schemes.doc4"),
+                t("schemes.doc5"),
+                t("schemes.doc6"),
               ].map((doc, index) => (
                 <div key={index} className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -333,19 +369,19 @@ const GovernmentSchemesPage = () => {
 
           {/* Contact Info */}
           <div className="mt-12 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-2xl p-8">
-            <h3 className="text-2xl font-bold mb-6">{t('schemes.needHelp')}</h3>
+            <h3 className="text-2xl font-bold mb-6">{t("schemes.needHelp")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <p className="font-semibold mb-2">{t('schemes.helplineTitle')}</p>
-                <p className="text-lg">{t('schemes.helplineNumber')}</p>
+                <p className="font-semibold mb-2">{t("schemes.helplineTitle")}</p>
+                <p className="text-lg">{t("schemes.helplineNumber")}</p>
               </div>
               <div>
-                <p className="font-semibold mb-2">{t('schemes.officialPortal')}</p>
-                <p className="text-lg">{t('schemes.officialPortalUrl')}</p>
+                <p className="font-semibold mb-2">{t("schemes.officialPortal")}</p>
+                <p className="text-lg">{t("schemes.officialPortalUrl")}</p>
               </div>
               <div>
-                <p className="font-semibold mb-2">{t('schemes.localOffice')}</p>
-                <p className="text-lg">{t('schemes.localOfficeDesc')}</p>
+                <p className="font-semibold mb-2">{t("schemes.localOffice")}</p>
+                <p className="text-lg">{t("schemes.localOfficeDesc")}</p>
               </div>
             </div>
           </div>
