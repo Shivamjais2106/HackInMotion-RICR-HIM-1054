@@ -66,7 +66,7 @@ class SeasonalCropRecommender:
     def load_models(self):
         """Load all trained models"""
         try:
-            self.model = pickle.load(open(os.path.join(self.models_dir, 'crop_model_seasonal.pkl'), 'rb'))
+            self.model = pickle.load(open(os.path.join(self.models_dir, 'seasonal_crop_model.pkl'), 'rb'))
             self.feature_names = pickle.load(open(os.path.join(self.models_dir, 'crop_features_seasonal.pkl'), 'rb'))
             self.crop_encoder = pickle.load(open(os.path.join(self.models_dir, 'crop_encoder_seasonal.pkl'), 'rb'))
             self.season_encoder = pickle.load(open(os.path.join(self.models_dir, 'season_encoder.pkl'), 'rb'))
