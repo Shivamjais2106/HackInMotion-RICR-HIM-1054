@@ -1,66 +1,28 @@
-# Web framework
 Flask==2.3.2
 Flask-CORS==4.0.0
 flask-socketio==5.3.4
 flask-jwt-extended==4.4.4
 flask-limiter==3.5.0
 flask-caching==2.0.2
-
-# WSGI server
 gunicorn==21.2.0
-
-# Database
+eventlet==0.36.1
 pymongo==4.4.1
 dnspython==2.3.0
-
-# SocketIO transport
 python-socketio==5.9.0
 python-engineio==4.7.1
-
-# Environment & config
 python-dotenv==1.0.0
-
-# HTTP client
 requests==2.31.0
-
-# AI / LLM
 google-generativeai==0.3.0
-
-# PDF extraction
 PyPDF2==3.0.1
-
-<<<<<<< HEAD
-=======
-# Media storage (required by file_routes.py upload/delete endpoints)
 cloudinary==1.40.0
-
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
-# Cache / messaging
 redis==4.6.0
 celery==5.3.1
-
-<<<<<<< HEAD
-=======
-# Monitoring metrics (required by monitoring.py / dashboard routes)
 psutil==5.9.8
-
->>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
-# Text-to-speech
 gtts==2.3.2
-
-# Machine Learning
 scikit-learn==1.3.2
 xgboost==2.0.3
 numpy==1.26.4
 pandas==2.1.4
-
-# Image processing (plant disease detection)
 Pillow==10.2.0
-
-# Password hashing (security)
 bcrypt==4.1.2
 werkzeug==2.3.7
-
-# Linting (dev)
-ruff==0.4.4
-flake8==7.0.0
