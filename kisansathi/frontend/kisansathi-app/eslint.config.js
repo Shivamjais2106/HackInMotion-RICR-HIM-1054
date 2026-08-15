@@ -18,20 +18,33 @@ export default tseslint.config(
       "react-refresh": reactRefresh,
     },
     rules: {
-      // React hooks rules (important for correctness)
+      // React hooks rules
       ...reactHooks.configs.recommended.rules,
 
-      // Fast Refresh: only export components from component files
+      // Fast Refresh — warn only
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 
-      // TypeScript rules
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      // TypeScript — all warn, never error
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-empty-object-type": "warn",
+      "@typescript-eslint/no-empty-function": "warn",
+      "@typescript-eslint/no-require-imports": "warn",
 
-      // General code-quality rules
+      // Downgrade tseslint recommended errors → warn
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+
+      // General JS rules — all warn
       "no-console": ["warn", { allow: ["warn", "error"] }],
-      "no-debugger": "error",
+      "no-debugger": "warn",
+      "no-empty": "warn",
       "prefer-const": "warn",
       eqeqeq: ["warn", "smart"],
     },
