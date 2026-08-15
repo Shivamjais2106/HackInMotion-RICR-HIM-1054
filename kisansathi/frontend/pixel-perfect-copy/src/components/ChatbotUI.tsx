@@ -68,6 +68,23 @@ const chipsRow2Hi = [
   "बाजार भाव",
 ];
 
+// Safely extracts a plain string from whatever shape the backend sends back.
+// Handles: plain string, { response: string }, { response: { response: string } },
+// and falls back to a default message if nothing usable is found.
+const extractText = (val: unknown, fallback: string): string => {
+  if (typeof val === "string") return val;
+  if (val && typeof val === "object") {
+    const obj = val as Record<string, unknown>;
+    if (typeof obj.response === "string") return obj.response;
+    if (obj.response && typeof obj.response === "object") {
+      const nested = obj.response as Record<string, unknown>;
+      if (typeof nested.response === "string") return nested.response;
+    }
+    if (typeof obj.message === "string") return obj.message;
+  }
+  return fallback;
+};
+
 const ChatbotUI = () => {
   const { language } = useLanguage();
   const [showFeatures, setShowFeatures] = useState(true);
@@ -93,6 +110,10 @@ const ChatbotUI = () => {
     setShowFeatures(false);
     setLoading(true);
 
+    const fallback = language === 'en'
+      ? "I'm here to help with farming advice!"
+      : "मैं खेती से जुड़ी सलाह में आपकी मदद के लिए यहाँ हूँ!";
+
     try {
       const response = await fetch(`${getAPIBaseURL()}/chatbot/message`, {
         method: "POST",
@@ -106,7 +127,10 @@ const ChatbotUI = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const assistantMessage = data.response || "I'm here to help with farming advice!";
+        // data.response may be a string OR a nested object depending on
+        // the backend route — extractText handles both safely so React
+        // never receives a raw object as a child.
+        const assistantMessage = extractText(data.response, extractText(data, fallback));
         setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
         
         // Play audio response
@@ -125,8 +149,8 @@ const ChatbotUI = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      const language = detectLanguage(text);
-      utterance.lang = language;
+      const lang = detectLanguage(text);
+      utterance.lang = lang;
       utterance.rate = 0.9;
       utterance.pitch = 1;
       utterance.volume = 1;
