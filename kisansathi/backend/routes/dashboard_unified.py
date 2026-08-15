@@ -15,10 +15,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-dashboard_unified_bp = Blueprint('dashboard_unified', __name__)
+dashboard_unified_bp = Blueprint("dashboard_unified", __name__)
 
 
-@dashboard_unified_bp.route('/api/dashboard/unified', methods=['GET'])
+@dashboard_unified_bp.route("/api/dashboard/unified", methods=["GET"])
 @jwt_required()
 @error_handler
 def unified_dashboard():
@@ -29,9 +29,10 @@ def unified_dashboard():
     """
     try:
         from utils.dashboard_builder import build_dashboard
+
         user_id = get_jwt_identity()
         data = build_dashboard(db, user_id)
-        return jsonify({'success': True, **data}), 200
+        return jsonify({"success": True, **data}), 200
     except Exception as e:
         logger.error(f"Unified dashboard error: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500

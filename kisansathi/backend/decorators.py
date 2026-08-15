@@ -17,43 +17,42 @@ logger = logging.getLogger(__name__)
 
 def error_handler(f):
     """Decorator to handle errors with proper logging"""
+
     @wraps(f)
     def decorated(*args, **kwargs):
         try:
             return f(*args, **kwargs)
         except Exception as e:
             logger.error(f"Error in {f.__name__}: {str(e)}", exc_info=True)
-            return jsonify({
-                'error': 'Internal server error',
-                'message': str(e),
-                'endpoint': f.__name__
-            }), 500
+            return jsonify({"error": "Internal server error", "message": str(e), "endpoint": f.__name__}), 500
+
     return decorated
 
 
 def validate_json(*expected_args):
     """Decorator to validate JSON request data"""
+
     def decorator(f):
         @wraps(f)
         def decorated(*args, **kwargs):
             data = request.get_json()
             if not data:
-                return jsonify({'error': 'Request body must be JSON'}), 400
+                return jsonify({"error": "Request body must be JSON"}), 400
 
             missing = [arg for arg in expected_args if arg not in data]
             if missing:
-                return jsonify({
-                    'error': 'Missing required fields',
-                    'missing_fields': missing
-                }), 400
+                return jsonify({"error": "Missing required fields", "missing_fields": missing}), 400
 
             return f(*args, **kwargs)
+
         return decorated
+
     return decorator
 
 
 def redis_cache(expire=3600):
     """Decorator to cache GET requests in Redis"""
+
     def decorator(f):
         @wraps(f)
         def decorated(*args, **kwargs):
@@ -78,5 +77,7 @@ def redis_cache(expire=3600):
                 logger.debug(f"Cache SET: {cache_key}")
 
             return result
+
         return decorated
+
     return decorator

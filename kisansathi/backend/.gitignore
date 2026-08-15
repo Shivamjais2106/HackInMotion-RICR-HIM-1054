@@ -1,6 +1,59 @@
+<<<<<<< HEAD
+# --- Python (original) ---
+=======
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 __pycache__/
 *.pyc
 .env
 .env.production
 *.pkl
+<<<<<<< HEAD
 node_modules/
+
+# --- Added: cover other .env variants ---
+.env.local
+.env.*.local
+.env.development
+!.env.example
+
+# --- Added: virtual environments (very important, often forgotten) ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- Added: other Python compiled/cache files ---
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# --- Added: other ML model formats besides .pkl ---
+*.h5
+*.joblib
+*.pt
+*.onnx
+
+# --- Added: Celery / Redis runtime files ---
+celerybeat-schedule
+celerybeat.pid
+dump.rdb
+
+# --- Added: logs ---
+*.log
+logs/
+
+# --- Added: OS / editor junk ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Added: instance/uploaded data (if backend stores uploaded farmer files) ---
+instance/
+uploads/
+=======
+node_modules/
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6

@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 # Password helpers
 # ---------------------------------------------------------------------------
 
+
 def hash_password(plain: str) -> str:
     """Hash a plain-text password with bcrypt (12 rounds)."""
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt(rounds=12)).decode()
@@ -44,11 +45,13 @@ def needs_upgrade(hashed: str) -> bool:
 # JWT decorators
 # ---------------------------------------------------------------------------
 
+
 def jwt_required_custom(f):
     """
     Drop-in decorator that verifies JWT and populates g.user_id.
     Returns 401 with a clear message on missing / invalid token.
     """
+
     @wraps(f)
     def decorated(*args, **kwargs):
         try:
@@ -56,11 +59,14 @@ def jwt_required_custom(f):
             g.user_id = get_jwt_identity()
         except Exception as exc:
             logger.warning("JWT verification failed: %s", exc)
-            return jsonify({
-                "error": "Authentication required.",
-                "hint": "Include a valid Bearer token in the Authorization header.",
-            }), 401
+            return jsonify(
+                {
+                    "error": "Authentication required.",
+                    "hint": "Include a valid Bearer token in the Authorization header.",
+                }
+            ), 401
         return f(*args, **kwargs)
+
     return decorated
 
 
@@ -68,11 +74,13 @@ def jwt_required_custom(f):
 # Security headers
 # ---------------------------------------------------------------------------
 
+
 def add_security_headers(app):
     """
     Register an after-request hook that injects OWASP-recommended
     security headers on every response.
     """
+
     @app.after_request
     def _set_headers(response):
         response.headers["X-Content-Type-Options"] = "nosniff"
@@ -80,9 +88,7 @@ def add_security_headers(app):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=()"
-        response.headers["Strict-Transport-Security"] = (
-            "max-age=31536000; includeSubDomains"
-        )
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         return response
 
     logger.info("Security headers registered.")
@@ -93,6 +99,7 @@ def add_security_headers(app):
 # Used by Flask-Limiter to identify real client IP behind proxy
 # ---------------------------------------------------------------------------
 
+
 def get_real_ip() -> str:
     """
     Return the real client IP, honouring X-Forwarded-For when
@@ -102,4 +109,3 @@ def get_real_ip() -> str:
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.remote_addr or "unknown"
-

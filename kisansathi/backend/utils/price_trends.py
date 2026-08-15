@@ -28,7 +28,7 @@ def get_price_trend(commodity: str, days: int = 7) -> list[dict]:
     if not base:
         return []
 
-    # Get today's price as anchor (live quote, else MSP reference)
+    # Get today's price as anchor
     live = get_commodity_price(commodity)
     today_price = live["modal_price"] if live else (base["min"] + base["max"]) // 2
 
@@ -47,11 +47,13 @@ def get_price_trend(commodity: str, days: int = 7) -> list[dict]:
             price = max(base["min"], min(base["max"], int(price * (1 + change))))
             point_price = price
 
-        trend.append({
-            "date": date.strftime("%d %b"),
-            "price": point_price,
-            "is_today": i == 0,
-        })
+        trend.append(
+            {
+                "date": date.strftime("%d %b"),
+                "price": point_price,
+                "is_today": i == 0,
+            }
+        )
 
     return trend
 

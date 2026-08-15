@@ -22,19 +22,19 @@ def extract_soil_values_from_image(image_data):
     """Extract soil parameters from soil report image using Gemini Vision"""
     try:
         if not GENAI_AVAILABLE:
-            return {'success': False, 'message': 'Gemini AI not available on this Python version'}
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY', ''))
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
+            return {"success": False, "message": "Gemini AI not available on this Python version"}
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY", ""))
+        model = genai.GenerativeModel("gemini-2.5-flash")
+
         # If image_data is base64 string, decode it
         if isinstance(image_data, str):
-            if image_data.startswith('data:image'):
-                image_data = image_data.split(',')[1]
+            if image_data.startswith("data:image"):
+                image_data = image_data.split(",")[1]
             image_bytes = base64.b64decode(image_data)
             image = Image.open(BytesIO(image_bytes))
         else:
             image = image_data
-        
+
         prompt = """यह एक मिट्टी की रिपोर्ट की तस्वीर है। कृपया निम्नलिखित मान निकालें और JSON format में दें:
         
 {
@@ -48,44 +48,35 @@ def extract_soil_values_from_image(image_data):
 }
 
 अगर कोई value नहीं मिल रहा है तो null रखें। केवल JSON return करें, कोई अन्य text नहीं।"""
-        
+
         response = model.generate_content([prompt, image])
-        
+
         # Parse JSON response
         import json
+
         response_text = response.text.strip()
-        
+
         # Try to extract JSON from response
-        if '{' in response_text and '}' in response_text:
-            json_str = response_text[response_text.find('{'):response_text.rfind('}')+1]
+        if "{" in response_text and "}" in response_text:
+            json_str = response_text[response_text.find("{") : response_text.rfind("}") + 1]
             values = json.loads(json_str)
-            return {
-                'success': True,
-                'values': values,
-                'message': 'Values extracted successfully'
-            }
+            return {"success": True, "values": values, "message": "Values extracted successfully"}
         else:
-            return {
-                'success': False,
-                'message': 'Could not parse response',
-                'raw_response': response_text
-            }
+            return {"success": False, "message": "Could not parse response", "raw_response": response_text}
     except Exception as e:
         logger.error(f"Image extraction error: {e}")
-        return {
-            'success': False,
-            'message': f'Error extracting values: {str(e)}'
-        }
+        return {"success": False, "message": f"Error extracting values: {str(e)}"}
+
 
 def get_gemini_crop_explanation_hindi(crop, N, P, K, temperature, humidity, ph, rainfall):
     """Get detailed Hindi explanation from Gemini for crop recommendation"""
     try:
         if not GENAI_AVAILABLE:
             return f"{crop} की खेती के लिए यह मौसम और मिट्टी उपयुक्त है।"
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY', ''))
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY", ""))
         # Use the latest available Gemini model
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        
+        model = genai.GenerativeModel("gemini-2.5-flash")
+
         prompt = f"""आप एक कृषि विशेषज्ञ हैं। {crop} की खेती के लिए विस्तृत सुझाव हिंदी में दें।
 
 मिट्टी: N={N}, P={P}, K={K}, pH={ph}
@@ -99,7 +90,7 @@ def get_gemini_crop_explanation_hindi(crop, N, P, K, temperature, humidity, ph, 
 5. अपेक्षित उपज
 
 हिंदी में जवाब दें।"""
-        
+
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:

@@ -60,6 +60,11 @@ Indian farmers lack real-time, personalized decision support. KisanSathi address
 HackInMotion-RICR-HIM-1054/
 ├── kisansathi/
 │   ├── backend/                  # Flask API server
+<<<<<<< HEAD
+│   │   ├── app.py                # Main application entrypoint
+│   │   ├── utils/                # ML models + utilities
+│   │   ├── models/                # Trained .pkl / .pth model files
+=======
 │   │   ├── app.py                # Main application entrypoint (gunicorn app:app)
 │   │   ├── app_enhanced.py       # create_app() — extensions + blueprint wiring
 │   │   ├── routes/               # One blueprint per feature area
@@ -70,6 +75,7 @@ HackInMotion-RICR-HIM-1054/
 │   │   ├── utils/                # ML models + utilities
 │   │   ├── models/                # Trained .pkl / .pth model files
 │   │   ├── scripts/              # Training scripts, dump_routes.py, smoke_test.py
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 │   │   └── .env.example          # Environment variable template
 │   ├── frontend/
 │   │   └── pixel-perfect-copy/   # React + TypeScript frontend
@@ -103,6 +109,16 @@ python app.py             # runs on http://localhost:5000
 ```bash
 cd kisansathi/frontend/pixel-perfect-copy
 cp .env.example .env      # set VITE_API_URL=http://localhost:5000
+<<<<<<< HEAD
+npm install --legacy-peer-deps
+npm run dev                # runs on http://localhost:5173 (or 8080)
+```
+
+### Verify Build
+```bash
+cd kisansathi/frontend/pixel-perfect-copy
+npm run build
+=======
 npm install
 npm run dev                # runs on http://localhost:5173 (or 8080)
 ```
@@ -118,6 +134,7 @@ npm test
 cd kisansathi/backend
 python scripts/dump_routes.py     # every registered path, method and endpoint
 python scripts/smoke_test.py      # DB-free endpoints + 404 handler + rate limiting
+>>>>>>> 776251f06c852b933ff41d198cdd9be97e990da6
 ```
 
 ---
