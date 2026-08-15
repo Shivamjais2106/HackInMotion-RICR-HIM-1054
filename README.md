@@ -11,6 +11,15 @@
 
 A full-stack Smart Farm Decision Support System that gives every farmer a data-driven advisor — combining live weather, ML crop/disease intelligence, and real mandi prices in one unified dashboard.
 
+## 🔑 Demo Credentials
+
+Use the following demo account to log in and test the deployed application (no need to register):
+
+- **Mobile:** 7869037289
+- **Password:** 212006
+
+> ⚠️ Backend is hosted on Render's free tier — the first request after inactivity may take 30–50 seconds to respond (cold start). Please wait before assuming it's not working.
+
 ## Project Documentation
 
 → **[kisansathi/README.md](kisansathi/README.md)** — Full documentation, API reference, architecture, and setup guide.
