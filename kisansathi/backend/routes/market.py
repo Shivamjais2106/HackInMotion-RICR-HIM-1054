@@ -174,3 +174,37 @@ def get_bulk_prices():
     return jsonify(
         {"success": True, "prices": prices, "total": len(prices), "timestamp": datetime.now().isoformat()}
     ), 200
+
+
+@market_bp.route("/api/market/trend/<commodity>", methods=["GET"])
+@limiter.limit("30 per hour")
+@error_handler
+def get_price_trend_route(commodity):
+    """7-day price trend + trade signal for a commodity"""
+    try:
+        from utils.price_trends import get_price_summary
+        summary = get_price_summary(commodity.lower())
+        if not summary:
+            return jsonify({"error": f"Commodity '{commodity}' not found"}), 404
+        return jsonify({"success": True, **summary}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@market_bp.route("/api/market/trends/bulk", methods=["POST"])
+@limiter.limit("20 per hour")
+@error_handler
+def get_bulk_trends():
+    """Get 7-day trend summaries for a list of commodities (used by dashboard)"""
+    try:
+        from utils.price_trends import get_price_summary
+        data = request.get_json() or {}
+        commodities = data.get("commodities", [])
+        results = []
+        for c in commodities:
+            s = get_price_summary(c.lower())
+            if s:
+                results.append(s)
+        return jsonify({"success": True, "trends": results, "total": len(results)}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
