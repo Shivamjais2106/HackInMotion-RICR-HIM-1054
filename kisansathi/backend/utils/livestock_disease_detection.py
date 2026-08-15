@@ -500,19 +500,21 @@
 #     return livestock_detector
 """
 Livestock Disease Detection Utility
-Uses pre-trained models for cattle, buffalo, goat, sheep, pig, and poultry disease detection
-Hybrid approach: Transfer Learning + Rule-based + Gemini verification
+Symptom-based detection (no heavy ML models — safe for low-RAM hosts like
+Render free tier, 512MB). Previously used torch/torchvision (ResNet50,
+MobileNetV2, EfficientNet) to classify disease from an image, which
+downloaded/loaded ~300-500MB of model weights into memory and caused
+Out-Of-Memory crashes on deploy. That approach has been removed.
+
+This version matches the animal's reported symptoms against the known
+disease database and returns the best-matching disease(s) with a
+confidence score based on how many symptoms match. It's lightweight
+(pure Python, no ML dependency) and works with the same API shape the
+frontend already expects.
 """
 
-import torch
-import torch.nn as nn
-from torchvision import models, transforms
-from PIL import Image
 import io
-import json
-import os
-from typing import Dict, List, Tuple, Optional
-import numpy as np
+from typing import Dict, List, Optional
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # LIVESTOCK DISEASE DATABASE
@@ -804,175 +806,95 @@ LIVESTOCK_DISEASES = {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# LIVESTOCK DISEASE DETECTOR CLASS
+# LIVESTOCK DISEASE DETECTOR CLASS (symptom-matching, no ML model)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 class LivestockDiseaseDetector:
     """
-    Detects livestock diseases using pre-trained models and rule-based system.
-
-    NOTE: Model loading is LAZY - models are only downloaded/loaded into
-    memory on the first actual prediction call, not when this object is
-    constructed. This prevents the app from running out of memory at
-    startup on low-RAM hosts (e.g. Render free tier / 512MB).
+    Detects the most likely livestock disease using rule-based symptom
+    matching against LIVESTOCK_DISEASES. No image classification model is
+    loaded — this keeps the process lightweight enough to run on
+    memory-constrained hosts (e.g. Render free tier, 512MB RAM).
     """
 
     def __init__(self):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.models = {}
-        self.transforms_dict = {}
-        self.class_names = {}
-        self._models_loaded = False
+        pass
 
-    def load_models(self):
-        """Load pre-trained models for each animal type"""
-        try:
-            # For now, we'll use MobileNetV2 as a base model
-            # In production, these would be fine-tuned models from GitHub
-
-            # Cattle model (MobileNetV2)
-            self.models["cattle"] = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
-            self.models["cattle"].classifier[1] = nn.Linear(1280, 5)  # 5 cattle diseases
-            self.class_names["cattle"] = [
-                "Lumpy Skin Disease",
-                "Foot & Mouth Disease",
-                "Anthrax",
-                "Mastitis",
-                "Brucellosis",
-            ]
-
-            # Buffalo model (MobileNetV2)
-            self.models["buffalo"] = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
-            self.models["buffalo"].classifier[1] = nn.Linear(1280, 5)  # 5 buffalo diseases
-            self.class_names["buffalo"] = [
-                "Brucellosis",
-                "Mastitis",
-                "Foot & Mouth Disease",
-                "Hemorrhagic Septicemia",
-                "Tuberculosis",
-            ]
-
-            # Goat model (EfficientNet)
-            self.models["goat"] = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.DEFAULT)
-            self.models["goat"].classifier[1] = nn.Linear(1280, 5)  # 5 goat diseases
-            self.class_names["goat"] = ["Foot Rot", "Mange", "Pneumonia", "Mastitis", "Caseous Lymphadenitis"]
-
-            # Sheep model (EfficientNet)
-            self.models["sheep"] = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.DEFAULT)
-            self.models["sheep"].classifier[1] = nn.Linear(1280, 5)  # 5 sheep diseases
-            self.class_names["sheep"] = ["Foot Rot", "Mange", "Pneumonia", "Mastitis", "Scrapie"]
-
-            # Pig model (ResNet50)
-            self.models["pig"] = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-            self.models["pig"].fc = nn.Linear(2048, 5)  # 5 pig diseases
-            self.class_names["pig"] = [
-                "African Swine Fever",
-                "Foot & Mouth Disease",
-                "Swine Fever",
-                "Pneumonia",
-                "Diarrhea",
-            ]
-
-            # Poultry model (ResNet50)
-            self.models["poultry"] = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-            self.models["poultry"].fc = nn.Linear(2048, 5)  # 5 poultry diseases
-            self.class_names["poultry"] = [
-                "Newcastle Disease",
-                "Avian Flu",
-                "Coccidiosis",
-                "Marek's Disease",
-                "Infectious Bronchitis",
-            ]
-
-            # Set all models to eval mode
-            for model in self.models.values():
-                model.eval()
-                model.to(self.device)
-
-            # Define transforms
-            self.transforms_dict["default"] = transforms.Compose(
-                [
-                    transforms.Resize((224, 224)),
-                    transforms.ToTensor(),
-                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-                ]
-            )
-
-            print("✅ Livestock disease models loaded successfully!")
-
-        except Exception as e:
-            print(f"⚠️ Error loading models: {e}")
-
-    def predict(self, image_data: bytes, animal_type: str, symptoms: List[str] = None) -> Dict:
+    def predict(self, image_data: Optional[bytes], animal_type: str, symptoms: List[str] = None) -> Dict:
         """
-        Predict disease from image
+        Predict disease from reported symptoms (image is accepted for API
+        compatibility but is not analyzed — no ML model is loaded).
 
         Args:
-            image_data: Image bytes
+            image_data: Image bytes (currently unused/optional)
             animal_type: Type of animal (cattle, buffalo, goat, sheep, pig, poultry)
-            symptoms: List of observed symptoms
+            symptoms: List of observed symptoms (required for a meaningful result)
 
         Returns:
             Dictionary with prediction results
         """
         try:
-            # Lazy-load the (heavy) pretrained models on first real use only,
-            # instead of at object construction / app startup time.
-            if not self._models_loaded:
-                self.load_models()
-                self._models_loaded = True
-
-            if animal_type not in self.models:
+            animal_type = (animal_type or "").lower()
+            if animal_type not in LIVESTOCK_DISEASES:
                 return {"success": False, "error": f'Animal type "{animal_type}" not supported'}
 
-            # Load and preprocess image
-            image = Image.open(io.BytesIO(image_data)).convert("RGB")
-            tensor = self.transforms_dict["default"](image).unsqueeze(0).to(self.device)
+            diseases = LIVESTOCK_DISEASES[animal_type]
+            symptoms_clean = [s.lower().strip() for s in (symptoms or []) if s and s.strip()]
 
-            # Get prediction
-            with torch.no_grad():
-                output = self.models[animal_type](tensor)
-                probs = torch.softmax(output, dim=1)[0]
-                confidence, idx = torch.max(probs, 0)
+            if not symptoms_clean:
+                return {
+                    "success": False,
+                    "error": "No symptoms provided. Please select at least one observed symptom for diagnosis.",
+                }
 
-            primary_disease = self.class_names[animal_type][idx.item()]
-            confidence_score = float(confidence) * 100
+            # Score every disease by how many reported symptoms match its
+            # known symptom list.
+            scored = []
+            for disease_name, info in diseases.items():
+                disease_symptoms = [s.lower() for s in info.get("symptoms", [])]
+                matched = [s for s in symptoms_clean if s in disease_symptoms]
+                if disease_symptoms:
+                    score = len(matched) / len(disease_symptoms)
+                else:
+                    score = 0.0
+                scored.append((disease_name, info, matched, score))
 
-            # Get all probabilities
-            all_probs = {
-                self.class_names[animal_type][i]: round(float(probs[i]) * 100, 1)
-                for i in range(len(self.class_names[animal_type]))
-            }
+            scored.sort(key=lambda x: x[3], reverse=True)
+            top_disease, top_info, top_matched, top_score = scored[0]
 
-            # Get disease info
-            disease_info = LIVESTOCK_DISEASES[animal_type].get(
-                primary_disease, {"treatment": "Consult veterinarian", "severity": "Unknown"}
-            )
+            if top_score == 0:
+                return {
+                    "success": True,
+                    "animal_type": animal_type,
+                    "primary_disease": None,
+                    "confidence": 0,
+                    "symptoms_match": [],
+                    "message": "No matching disease found for the given symptoms. Please consult a veterinarian for accurate diagnosis.",
+                    "alternative_diseases": [],
+                }
 
-            # Check symptom match
-            symptom_match = []
-            if symptoms:
-                disease_symptoms = disease_info.get("symptoms", [])
-                symptom_match = [s for s in symptoms if s.lower() in [ds.lower() for ds in disease_symptoms]]
+            all_probs = {name: round(score * 100, 1) for name, _, _, score in scored}
 
             return {
                 "success": True,
                 "animal_type": animal_type,
-                "primary_disease": primary_disease,
-                "confidence": round(confidence_score, 1),
+                "primary_disease": top_disease,
+                "confidence": round(top_score * 100, 1),
                 "all_probabilities": all_probs,
-                "symptoms_match": symptom_match,
-                "treatment": disease_info.get("treatment", "Consult veterinarian"),
-                "duration": disease_info.get("duration", "Unknown"),
-                "cost_estimate": disease_info.get("cost", "Unknown"),
-                "prevention": disease_info.get("prevention", "Consult veterinarian"),
-                "severity": disease_info.get("severity", "Unknown"),
-                "vet_urgency": disease_info.get("vet_urgency", "Consult veterinarian"),
+                "symptoms_match": top_matched,
+                "treatment": top_info.get("treatment", "Consult veterinarian"),
+                "duration": top_info.get("duration", "Unknown"),
+                "cost_estimate": top_info.get("cost", "Unknown"),
+                "prevention": top_info.get("prevention", "Consult veterinarian"),
+                "severity": top_info.get("severity", "Unknown"),
+                "vet_urgency": top_info.get("vet_urgency", "Consult veterinarian"),
                 "alternative_diseases": [
-                    {"disease": disease, "confidence": prob}
-                    for disease, prob in sorted(all_probs.items(), key=lambda x: x[1], reverse=True)[1:3]
+                    {"disease": name, "confidence": round(score * 100, 1)}
+                    for name, _, _, score in scored[1:3]
+                    if score > 0
                 ],
+                "note": "This is a symptom-based estimate, not an image-based AI diagnosis. Please consult a veterinarian for confirmation.",
             }
 
         except Exception as e:
@@ -1004,8 +926,7 @@ livestock_detector = None
 
 
 def get_livestock_detector():
-    """Get or create livestock disease detector instance (lazy - no heavy
-    model loading happens here, only on the object's first .predict() call)."""
+    """Get or create livestock disease detector instance"""
     global livestock_detector
     if livestock_detector is None:
         livestock_detector = LivestockDiseaseDetector()
