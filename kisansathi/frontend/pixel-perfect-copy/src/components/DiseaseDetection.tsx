@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getAPIBaseURL } from '../utils/api';
+import { getAPIBaseURL, getAuthHeaders } from '../utils/api';
 
 function parseDiseaseName(raw: string) {
   const parts = raw.split('___');
@@ -66,7 +66,21 @@ function DiseaseDetection() {
       }
       const data = await response.json();
       setResult(data);
-      if (data.success && data.most_common_disease) speakResult(data);
+      if (data.success && data.most_common_disease) {
+        speakResult(data);
+        // Auto-save to crop health logs so dashboard shows it
+        const { crop, disease } = parseDiseaseName(data.most_common_disease);
+        fetch(`${getAPIBaseURL()}/farm-profile/health-logs`, {
+          method: 'POST',
+          headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            crop: crop || 'Unknown',
+            disease: disease || 'Unknown',
+            severity: disease.toLowerCase().includes('healthy') ? 'low' : 'high',
+            observation: `Auto-detected via image analysis: ${disease}`,
+          }),
+        }).catch(() => {}); // fire-and-forget
+      }
     } catch (err) {
       setResult({ success: false, error: 'Network error. Could not reach the server. Please check your connection.' });
     } finally {
