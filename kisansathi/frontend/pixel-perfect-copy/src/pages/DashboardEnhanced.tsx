@@ -13,8 +13,10 @@ const DashboardEnhanced = () => {
   const [weather, setWeather]           = useState<any>(null);
   const [irrigation, setIrrigation]     = useState<any>(null);
   const [marketPrices, setMarketPrices] = useState<any[]>([]);
+  const [marketTrends, setMarketTrends] = useState<Record<string, any>>({});
   const [healthLogs, setHealthLogs]     = useState<any[]>([]);
   const [cropRec, setCropRec]           = useState<any>(null);
+  const [weatherAlerts, setWeatherAlerts] = useState<string[]>([]);
   const [loading, setLoading]           = useState(true);
 
   const t = (en: string, hi: string) => language === "en" ? en : hi;
@@ -55,6 +57,7 @@ const DashboardEnhanced = () => {
       const r = await fetch(`${getAPIBaseURL()}/weather/${encodeURIComponent(location)}`);
       const d = await r.json();
       setWeather(d);
+      computeWeatherAlerts(d, farmProfile);
     } catch {}
   };
 
@@ -70,8 +73,37 @@ const DashboardEnhanced = () => {
     try {
       const r = await fetch(`${getAPIBaseURL()}/market/prices`);
       const d = await r.json();
-      if (d.success) setMarketPrices(d.prices.slice(0, 10));
+      if (d.success) {
+        setMarketPrices(d.prices.slice(0, 10));
+        // Fetch trends for top 6 commodities
+        const top6 = d.prices.slice(0, 6).map((p: any) => p.commodity_key);
+        const tr = await fetch(`${getAPIBaseURL()}/market/trends/bulk`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ commodities: top6 }),
+        });
+        const td = await tr.json();
+        if (td.success) {
+          const tmap: Record<string, any> = {};
+          td.trends.forEach((t: any) => { tmap[t.commodity.toLowerCase()] = t; });
+          setMarketTrends(tmap);
+        }
+      }
     } catch {}
+  };
+
+  const computeWeatherAlerts = (w: any, profile: any) => {
+    if (!w?.forecast?.[0]) return;
+    const f = w.forecast[0];
+    const crops = profile?.active_crops || [];
+    const alerts: string[] = [];
+    if (f.temp_max > 40) alerts.push(`🌡️ Extreme heat (${f.temp_max}°C) — cover seedlings, irrigate early morning`);
+    if (f.humidity > 80) alerts.push(`💧 High humidity (${f.humidity}%) — risk of fungal disease${crops.includes('Cotton') ? ' for Cotton' : ''}`);
+    if ((f.rainfall_mm || 0) > 50) alerts.push(`🌧️ Heavy rain expected (${f.rainfall_mm}mm) — skip irrigation today`);
+    if (f.temp_max < 10) alerts.push(`❄️ Cold alert (${f.temp_max}°C) — protect sensitive crops`);
+    if (f.wind_speed > 40) alerts.push(`💨 High winds (${f.wind_speed} km/h) — secure crop supports`);
+    if (alerts.length === 0) alerts.push(`✅ No weather risks today — conditions are favourable`);
+    setWeatherAlerts(alerts);
   };
 
   const loadHealthLogs = async () => {
@@ -184,6 +216,14 @@ const DashboardEnhanced = () => {
                   <div className="bg-blue-50 rounded p-2"><p className="text-gray-500">{t("Rain","वर्षा")}</p><p className="font-bold text-blue-700">{weather.forecast[0].rainfall_mm ?? 0}mm</p></div>
                   <div className="bg-blue-50 rounded p-2"><p className="text-gray-500">{t("Wind","हवा")}</p><p className="font-bold text-blue-700">{weather.forecast[0].wind_speed ?? "—"}</p></div>
                 </div>
+                {/* Crop-specific risk alerts */}
+                {weatherAlerts.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {weatherAlerts.map((alert, i) => (
+                      <p key={i} className={`text-xs rounded px-2 py-1 ${alert.startsWith('✅') ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700 font-medium'}`}>{alert}</p>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="text-center py-4 text-gray-400 text-sm">
@@ -252,15 +292,22 @@ const DashboardEnhanced = () => {
             </div>
             {marketPrices.length > 0 ? (
               <div className="space-y-1.5 max-h-48 overflow-y-auto">
-                {marketPrices.map((item: any) => (
-                  <div key={item.commodity_key} className="flex justify-between items-center text-sm border-b border-gray-50 py-1">
-                    <span className="capitalize text-gray-700">{item.commodity}</span>
-                    <div className="text-right">
-                      <span className="font-bold text-eco-green">₹{item.modal_price?.toLocaleString("en-IN")}</span>
-                      <span className="text-xs text-gray-400 ml-1">/{item.unit?.replace("per ","")}</span>
+                {marketPrices.map((item: any) => {
+                  const tr = marketTrends[item.commodity_key];
+                  const arrow = tr?.trend_direction === 'rising' ? '📈' : tr?.trend_direction === 'falling' ? '📉' : '→';
+                  const pct = tr?.change_pct;
+                  const pctColor = tr?.trend_direction === 'rising' ? 'text-green-600' : tr?.trend_direction === 'falling' ? 'text-red-500' : 'text-gray-400';
+                  return (
+                    <div key={item.commodity_key} className="flex justify-between items-center text-sm border-b border-gray-50 py-1">
+                      <span className="capitalize text-gray-700">{item.commodity}</span>
+                      <div className="text-right flex items-center gap-1">
+                        <span className="font-bold text-eco-green">₹{item.modal_price?.toLocaleString("en-IN")}</span>
+                        <span>{arrow}</span>
+                        {pct !== undefined && <span className={`text-xs font-medium ${pctColor}`}>{pct > 0 ? '+' : ''}{pct}%</span>}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-4 text-gray-400 text-sm">⏳ {t("Loading prices...","भाव लोड हो रहे हैं...")}</div>
