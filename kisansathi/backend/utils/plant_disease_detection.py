@@ -1,18 +1,30 @@
-"""Plant Disease Detection Utilities"""
+"""Plant Disease Detection Utilities
 
-import os
-import json
-import pickle
-import torch
-import torch.nn as nn
-from torchvision import models, transforms
-from PIL import Image
-import io
+Torch/torchvision have been removed. They were causing Out-Of-Memory
+crashes on low-RAM hosts (Render free tier, 512MB) because:
+  1. Both detectors were instantiated at *import time*, loading heavy
+     ML libraries into memory the moment the Flask app started, before
+     any request was even handled.
+  2. The general plant-disease detector downloaded a ~98MB pretrained
+     ResNet50 (ImageNet) checkpoint on every fresh deploy.
+  3. The custom-trained weight files (rice_disease_model.pth,
+     plant_disease_model.pth) were not actually present/functional
+     anyway (see the "model not found" warning in your deploy logs),
+     so the heavy download wasn't even producing usable predictions.
+
+Both functions below now return a clear "not available" response
+instead of attempting image classification. Re-enable real detection
+later by plugging in a lightweight approach (e.g. a small ONNX/
+TFLite model, or an external inference API) once you have a properly
+trained + hosted model — that avoids bundling torch/torchvision in
+this backend's own memory footprint.
+"""
+
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Disease information database
+# Disease information database (kept — used for reference/lookup elsewhere)
 DISEASE_INFO = {
     "Bacterial leaf blight": {
         "description": "Bacterial leaf blight is a serious disease of rice caused by Xanthomonas oryzae pv. oryzae.",
@@ -66,7 +78,7 @@ DISEASE_INFO = {
     },
 }
 
-# General plant disease classes (from PlantVillage dataset)
+# General plant disease classes (from PlantVillage dataset) — kept for reference
 PLANTVILLAGE_CLASSES = {
     "Apple___Apple_scab": "Apple - Apple Scab",
     "Apple___Black_rot": "Apple - Black Rot",
@@ -109,195 +121,24 @@ PLANTVILLAGE_CLASSES = {
 }
 
 
-class RiceDiseaseDetector:
-    """Detect rice leaf diseases using MobileNetV2"""
-
-    def __init__(self):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = None
-        self.class_names = ["Bacterial leaf blight", "Brown spot", "Leaf smut"]
-        self.img_size = 224
-        self.load_model()
-
-    def load_model(self):
-        """Load rice disease model"""
-        try:
-            model_path = os.path.join(os.path.dirname(__file__), "../models/rice_disease_model.pth")
-
-            if not os.path.exists(model_path):
-                logger.warning(f"Rice disease model not found at {model_path}")
-                return False
-
-            # Create model architecture
-            self.model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
-            self.model.classifier[1] = nn.Sequential(
-                nn.Dropout(0.3), nn.Linear(self.model.classifier[1].in_features, len(self.class_names))
-            )
-
-            # Load weights
-            self.model.load_state_dict(torch.load(model_path, map_location=self.device))
-            self.model.to(self.device)
-            self.model.eval()
-
-            logger.info("Rice disease model loaded successfully")
-            return True
-        except Exception as e:
-            logger.error(f"Error loading rice disease model: {e}")
-            return False
-
-    def predict(self, image_file):
-        """Predict rice disease from image"""
-        try:
-            if not self.model:
-                return {"success": False, "error": "Model not loaded"}
-
-            # Load and preprocess image
-            image = Image.open(image_file).convert("RGB")
-            transform = transforms.Compose(
-                [
-                    transforms.Resize((self.img_size, self.img_size)),
-                    transforms.ToTensor(),
-                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-                ]
-            )
-
-            image_tensor = transform(image).unsqueeze(0).to(self.device)
-
-            # Predict
-            with torch.no_grad():
-                outputs = self.model(image_tensor)
-                probabilities = torch.nn.functional.softmax(outputs, dim=1)
-                confidence, predicted = torch.max(probabilities, 1)
-
-            disease_idx = predicted.item()
-            disease_name = self.class_names[disease_idx]
-            confidence_score = confidence.item() * 100
-
-            # Get disease info
-            disease_info = DISEASE_INFO.get(
-                disease_name,
-                {
-                    "description": f"{disease_name} detected",
-                    "symptoms": "See management recommendations",
-                    "management": ["Consult agricultural expert"],
-                    "severity": "Unknown",
-                },
-            )
-
-            # Get all probabilities
-            all_probs = {}
-            for i, class_name in enumerate(self.class_names):
-                all_probs[class_name] = round(probabilities[0][i].item() * 100, 2)
-
-            return {
-                "success": True,
-                "disease": disease_name,
-                "confidence": round(confidence_score, 2),
-                "info": disease_info["description"],
-                "symptoms": disease_info["symptoms"],
-                "management": disease_info["management"],
-                "severity": disease_info["severity"],
-                "all_probabilities": all_probs,
-            }
-        except Exception as e:
-            logger.error(f"Error predicting rice disease: {e}")
-            return {"success": False, "error": str(e)}
-
-
-class GeneralPlantDiseaseDetector:
-    """Detect general plant diseases using PlantVillage dataset model"""
-
-    def __init__(self):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = None
-        self.class_names = list(PLANTVILLAGE_CLASSES.keys())
-        self.img_size = 224
-        self.load_model()
-
-    def load_model(self):
-        """Load general plant disease model"""
-        try:
-            model_path = os.path.join(os.path.dirname(__file__), "../models/plant_disease_model.pth")
-
-            if not os.path.exists(model_path):
-                logger.warning(f"Plant disease model not found at {model_path}")
-                return False
-
-            # Create model architecture
-            self.model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-            num_ftrs = self.model.fc.in_features
-            self.model.fc = nn.Linear(num_ftrs, len(self.class_names))
-
-            # Load weights
-            self.model.load_state_dict(torch.load(model_path, map_location=self.device))
-            self.model.to(self.device)
-            self.model.eval()
-
-            logger.info("General plant disease model loaded successfully")
-            return True
-        except Exception as e:
-            logger.error(f"Error loading plant disease model: {e}")
-            return False
-
-    def predict(self, image_file):
-        """Predict plant disease from image"""
-        try:
-            if not self.model:
-                return {"success": False, "error": "Model not loaded"}
-
-            # Load and preprocess image
-            image = Image.open(image_file).convert("RGB")
-            transform = transforms.Compose(
-                [
-                    transforms.Resize((self.img_size, self.img_size)),
-                    transforms.ToTensor(),
-                    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-                ]
-            )
-
-            image_tensor = transform(image).unsqueeze(0).to(self.device)
-
-            # Predict
-            with torch.no_grad():
-                outputs = self.model(image_tensor)
-                probabilities = torch.nn.functional.softmax(outputs, dim=1)
-                confidence, predicted = torch.max(probabilities, 1)
-
-            disease_idx = predicted.item()
-            disease_code = self.class_names[disease_idx]
-            disease_name = PLANTVILLAGE_CLASSES.get(disease_code, disease_code)
-            confidence_score = confidence.item() * 100
-
-            # Get all probabilities
-            all_probs = {}
-            for i, class_code in enumerate(self.class_names):
-                class_name = PLANTVILLAGE_CLASSES.get(class_code, class_code)
-                all_probs[class_name] = round(probabilities[0][i].item() * 100, 2)
-
-            return {
-                "success": True,
-                "disease": disease_name,
-                "confidence": round(confidence_score, 2),
-                "all_probabilities": all_probs,
-            }
-        except Exception as e:
-            logger.error(f"Error predicting plant disease: {e}")
-            return {"success": False, "error": str(e)}
-
-
-# Initialize detectors
-rice_detector = RiceDiseaseDetector()
-general_detector = GeneralPlantDiseaseDetector()
-
-
 def detect_rice_disease(image_file):
-    """Detect rice leaf disease"""
-    return rice_detector.predict(image_file)
+    """Rice leaf disease detection is currently unavailable (torch-based
+    model removed to prevent Out-Of-Memory crashes on deploy)."""
+    logger.info("detect_rice_disease called, but ML model is disabled (torch removed)")
+    return {
+        "success": False,
+        "error": "Rice disease image detection is temporarily unavailable on this deployment.",
+    }
 
 
 def detect_plant_disease(image_file):
-    """Detect general plant disease"""
-    return general_detector.predict(image_file)
+    """General plant disease detection is currently unavailable (torch-based
+    model removed to prevent Out-Of-Memory crashes on deploy)."""
+    logger.info("detect_plant_disease called, but ML model is disabled (torch removed)")
+    return {
+        "success": False,
+        "error": "Plant disease image detection is temporarily unavailable on this deployment.",
+    }
 
 
 __all__ = ["detect_rice_disease", "detect_plant_disease", "DISEASE_INFO"]
