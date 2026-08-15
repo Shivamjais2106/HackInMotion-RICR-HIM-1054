@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { getAPIBaseURL } from '@/utils/api';
+import { useState, useEffect } from 'react';
+import { getAPIBaseURL, getAuthHeaders } from '@/utils/api';
 
 function FertilizerRecommendation() {
   const [formData, setFormData] = useState({
@@ -18,6 +18,20 @@ function FertilizerRecommendation() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activeTab, setActiveTab] = useState('manual');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  // Auto-fill soil_type from farm profile on mount
+  useEffect(() => {
+    const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+    if (!token) return;
+    fetch(`${getAPIBaseURL()}/farm-profile`, { headers: getAuthHeaders() })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.profile?.soil_type) {
+          setFormData(prev => ({ ...prev, soil_type: data.profile.soil_type.toLowerCase() }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -160,6 +174,12 @@ function FertilizerRecommendation() {
         <p className="text-gray-600 mb-8">Get personalized fertilizer suggestions based on your crop and soil nutrients</p>
         
         <div className="bg-white rounded-lg shadow-lg p-8">
+          {/* Global error banner — visible on ALL tabs */}
+          {submitError && (
+            <div className="bg-red-50 border border-red-300 text-red-700 rounded-lg p-3 text-sm mb-4">
+              ❌ {submitError}
+            </div>
+          )}
           {/* Tab Navigation */}
           <div className="flex gap-2 mb-8 border-b-2 border-gray-200">
             <button

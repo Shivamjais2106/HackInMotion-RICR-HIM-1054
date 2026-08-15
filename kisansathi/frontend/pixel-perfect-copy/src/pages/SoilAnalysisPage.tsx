@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Leaf, Droplets, Thermometer, Wind, Zap, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { getAPIBaseURL } from '../utils/api';
+import { getAPIBaseURL, getAuthHeaders } from '../utils/api';
 
 interface SoilAnalysisResult {
   success: boolean;
@@ -65,6 +65,23 @@ const SoilAnalysisPage: React.FC = () => {
       }
     };
     loadSoilTypes();
+
+    // Auto-fill soil_type from saved farm profile
+    const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+    if (token) {
+      fetch(`${getAPIBaseURL()}/farm-profile`, { headers: getAuthHeaders() })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data?.profile) {
+            const p = data.profile;
+            setFormData(prev => ({
+              ...prev,
+              ...(p.soil_type ? { soil_type: p.soil_type } : {}),
+            }));
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
