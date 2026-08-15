@@ -8,6 +8,8 @@ Features:
 - Better Error Handling
 - Comprehensive Logging
 """
+import eventlet
+eventlet.monkey_patch()
 
 import os
 import io
